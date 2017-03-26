@@ -1,11 +1,14 @@
 package com.java2s.common;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import stuff.Database;
+import stuff.Person;
 
 import java.io.Serializable;
+import java.util.List;
 
 @ManagedBean
 @SessionScoped
@@ -16,7 +19,8 @@ public class HelloBean implements Serializable {
 	private String name;
 	private Database db;
 
-	public HelloBean()
+	@PostConstruct
+	public void initialise()
 	{
 		db = new Database();
 	}
@@ -29,14 +33,8 @@ public class HelloBean implements Serializable {
 		this.name = name;
 	}
 
-	public String getConnected()
+	public List<Person> getList()
 	{
-		db.connect();
-		if(db.isConnected())
-		{
-			return "connected";
-		}
-		return "not connected";
+		return db.getPeopleList();
 	}
-
 }
