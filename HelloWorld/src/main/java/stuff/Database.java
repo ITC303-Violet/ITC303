@@ -20,23 +20,26 @@ public class Database
 
 	private boolean connect()
 	{
-		if(c != null) return true;
+		try {
+			if(c != null && !c.isClosed()) return true;
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try
 		{
 			Class.forName("org.postgresql.Driver");
 			c = DriverManager
 			           .getConnection("jdbc:postgresql://localhost:5432/",
-			           "postgres", "kittykat");
+			           "postgres", "password");
 			Statement statement = c.createStatement();
-			statement.executeUpdate("IF NOT EXISTS ( SELECT [name] FROM sys.databases"
-					+ " WHERE [name] = 'testdb' ) CREATE DATABASE testdb;"
-					+ " IF NOT EXISTS ( SELECT [name] FROM testdb.tables WHERE "
-					+ "[name] = 'people' ) CREATE TABLE people ( name varchar(255) );"
-					+ "ALTER TABLE people ADD id int NOT NULL IDENTITY (1,1),"
-					+ " ADD CONSTRAINT PK_people PRIMARY KEY CLUSTERED (id)");
-			c = DriverManager
-			           .getConnection("jdbc:postgresql://localhost:5432/testdb",
-			           "postgres", "kittykat");
+			ResultSet results = statement.executeQuery("select count(*) from pg_catalog.pg_database where datname = 'test'");
+			results.next();
+			if(results.getInt("count") == 0)
+			{
+				statement.executeUpdate("CREATE TABLE IF NOT EXISTS people ( id BIGSERIAL PRIMARY KEY, name varchar(255) );");
+			}
+
 			statement.close();
 			return true;
 		}
@@ -67,7 +70,7 @@ public class Database
 			try
 			{
 				statement = c.createStatement();
-				ResultSet results = statement.executeQuery("SELECT * from testdb.people");
+				ResultSet results = statement.executeQuery("SELECT * from people");
 				while(results.next())
 				{
 					int id = results.getInt("id");
@@ -105,6 +108,34 @@ public class Database
 			return false;
 		}
 		return true;
+	}
+
+	public void addName(String name)
+	{
+		Statement statement = null;
+		if(connect())
+		{
+			try
+			{
+				statement = c.createStatement();
+				statement.executeUpdate("INSERT INTO people (name) VALUES ('"+name+"')");
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				try {
+					statement.close();
+					disconnect();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
 	}
 
 
