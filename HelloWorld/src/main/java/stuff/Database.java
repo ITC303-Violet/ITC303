@@ -44,6 +44,12 @@ public class Database
 				statement = c.createStatement();
 				statement.executeUpdate("CREATE TABLE IF NOT EXISTS people ( id BIGSERIAL PRIMARY KEY, name varchar(255) );");
 			}
+			else
+			{
+				c = DriverManager
+				           .getConnection("jdbc:postgresql://localhost:5432/testdb",
+				           "postgres", "password");
+			}
 
 			statement.close();
 			return true;
