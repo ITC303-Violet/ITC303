@@ -33,10 +33,15 @@ public class Database
 			           .getConnection("jdbc:postgresql://localhost:5432/",
 			           "postgres", "password");
 			Statement statement = c.createStatement();
-			ResultSet results = statement.executeQuery("select count(*) from pg_catalog.pg_database where datname = 'test'");
+			ResultSet results = statement.executeQuery("select count(*) from pg_catalog.pg_database where datname = 'testdb'");
 			results.next();
 			if(results.getInt("count") == 0)
 			{
+				statement.executeUpdate("CREATE DATABASE testdb");
+				c = DriverManager
+				           .getConnection("jdbc:postgresql://localhost:5432/testdb",
+				           "postgres", "password");
+				statement = c.createStatement();
 				statement.executeUpdate("CREATE TABLE IF NOT EXISTS people ( id BIGSERIAL PRIMARY KEY, name varchar(255) );");
 			}
 
