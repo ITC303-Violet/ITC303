@@ -1,0 +1,5 @@
+FROM tomcat:7
+
+# Remove factory webapps so we can add our own as the root app
+RUN cd "$CATALINA_HOME/webapps"\
+	&& find . -maxdepth 1 -mindepth 1 ! -name 'manager' -exec rm -rf {} +

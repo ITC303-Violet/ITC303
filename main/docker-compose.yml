@@ -1,0 +1,31 @@
+version: '3'
+
+volumes:
+  database_data:
+    driver: local
+
+services:
+  tomcat:
+    build: .
+    ports:
+      - 8080:8080
+      - 9000:8000
+    volumes:
+      - ./tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+    links:
+      - postgresql
+    environment:
+      JPDA_ADDRESS: 8000
+      JPDA_TRANSPORT: dt_socket
+    command: [catalina.sh, jpda, run]
+
+  postgresql:
+    image: postgres:latest
+    ports:
+        - 5432:5432
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: violet
+      POSTGRES_PASSWORD: violet
+      POSTGRES_DB: violet

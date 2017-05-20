@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:head>
+		<title>Violet Codebase</title>
+	</h:head>
+	<h:body>
+		<c:choose>
+			<c:when test="${empty userBean.user}">
+				<p><h:outputText value="#{loginBean.validationError}"/></p>
+				<h:form id="signin">
+					<p:outputLabel for="username">Username</p:outputLabel>
+					<p:inputText id="username" value="#{loginBean.username}"/>
+					<p:outputLabel for="password">Password</p:outputLabel>
+					<p:inputText type="password" id="password" value="#{loginBean.password}"/>
+					<p:commandButton ajax="false" type="submit" value="Login" action="#{loginBean.signIn}"/>
+				</h:form>
+				
+				<h:form id="signup">
+					<p:outputLabel for="username">Username</p:outputLabel>
+					<p:inputText id="username" value="#{loginBean.username}"/>
+					<p:outputLabel for="email">Email</p:outputLabel>
+					<p:inputText type="email" id="email" value="#{loginBean.email}"/>
+					<p:outputLabel for="password">Password</p:outputLabel>
+					<p:inputText type="password" id="password" value="#{loginBean.password}"/>
+					
+					<p:commandButton ajax="false" type="submit" value="Sign Up" action="#{loginBean.signUp}"/>
+				</h:form>
+			</c:when>
+			<c:otherwise>
+				Welcome <h:outputText value="#{userBean.user.username}"/>!
+				<h:form>
+					<p:commandLink ajax="false" value="Sign out" action="#{loginBean.signOut}"/>
+				</h:form>
+			</c:otherwise>
+		</c:choose>
+	</h:body>
+</html>
