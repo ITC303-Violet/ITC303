@@ -8,17 +8,17 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:violet="http://violet.csu.edu.au/facelets">
-
-	<ui:composition template="WEB-INF/templates/default/main.xhtml">
-		<ui:define name="content">
-			<c:set var="gameList" value="${gameListBean.getGames()}" scope="request">
-				<ui:repeat var="game" value="#{gameList}">
-					<violet:gameInline game="#{game}"/>
-				</ui:repeat>
-				<c:if test="${empty gameList}">
-					No games
-				</c:if>
-			</c:set>
-		</ui:define>
-	</ui:composition>
+	
+	<h:head>
+		<title>Violet Codebase</title>
+		<h:outputStylesheet library="css" name="bootstrap.min.css"/>
+		<h:outputStylesheet library="css" name="violet.css"/>
+	</h:head>
+	
+	<h:body>
+		<ui:insert name="header">
+			<ui:include src="/WEB-INF/templates/default/header.xhtml"/>
+		</ui:insert>
+		<ui:insert name="content"/>
+	</h:body>
 </html>

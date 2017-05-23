@@ -28,6 +28,8 @@ public class User implements Serializable {
 	
 	private String passwordHash;
 	
+	private boolean is_staff=false;
+	
 	@OneToMany
 	private final List<Rating> ratings = new ArrayList<Rating>();
 	
@@ -73,6 +75,14 @@ public class User implements Serializable {
 		this.gender = gender;
 	}
 	
+	public boolean getIsStaff() {
+		return is_staff;
+	}
+	
+	public void setIsStaff(boolean is_staff) {
+		this.is_staff = is_staff;
+	}
+	
 	public String getLocation() {
 		return location;
 	}
@@ -94,7 +104,7 @@ public class User implements Serializable {
 	 * @param password
 	 */
 	public void setPassword(String password) {
-		String salt = BCrypt.gensalt(); // The salt is written to the hash string
+		String salt = BCrypt.gensalt(); // The salt is embedded in the output hash string
 		passwordHash = BCrypt.hashpw(password, salt);
 	}
 	

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+	
+	<ui:composition>
+		<nav class="navbar navbar-fixed-top navbar-inverse bg-inverse">
+			<div class="container">
+				<h:link value="YMD" outcome="index" styleClass="navbar-brand"/>
+				<c:if test="${!empty userBean.user}">
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<h:outputText value="#{userBean.user.username}"/> <span class="caret"></span>							
+							</a>
+							<ul class="dropdown-menu">
+								<li><h:form><p:commandLink ajax="false" value="Sign out" action="#{signInBean.signOut}"/></h:form></li>
+							</ul>
+						</li>
+					</ul>
+				</c:if>
+			</div>
+		</nav>
+		
+		<c:choose>
+			<c:when test="${empty userBean.user}">
+				<h:form id="signin">
+					<p><h:outputText value="#{signInBean.validationError}"/></p>
+					<p:outputLabel for="username">Username</p:outputLabel>
+					<p:inputText id="username" value="#{signInBean.username}" required="true">
+						<f:validateLength minimum="4"/>
+					</p:inputText>
+					<p:outputLabel for="password">Password</p:outputLabel>
+					<p:inputText type="password" id="password" value="#{signInBean.password}" required="true">
+						<f:validateLength minimum="5"/>
+					</p:inputText>
+					<p:commandButton ajax="false" type="submit" value="Login" action="#{signInBean.signIn}"/>
+				</h:form>
+				
+				<h:form id="signup">
+					<p><h:outputText value="#{signUpBean.validationError}"/></p>
+					<p:outputLabel for="username">Username</p:outputLabel>
+					<p:inputText id="username" value="#{signUpBean.username}" required="true">
+						<f:validateLength minimum="4"/>
+					</p:inputText>
+					<p:outputLabel for="email">Email</p:outputLabel>
+					<p:inputText type="email" id="email" value="#{signUpBean.email}" required="true"/>
+					<p:outputLabel for="password">Password</p:outputLabel>
+					<p:inputText type="password" id="password" value="#{signUpBean.password}" required="true">
+						<f:validateLength minimum="5"/>
+					</p:inputText>
+					
+					<p:commandButton ajax="false" type="submit" value="Sign Up" action="#{signUpBean.signUp}"/>
+				</h:form>
+			</c:when>
+			<c:otherwise>
+				Welcome <h:outputText value="#{userBean.user.username}"/>!
+				<h:form>
+					<p:commandLink ajax="false" value="Sign out" action="#{signInBean.signOut}"/>
+				</h:form>
+			</c:otherwise>
+		</c:choose>
+	</ui:composition>
+</html>

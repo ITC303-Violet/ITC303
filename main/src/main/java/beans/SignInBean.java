@@ -11,7 +11,7 @@ import main.java.jpa.User;
 
 @ManagedBean
 @RequestScoped
-public class LoginBean {
+public class SignInBean {
 	@ManagedProperty(value="#{jpaBean}")
 	private JPABean jpaBean;
 
@@ -20,7 +20,6 @@ public class LoginBean {
 	
 	private String username;
 	private String password;
-	private String email;
 	
 	private String validationError;
 	
@@ -64,42 +63,8 @@ public class LoginBean {
 		this.password = password;
 	}
 	
-	public String getEmail() {
-		return email;
-	}
-	
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	
-	private User findUsername(String username) {
-		EntityManager em = jpaBean.getEMF().createEntityManager();
-		try {
-			TypedQuery<User> tq = em.createQuery("SELECT u FROM User u WHERE LOWER(u.username)=:username", User.class);
-			User result = tq.setParameter("username", username.toLowerCase()).getSingleResult(); 
-			return result; // We need to grab it first, or the finally below will close the em before we get the row
-		} catch(NoResultException e) {
-			return null;
-		} finally {
-			em.close();
-		}
-	}
-	
-	private User findUserEmail(String email) {
-		EntityManager em = jpaBean.getEMF().createEntityManager();
-		try {
-			TypedQuery<User> tq = em.createQuery("SELECT u FROM User u WHERE LOWER(u.email)=:email", User.class);
-			User result = tq.setParameter("email", email.toLowerCase()).getSingleResult();
-			return result;
-		} catch(NoResultException e) {
-			return null;
-		} finally {
-			em.close();
-		}
-	}
-	
-	private boolean createUser(User user) {
-		EntityManager em = jpaBean.getEMF().createEntityManager();
+	protected boolean createUser(User user) {
+		EntityManager em = getJpaBean().getEMF().createEntityManager();
 		try {
 			em.getTransaction().begin();
 			em.persist(user);
@@ -114,42 +79,24 @@ public class LoginBean {
 	}
 	
 	public String signIn() {
-		User checkUser = findUsername(username);
+		User checkUser = getJpaBean().findUsername(getUsername());
 		if(checkUser == null) {
 			validationError = "Incorrect username or password";
 			return null;
 		}
 		
-		if(!checkUser.checkPassword(password)) {
+		if(!checkUser.checkPassword(getPassword())) {
 			validationError = "Incorrect username or password";
 			return null;
 		}
 		
-		userBean.setUser(checkUser);
-		
-		return null;
-	}
-	
-	public String signUp() {
-		if(findUsername(username) != null) {
-			validationError = "Username is already taken";
-			return null;
-		}
-		
-		if(findUserEmail(email) != null) {
-			validationError = "User with that email already exists";
-			return null;
-		}
-		
-		User newUser = new User(username, email, password);
-		createUser(newUser);
-		userBean.setUser(newUser);
+		getUserBean().setUser(checkUser);
 		
 		return null;
 	}
 	
 	public String signOut() {
-		userBean.setUser(null);
+		getUserBean().setUser(null);
 		
 		return null;
 	}
