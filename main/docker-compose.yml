@@ -10,8 +10,6 @@ services:
     ports:
       - 8080:8080
       - 9000:8000
-    volumes:
-      - ./tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
     links:
       - postgresql
     environment:

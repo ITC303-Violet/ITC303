@@ -10,22 +10,6 @@ Software Development Project 1
   * Browse...->Browse to the cloned repository and select the 'main' directory
   * Click Okay then Finish
 
-In order for docker to have access to some of the configuration files, you'll need to setup drive sharing
-I suggest creating a local account for docker
-On Windows 10 this can be accomplished by:
-* Hit the Start button
-* Select "Settings"
-* Accounts->Family & other people
-* Add someone else to this PC
-  * Hit "I don't have this person's sign-in information"
-  * Select "Add a user without a Microsoft account"
-  * Fill in the details for your local docker account (i.e. user:docker) with a random password (write it down)
-* In the task bar open the [docker settings](https://docs.docker.com/docker-for-windows/#docker-settings) by right clicking the docker icon and choosing "Settings..."
-* Open "Shared Drives"
-  * Tick the box beside the drive that you cloned the repository to
-  * Hit apply
-  * Enter the details of the account you created
-
 If you encounter any issues with docker reaching the internet, consider entering the Google DNS address (8.8.8.8) in the network tab
 
 ## Running
