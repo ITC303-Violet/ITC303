@@ -1,0 +1,23 @@
+Game:
+	GameID
+	Title
+	
+User:
+	Details:
+		userId
+		Fname
+		Lname
+		Username
+		DOB
+		email
+		phoneNum
+		age
+		gender
+		country
+		region
+		address
+		
+	Preferences:
+		Genres (List)
+		Story (*/10)
+		
