@@ -2,7 +2,9 @@
 Software Development Project 1
 
 ## Environment Setup
-* Download and install [Docker](https://store.docker.com/editions/community/docker-ce-desktop-windows)
+* Download and install Docker
+  * [Windows 10](https://store.docker.com/editions/community/docker-ce-desktop-windows)
+  * [Windows 8](https://www.docker.com/products/docker-toolbox)
 * Clone the repository to a local directory
 * Within eclipse:
   * File->Import...
@@ -10,24 +12,41 @@ Software Development Project 1
   * Browse...->Browse to the cloned repository and select the 'main' directory
   * Click Okay then Finish
 
-If you encounter any issues with docker reaching the internet, consider entering the Google DNS address (8.8.8.8) in the network tab
 
 ## Running
-![Eclipse debug/run buttons](http://i.imgur.com/rJdl64V.png)
-Start the docker containers by clicking the arrow beside the "External Tools" icon on the running toolbar (far right) and selecting "Start docker containers"
+### Using Docker
+Start the docker containers by running docker-start-containers.bat in the main directory
 
 To build and test the project within eclipse:
-* Click the arrow beside the "Run" toolbar icon
-* Select "Build and deploy"
-This will compile and package the project, and redeploy the package to the tomcat container
 
-The tomcat instance once running can be reached at http://localhost:8080/
+* Click run and choose "Maven build"
+* If asked to enter some goals enter `clean tomcat7:redeploy`
+* This should build and then deploy the application to the docker container running tomcat
+
+The tomcat instance once running can be reached at [http://localhost:8080/](http://localhost:8080/) (*Docker Toolbox* will require the address of your docker machine which tends to be [http://192.168.99.100:8080/](http://192.168.99.100:8080/))
 
 Or using purely maven:
-Run `mvn clean package install`
+Run `mvn clean tomcat7:redeploy`
 
-## Debugging
+### Without Docker
+The project can still be used without docker
+
+Perform the same settings as above however:
+
+* Set your postgresql authentication details in `/violet-main/src/main/webapp/WEB-INF/classes/META-INF/persistence.xml`
+* Copy settings.xml.default to %HOMEPATH%\\.m2 and rename to settings.xml (If you have an existing settings.xml you'll need to merge them)
+* Edit the credentials within the new settings.xml to match your running tomcat server
+
+After this, compiling and deployment should be the same as using docker.
+
+**NOTE:** If docker toolbox is installed, you'll also need to un-comment `<!-- <activeProfile>violet-no-docker</activeProfile> -->` within settings.xml to use the tomcat instance running on localhost
+
+
+## Debugging with Docker
 Within eclipse:
 * Click the arrow beside the "Debug" toolbar icon
-* Select "Docker container"
+* Debug configurations
+* Right click "Remote Java Application" and create a new one
+* The default connection properties should work for Docker For Windows
+  * For Docker Toolbox you'll need to enter the ip of your docker machine (tends to be `192.168.99.100`)
 This will attach a remote debugger to the docker container running tomcat and the project

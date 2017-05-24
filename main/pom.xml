@@ -7,7 +7,7 @@
 	<packaging>war</packaging>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
+		<!-- <sourceDirectory>src</sourceDirectory> -->
 		
 		<plugins>
 			<plugin>
@@ -26,6 +26,7 @@
 				<version>2.2</version>
 				<configuration>
 					<path>/</path>
+					<server>development</server>
 				</configuration>
 			</plugin>
 		</plugins>
