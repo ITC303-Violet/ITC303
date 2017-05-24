@@ -1,4 +1,4 @@
-package main.java.jpa;
+package jpa;
 
 import javax.persistence.*;
 

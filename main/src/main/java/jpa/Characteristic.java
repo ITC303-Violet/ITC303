@@ -1,4 +1,5 @@
-package main.java.jpa;
+package jpa;
+
 import java.util.ArrayList;
 import java.util.List;
 

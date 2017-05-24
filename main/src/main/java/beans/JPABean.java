@@ -1,4 +1,4 @@
-package main.java.beans;
+package beans;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,8 +11,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
-import main.java.jpa.Game;
-import main.java.jpa.User;
+import jpa.Game;
+import jpa.User;
 
 @ManagedBean(name="jpaBean")
 @ApplicationScoped

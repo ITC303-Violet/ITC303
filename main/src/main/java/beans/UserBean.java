@@ -1,9 +1,9 @@
-package main.java.beans;
+package beans;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import main.java.jpa.User;
+import jpa.User;
 
 @ManagedBean
 @SessionScoped

@@ -1,10 +1,10 @@
-package main.java.beans;
+package beans;
 
 import java.util.List;
 
 import javax.faces.bean.ManagedProperty;
 
-import main.java.jpa.Game;
+import jpa.Game;
 
 public class GameListBean {
 	@ManagedProperty(value="#{jpaBean}")
