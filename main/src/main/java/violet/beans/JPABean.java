@@ -1,4 +1,4 @@
-package beans;
+package violet.beans;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,8 +11,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
-import jpa.Game;
-import jpa.User;
+import violet.jpa.Game;
+import violet.jpa.User;
 
 @ManagedBean(name="jpaBean")
 @ApplicationScoped

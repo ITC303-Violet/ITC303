@@ -1,11 +1,11 @@
-package beans;
+package violet.beans;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.persistence.EntityManager;
 
-import jpa.User;
+import violet.jpa.User;
 
 @ManagedBean
 @RequestScoped

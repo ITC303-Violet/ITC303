@@ -1,10 +1,10 @@
-package beans;
+package violet.beans;
 
 import java.util.List;
 
 import javax.faces.bean.ManagedProperty;
 
-import jpa.Game;
+import violet.jpa.Game;
 
 public class GameListBean {
 	@ManagedProperty(value="#{jpaBean}")

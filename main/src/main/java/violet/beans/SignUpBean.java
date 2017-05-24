@@ -1,9 +1,9 @@
-package beans;
+package violet.beans;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import jpa.User;
+import violet.jpa.User;
 
 @ManagedBean
 @RequestScoped

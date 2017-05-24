@@ -1,4 +1,4 @@
-package jpa;
+package violet.jpa;
 
 import javax.persistence.Embeddable;
 

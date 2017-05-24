@@ -1,4 +1,4 @@
-package jpa;
+package violet.jpa;
 
 import java.util.ArrayList;
 import java.util.List;

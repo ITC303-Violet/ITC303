@@ -12,7 +12,11 @@
 	</welcome-file-list>
 	
 	<context-param>
-		<param-name>facelets.LIBRARIES</param-name>
+		<param-name>javax.faces.FACELETS_LIBRARIES</param-name>
 		<param-value>/WEB-INF/violet.taglib.xml</param-value>
 	</context-param>
+	
+	<listener>
+		<listener-class>org.quartz.ee.servlet.QuartzInitializerListener</listener-class>
+	</listener>
 </web-app>
