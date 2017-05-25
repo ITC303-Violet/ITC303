@@ -2,10 +2,14 @@ package violet.beans;
 
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 
 import violet.jpa.Game;
 
+@ManagedBean(name="gameListBean")
+@SessionScoped
 public class GameListBean {
 	@ManagedProperty(value="#{jpaBean}")
 	private JPABean jpaBean;
@@ -30,10 +34,10 @@ public class GameListBean {
 	}
 	
 	public List<Game> getGames() {
-		return getGames(25);
+		return getLimitedGames(25);
 	}
 	
-	public List<Game> getGames(int length) {
+	public List<Game> getLimitedGames(int length) {
 		return getJpaBean().getGames(length);
 	}
 }

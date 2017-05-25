@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
+<!DOCTYPE html [
+	<!ENTITY times "&#215;">
+]>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
@@ -12,58 +14,103 @@
 		<nav class="navbar navbar-fixed-top navbar-inverse bg-inverse">
 			<div class="container">
 				<h:link value="YMD" outcome="index" styleClass="navbar-brand"/>
-				<c:if test="${!empty userBean.user}">
-					<ul class="nav navbar-nav navbar-right">
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-								<h:outputText value="#{userBean.user.username}"/> <span class="caret"></span>							
-							</a>
-							<ul class="dropdown-menu">
-								<li><h:form><p:commandLink ajax="false" value="Sign out" action="#{signInBean.signOut}"/></h:form></li>
-							</ul>
-						</li>
-					</ul>
-				</c:if>
+				<c:choose>
+					<c:when test="${empty userBean.user}">
+						<ul class="nav navbar-nav float-right">
+							<li class="dropdown">
+								<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#signin-modal">Sign In</button>
+								<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#signup-modal">Sign Up</button>
+							</li>
+						</ul>
+					</c:when>
+					<c:otherwise>
+						<ul class="nav navbar-nav float-right">
+							<li class="nav-item dropdown">
+								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+									<h:outputText value="#{userBean.user.username}"/> <span class="caret"></span>							
+								</a>
+								<div class="dropdown-menu">
+									<h:form><p:commandLink value="Sign out" action="#{signInBean.signOut}"/></h:form>
+								</div>
+							</li>
+						</ul>
+					</c:otherwise>
+				</c:choose>
 			</div>
 		</nav>
 		
-		<c:choose>
-			<c:when test="${empty userBean.user}">
-				<h:form id="signin">
-					<p><h:outputText value="#{signInBean.validationError}"/></p>
-					<p:outputLabel for="username">Username</p:outputLabel>
-					<p:inputText id="username" value="#{signInBean.username}" required="true">
-						<f:validateLength minimum="4"/>
-					</p:inputText>
-					<p:outputLabel for="password">Password</p:outputLabel>
-					<p:inputText type="password" id="password" value="#{signInBean.password}" required="true">
-						<f:validateLength minimum="5"/>
-					</p:inputText>
-					<p:commandButton ajax="false" type="submit" value="Login" action="#{signInBean.signIn}"/>
-				</h:form>
-				
-				<h:form id="signup">
-					<p><h:outputText value="#{signUpBean.validationError}"/></p>
-					<p:outputLabel for="username">Username</p:outputLabel>
-					<p:inputText id="username" value="#{signUpBean.username}" required="true">
-						<f:validateLength minimum="4"/>
-					</p:inputText>
-					<p:outputLabel for="email">Email</p:outputLabel>
-					<p:inputText type="email" id="email" value="#{signUpBean.email}" required="true"/>
-					<p:outputLabel for="password">Password</p:outputLabel>
-					<p:inputText type="password" id="password" value="#{signUpBean.password}" required="true">
-						<f:validateLength minimum="5"/>
-					</p:inputText>
-					
-					<p:commandButton ajax="false" type="submit" value="Sign Up" action="#{signUpBean.signUp}"/>
-				</h:form>
-			</c:when>
-			<c:otherwise>
-				Welcome <h:outputText value="#{userBean.user.username}"/>!
-				<h:form>
-					<p:commandLink ajax="false" value="Sign out" action="#{signInBean.signOut}"/>
-				</h:form>
-			</c:otherwise>
-		</c:choose>
+		<c:if test="${empty userBean.user}">
+			<div class="modal fade" id="signin-modal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">	
+							<h5 class="modal-title">Sign in</h5>
+							<button type="button" class="close" data-dismiss="modal">
+								<span>&times;</span>
+							</button>
+						</div>
+						<h:form id="signin">
+							<div class="modal-body">
+								<p:messages id="messages" autoUpdate="true" />
+								<div class="form-group">
+									<p:outputLabel for="username" styleClass="form-control-label">Username:</p:outputLabel>
+									<p:inputText id="username" styleClass="form-control" value="#{signInBean.username}" required="true">
+										<f:validateLength minimum="4"/>
+									</p:inputText>
+								</div>
+								<div class="form-group">
+									<p:outputLabel for="password" styleClass="form-control-label">Password:</p:outputLabel>
+									<p:inputText type="password" id="password" styleClass="form-control" value="#{signInBean.password}" required="true">
+										<f:validateLength minimum="5"/>
+									</p:inputText>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<p:commandButton styleClass="btn btn-primary" type="submit" value="Sign in" action="#{signInBean.signIn}">
+									<f:ajax render="signin:validationError" />
+								</p:commandButton>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+			
+			<div class="modal fade" id="signup-modal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">	
+							<h5 class="modal-title">Sign in</h5>
+							<button type="button" class="close" data-dismiss="modal">
+								<span>&times;</span>
+							</button>
+						</div>
+						<h:form id="signup">
+							<div class="modal-body">
+								<p:messages id="messages" autoUpdate="true" />
+								<div class="form-group">
+									<p:outputLabel for="username" styleClass="form-control-label">Username:</p:outputLabel>
+									<p:inputText id="username" styleClass="form-control" value="#{signUpBean.username}" required="true">
+										<f:validateLength minimum="4"/>
+									</p:inputText>
+								</div>
+								<div class="form-group">
+									<p:outputLabel for="username" styleClass="form-control-label">Email:</p:outputLabel>
+									<p:inputText type="email" id="email" styleClass="form-control" value="#{signUpBean.email}" required="true"/>
+								</div>
+								<div class="form-group">
+									<p:outputLabel for="password" styleClass="form-control-label">Password:</p:outputLabel>
+									<p:inputText type="password"  id="password" styleClass="form-control" value="#{signUpBean.password}" required="true">
+										<f:validateLength minimum="5"/>
+									</p:inputText>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<p:commandButton styleClass="btn btn-primary" type="submit" value="Sign up" action="#{signUpBean.signUp}"/>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</c:if>
 	</ui:composition>
 </html>

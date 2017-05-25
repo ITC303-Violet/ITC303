@@ -1,9 +1,16 @@
 package violet.beans;
 
+import java.io.IOException;
+
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 
 import violet.jpa.User;
 
@@ -19,8 +26,6 @@ public class SignInBean {
 	private String username;
 	private String password;
 
-	private String validationError;
-
 	public JPABean getJpaBean() {
 		return jpaBean;
 	}
@@ -35,14 +40,6 @@ public class SignInBean {
 
 	public void setUserBean(UserBean userBean) {
 		this.userBean = userBean;
-	}
-
-	public String getValidationError() {
-		return validationError;
-	}
-
-	public void setValidationError(String validationError) {
-		this.validationError = validationError;
 	}
 
 	public String getUsername() {
@@ -67,7 +64,7 @@ public class SignInBean {
 			em.getTransaction().begin();
 			em.persist(user);
 			em.getTransaction().commit();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return false;
 		} finally {
 			em.close();
@@ -77,24 +74,40 @@ public class SignInBean {
 	}
 
 	public String signIn() {
+		FacesContext context = FacesContext.getCurrentInstance();
+		
 		User checkUser = getJpaBean().findUsername(getUsername());
-		if (checkUser == null) {
-			validationError = "Incorrect username or password";
-			return null;
-		}
-
-		if (!checkUser.checkPassword(getPassword())) {
-			validationError = "Incorrect username or password";
+		if(checkUser == null || !checkUser.checkPassword(getPassword())) {
+			context.addMessage(null, new FacesMessage("Incorrect username or password"));
 			return null;
 		}
 
 		getUserBean().setUser(checkUser);
-
+		
+		ExternalContext externalContext = context.getExternalContext();
+		HttpServletRequest request = (HttpServletRequest)externalContext.getRequest();
+		
+		try {
+			externalContext.redirect(request.getContextPath());
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 
 	public String signOut() {
 		getUserBean().setUser(null);
+		
+		FacesContext context = FacesContext.getCurrentInstance();
+		ExternalContext externalContext = context.getExternalContext();
+		HttpServletRequest request = (HttpServletRequest)externalContext.getRequest();
+		
+		try {
+			externalContext.redirect(request.getContextPath());
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 
 		return null;
 	}

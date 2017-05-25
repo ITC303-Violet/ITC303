@@ -29,8 +29,8 @@ public class JPABean {
 	public List<Game> getGames(int length) {
 		EntityManager em = getEMF().createEntityManager();
 		try {
-			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g ORDER BY id ASC LIMIT :limit", Game.class);
-			List<Game> result = tq.setParameter("limit", length).getResultList();
+			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g ORDER BY g.id ASC", Game.class);
+			List<Game> result = tq.setMaxResults(length).getResultList();
 			return result; // We need to grab it first, or the finally below will close the em before we get the row
 		} catch(NoResultException e) {
 			return Collections.<Game>emptyList();

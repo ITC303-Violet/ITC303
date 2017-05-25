@@ -8,8 +8,8 @@
 	<h:body>
 		<ui:composition>
 			<div>
-				<h2>#{game.name}</h2>
-				<p>#{game.description}</p>
+				<h2><h:outputText value="#{game.name}"/></h2>
+				<div class="game-description"><p><h:outputText value="#{game.shortDescription}" escape="false"/></p></div>
 			</div>
 		</ui:composition>
 	</h:body>

@@ -38,7 +38,7 @@
 		<job>
 			<name>gather-update</name>
 			<group>GATHERERS</group>
-			<description>Gather new games</description>
+			<description>Gather and update games</description>
 			<job-class>violet.gatherers.ScheduledJob</job-class>
 			
 			<job-data-map>

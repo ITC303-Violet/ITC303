@@ -16,6 +16,11 @@
 		<param-value>/WEB-INF/violet.taglib.xml</param-value>
 	</context-param>
 	
+	<context-param>
+		<param-name>primefaces.THEME</param-name>
+		<param-value>none</param-value>
+	</context-param>
+	
 	<listener>
 		<listener-class>org.quartz.ee.servlet.QuartzInitializerListener</listener-class>
 	</listener>
