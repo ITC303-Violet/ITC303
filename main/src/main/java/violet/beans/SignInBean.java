@@ -8,7 +8,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 
