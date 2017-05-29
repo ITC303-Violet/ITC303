@@ -12,7 +12,7 @@
 	  
 	  body, html
 	{
-		background-color: #f0f5f5;
+		background-image: url("greylines.jpg"); background-color: #cccccc;
 	}
 	  
 	  .container {
@@ -21,6 +21,10 @@
 	  
 	  .well {
 		background-color: #222;
+	  }
+	  
+	  .well-title {
+		background-color: #903333;
 	  }
 
 </style>
@@ -33,61 +37,116 @@
 <body>
 
 <div class="container">
-    <h1 class="well">Register</h1>
+    <h1 class="well well-title">Register</h1>
 	<div class="col-lg-12 well">
 	<div class="row">
 				<form>
 					<div class="col-sm-12">
 						<div class="row">
-							<div class="col-sm-6 form-group">
+							<div class="col-sm-4 form-group">
 								<label>First Name</label>
 								<input type="text" placeholder="Enter First Name Here.." class="form-control">
 							</div>
-							<div class="col-sm-6 form-group">
+							<div class="col-sm-4 form-group">
 								<label>Last Name</label>
 								<input type="text" placeholder="Enter Last Name Here.." class="form-control">
 							</div>
+							<div class="col-sm-4 form-group">
+								<label>User Profile Name</label>
+								<input type="text" placeholder="Enter User Profile Name Here.." class="form-control">
+							</div>
 						</div>					
-						<div class="form-group">
-							<label>Address</label>
-							<textarea placeholder="Enter Address Here.." rows="3" class="form-control"></textarea>
-						</div>	
+					
 						<div class="row">
+							<div class="col-sm-4 form-group">
+								<label>Country</label>
+								<input type="text" placeholder="Enter Country Name Here.." class="form-control">
+							</div>	
 							<div class="col-sm-4 form-group">
 								<label>City</label>
 								<input type="text" placeholder="Enter City Name Here.." class="form-control">
-							</div>	
-							<div class="col-sm-4 form-group">
-								<label>State</label>
-								<input type="text" placeholder="Enter State Name Here.." class="form-control">
 							</div>	
 							<div class="col-sm-4 form-group">
 								<label>Zip</label>
 								<input type="text" placeholder="Enter Zip Code Here.." class="form-control">
 							</div>		
 						</div>
+						
 						<div class="row">
 							<div class="col-sm-6 form-group">
-								<label>Title</label>
-								<input type="text" placeholder="Enter Designation Here.." class="form-control">
+								<label>Email</label>
+								<input type="email" placeholder="Enter Email Address Here.." class="form-control">
 							</div>		
 							<div class="col-sm-6 form-group">
-								<label>Company</label>
-								<input type="text" placeholder="Enter Company Name Here.." class="form-control">
+								<label>Phone Number</label>
+								<input type="text" placeholder="Enter Phone Number Here.." class="form-control">
 							</div>	
-						</div>						
-					<div class="form-group">
-						<label>Phone Number</label>
-						<input type="text" placeholder="Enter Phone Number Here.." class="form-control">
-					</div>		
-					<div class="form-group">
-						<label>Email Address</label>
-						<input type="text" placeholder="Enter Email Address Here.." class="form-control">
-					</div>	
-					<div class="form-group">
-						<label>Website</label>
-						<input type="text" placeholder="Enter Website Name Here.." class="form-control">
-					</div>
+						</div>
+						
+						<div class="row">
+							<div class="col-sm-6 form-group">
+								<label for="gender">Gender</label>
+								  <select class="form-control" id="gender">
+									<option>Male</option>
+									<option>Female</option>
+									<option>Other</option>
+								</select>
+							</div>		
+							<div class="col-sm-6 form-group">
+								<label for="age">Age bracket</label>
+								  <select class="form-control" id="age">
+									<option>< 14</option>
+									<option>14 - 18</option>
+									<option>19 - 29</option>
+									<option>45</option>
+									<option>> 46</option>
+								</select>
+							</div>	
+						</div>
+						
+						<div class="row">
+							<div class="col-sm-12 form-group">
+								<label for="genres">Prefered Game Genres</label><br>
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Action</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Adventure</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Casual</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Indie</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">MMO</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Racing</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">RPG</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Simulation</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Sports</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">Strategy</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">FPS</label>
+									
+									<label class="checkbox-inline">
+									<input type="checkbox" value="">MOBA</label>
+								
+							</div>			
+						</div>
+						
+					
 					<button type="button" class="btn btn-lg btn-info">Submit</button>					
 					</div>
 				</form> 
