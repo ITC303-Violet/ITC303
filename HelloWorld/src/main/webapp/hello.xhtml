@@ -4,24 +4,24 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
 <h:head>
-	<title>JSF 2.0 Hello World</title>
+	<title>ITC 303 Software Development Project 1</title>
 </h:head>
 <h:body>
-	<h3>JSF 2.0 Hello World Example - hello.xhtml</h3>
-	<h:form>
-		<h:inputText value="#{helloBean.name}"></h:inputText>
-		<h:commandButton value="Welcome Me" action="#{helloBean.addNameToDB()}"></h:commandButton>
+	<h1>ITC 303 Software Development Project 1</h1>
+
+	<p/><div style="color:#FF0000"><h:outputText escape="false" value="#{userBean.errorMessage}"/></div>
+	<br/><div style="color:#00FF00"><h:outputText escape="false" value="#{userBean.loggedIn}"/></div>
+	<h:form id="login">
+		<h2>User name:</h2>
+		<p:inputText id="name" value="#{userBean.name}"/>
+		<h2>Password:</h2>
+		<p:inputText type="password" id="password" value="#{userBean.password}"/>
+		<p/><p:commandButton ajax="false" type="submit" id="submit" value="Submit" action="#{userBean.startSession()}"/>
 	</h:form>
-	<p:dataTable var="person" value="#{helloBean.list}">
-		<p:column headerText="ID">
-			<h:outputText value="#{person.id}" />
-		</p:column>
-		<p:column headerText="Name">
-			<h:outputText value="#{person.name}" />
-		</p:column>
-	</p:dataTable>
-</h:body>
+
+	</h:body>
 </html>
