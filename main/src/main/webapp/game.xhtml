@@ -10,15 +10,7 @@
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="content">
-			<c:set var="gameList" value="#{gameListBean.games}" scope="request" />
-			<div class="row">
-				<ui:repeat var="game" value="#{gameList}">
-					<violet:gameInline game="#{game}"/>
-				</ui:repeat>
-				<c:if test="#{empty gameList}">
-					<div class="text-center"><h2>No games</h2></div>
-				</c:if>
-			</div>
+			<h:outputText value="#{gameBean.game.name}" />
 		</ui:define>
 	</ui:composition>
 </html>

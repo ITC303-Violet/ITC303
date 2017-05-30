@@ -39,6 +39,19 @@ public class JPABean {
 		}
 	}
 	
+	public Game getGame(Long id) {
+		EntityManager em = getEMF().createEntityManager();
+		try {
+			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g WHERE g.id=:id", Game.class);
+			Game result = tq.setParameter("id", id).getSingleResult(); 
+			return result;
+		} catch(NoResultException e) {
+			return null;
+		} finally {
+			em.close();
+		}
+	}
+	
 	public User findUsername(String username) {
 		EntityManager em = getEMF().createEntityManager();
 		try {

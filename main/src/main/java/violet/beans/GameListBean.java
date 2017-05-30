@@ -34,7 +34,7 @@ public class GameListBean {
 	}
 	
 	public List<Game> getGames() {
-		return getLimitedGames(25);
+		return getLimitedGames(24);
 	}
 	
 	public List<Game> getLimitedGames(int length) {

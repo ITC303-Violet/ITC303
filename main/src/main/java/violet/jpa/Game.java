@@ -2,6 +2,7 @@ package violet.jpa;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.persistence.*;
 
@@ -35,6 +36,26 @@ public class Game {
 	
 	public Game(String name) {
 		this.name = name;
+	}
+	
+	public Long getId() {
+		return id;
+	}
+	
+	private static final Pattern[] patterns = {
+		Pattern.compile("(?:^\\W+|\\W+$)"),
+		Pattern.compile("\\W+")
+	};
+	
+	private static final String[] replacements = {
+		"",
+		"_"
+	};
+	public String getCleanedName() {
+		String out = name;
+		for(int i=0; i<patterns.length; i++)
+			out = patterns[i].matcher(out).replaceAll(replacements[i]);
+		return out;
 	}
 	
 	public String getName() {

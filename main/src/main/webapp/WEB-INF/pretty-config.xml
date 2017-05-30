@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<pretty-config xmlns="http://ocpsoft.org/schema/rewrite-config-prettyfaces" 
+  			   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  			   xsi:schemaLocation="http://ocpsoft.org/schema/rewrite-config-prettyfaces
+               					   http://ocpsoft.org/xml/ns/prettyfaces/rewrite-config-prettyfaces.xsd">
+
+	<url-mapping id="view-game">
+		<pattern value="/game/#{gameid : gameBean.id}/#{gamename}" />
+		<view-id value="/game.xhtml" />
+	</url-mapping>
+
+</pretty-config>
