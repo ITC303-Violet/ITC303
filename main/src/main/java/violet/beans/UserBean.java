@@ -17,4 +17,8 @@ public class UserBean {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
+	public boolean isStaff() {
+		return user != null && user.getIsStaff();
+	}
 }

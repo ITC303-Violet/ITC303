@@ -10,13 +10,16 @@
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="content">
-			<c:set var="gameList" value="#{gameListBean.games}" scope="request" />
-			<ui:repeat var="game" value="#{gameList}">
-				<violet:gameInline game="#{game}"/>
-			</ui:repeat>
-			<c:if test="${empty gameList}">
-				<div class="text-center"><h2>No games</h2></div>
-			</c:if>
+			<p>Admin section</p>
+			<h:form>
+				<p:messages id="messages" autoUpdate="true" />
+				<div class="form-group">
+					<p:outputLabel for="maxGames" styleClass="form-control-label">Max number of games to gather:</p:outputLabel>
+					<p:inputText id="maxGames" styleClass="form-control" value="#{adminBean.maxGames}" required="true" />
+				</div>
+				
+				<p:commandButton styleClass="btn btn-primary" type="submit" value="Gather" action="#{adminBean.gather}"/>
+			</h:form>
 		</ui:define>
 	</ui:composition>
 </html>

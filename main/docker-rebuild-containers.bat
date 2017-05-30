@@ -4,6 +4,9 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 IF NOT DEFINED DOCKER_TOOLBOX_INSTALL_PATH (
 	ECHO Docker for windows
 	docker-compose build
+	
+	docker-stop-containers.bat
+	docker-start-containers.bat
 ) ELSE (
 	ECHO Docker toolbox
 	SET "TARGET_DRIVE=%~d0"
@@ -15,6 +18,9 @@ IF NOT DEFINED DOCKER_TOOLBOX_INSTALL_PATH (
 	CD /D "%DOCKER_TOOLBOX_INSTALL_PATH%"
 	"%PROGRAMFILES%\Git\bin\bash.exe" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" cd "!FINAL_TARGET_PATH!" ^&^& docker-compose build
 	CD /D "%~dp0"
+
+	docker-stop-containers.bat
+	docker-start-containers.bat
 )
 
 GOTO :EOF

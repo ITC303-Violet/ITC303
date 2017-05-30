@@ -3,19 +3,36 @@ version: '3'
 volumes:
   database_data:
     driver: local
+  static_data:
+    driver: local
 
 services:
   tomcat:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-tomcat
     ports:
-      - 8080:8080
       - 8000:8000
+    volumes:
+      - static_data:/var/www/static
     links:
       - postgresql
     environment:
       JPDA_ADDRESS: 8000
       JPDA_TRANSPORT: dt_socket
     command: [catalina.sh, jpda, run]
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    ports:
+      - 8080:8080
+    volumes:
+      - static_data:/var/www/static
+    links:
+      - tomcat
+
 
   postgresql:
     image: postgres:latest

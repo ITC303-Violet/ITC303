@@ -105,6 +105,10 @@
 			<groupId>javax</groupId>
 			<artifactId>javaee-web-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<dependencyManagement>
@@ -168,6 +172,11 @@
 				<groupId>javax</groupId>
 				<artifactId>javaee-web-api</artifactId>
 				<version>6.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tika</groupId>
+				<artifactId>tika-core</artifactId>
+				<version>1.14</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

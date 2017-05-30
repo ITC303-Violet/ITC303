@@ -24,6 +24,9 @@ public class Game {
 	@OneToMany
 	private final List<Rating> ratings = new ArrayList<Rating>();
 	
+	@Embedded
+	private Image heroImage;
+	
 	private int steam_id;
 	
 	public Game() {
@@ -56,6 +59,14 @@ public class Game {
 	
 	public void setShortDescription(String short_description) {
 		this.short_description = short_description;
+	}
+	
+	public Image getHeroImage() {
+		return heroImage;
+	}
+	
+	public void setHeroImage(Image heroImage) {
+		this.heroImage = heroImage;
 	}
 	
 	public int getSteamId() {

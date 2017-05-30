@@ -106,7 +106,7 @@ public class Gatherer {
 					.getSingleResult();
 			return result;
 		} catch(NoResultException e) {
-			return new Game();
+			return null;
 		} finally {
 			em.close();
 		}

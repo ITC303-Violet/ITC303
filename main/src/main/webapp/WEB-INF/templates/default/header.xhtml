@@ -13,7 +13,7 @@
 	<ui:composition>
 		<nav class="navbar navbar-fixed-top navbar-inverse bg-inverse">
 			<div class="container">
-				<h:link value="YMD" outcome="index" styleClass="navbar-brand"/>
+				<h:link value="YMD" outcome="/index" styleClass="navbar-brand"/>
 				<c:choose>
 					<c:when test="${empty userBean.user}">
 						<ul class="nav navbar-nav float-right">
@@ -31,6 +31,7 @@
 								</a>
 								<div class="dropdown-menu">
 									<h:form><p:commandLink styleClass="dropdown-item" value="Sign out" action="#{signInBean.signOut}"/></h:form>
+									<h:outputLink styleClass="dropdown-item" rendered="#{userBean.user.isStaff}" value="/admin/">Admin</h:outputLink>
 								</div>
 							</li>
 						</ul>

@@ -19,6 +19,11 @@
 					<key>insert-only</key>
 					<value>true</value>
 				</entry>
+				
+				<entry>
+					<key>max-games</key>
+					<value>100</value>
+				</entry>
 			</job-data-map>
 		</job>
 		
@@ -45,6 +50,11 @@
 				<entry>
 					<key>insert-only</key>
 					<value>false</value>
+				</entry>
+				
+				<entry>
+					<key>max-games</key>
+					<value>100</value>
 				</entry>
 			</job-data-map>
 		</job>

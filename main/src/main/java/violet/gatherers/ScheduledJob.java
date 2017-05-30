@@ -14,25 +14,25 @@ import org.quartz.UnableToInterruptJobException;
 @DisallowConcurrentExecution
 public class ScheduledJob implements InterruptableJob {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		
 		JobDataMap jobData = context.getJobDetail().getJobDataMap();
 		
 		boolean insertOnly = jobData.getBoolean("insert-only");
+		int maxGames = jobData.getInt("max-games");
 		
 		Stack<Gatherer> gatherers = new Stack<Gatherer>();
 		gatherers.push(new SteamGatherer());
 		
-		processGatherers(insertOnly, gatherers);
+		processGatherers(insertOnly, maxGames, gatherers);
 	}
 	
 	private Gatherer currentGatherer = null;
 	
-	public void processGatherers(boolean insertOnly, Stack<Gatherer> gatherers) {
+	public void processGatherers(boolean insertOnly, int maxGames, Stack<Gatherer> gatherers) {
 		while(!gatherers.isEmpty()) {
 			currentGatherer = gatherers.pop();
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Executing " + currentGatherer.getClass().getName());
 			try {
-				currentGatherer.gather(insertOnly);
+				currentGatherer.gather(insertOnly, maxGames);
 			} catch(Exception e) {
 				Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Failed executing", e);
 			}

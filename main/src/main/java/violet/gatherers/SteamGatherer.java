@@ -1,6 +1,7 @@
 package violet.gatherers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +20,7 @@ import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
 
 import violet.jpa.Game;
+import violet.jpa.Image;
 
 public class SteamGatherer extends Gatherer {
 	private class SteamGathererRunnable implements Runnable {
@@ -92,33 +94,36 @@ public class SteamGatherer extends Gatherer {
 				data = data.getJSONObject("data");
 				if(!data.getString("type").equals("game")) return null;
 				
-				boolean dirty = false;
+				boolean exists = false;
 				Game game = getGame(COLUMN_NAME, appId);
+				if(game != null)
+					exists = true;
+				else
+					game = new Game();
 				
-				if(game.getSteamId() != appId) { 
+				if(game.getSteamId() != appId)
 					game.setSteamId(appId);
-					dirty = true;
-				}
 				
 				String value = data.getString("name");
-				if(game.getName() != value) {
+				if(game.getName() != value)
 					game.setName(value);
-					dirty = true;
-				}
 				
 				value = data.getString("short_description");
-				if(game.getShortDescription() != value) {
+				if(game.getShortDescription() != value)
 					game.setShortDescription(value);
-					dirty = true;
-				}
 				
-				value = data.getString("detailed_description");
-				if(game.getDescription() != value) {
+				value = data.getString("about_the_game");
+				if(game.getDescription() != value)
 					game.setDescription(value);
-					dirty = true;
+				
+				value = data.getString("header_image");
+				if(!value.isEmpty()) {
+					Image heroImage = Image.saveImage(new URL(value));
+					if(heroImage != null)
+						game.setHeroImage(heroImage);
 				}
 				
-				if(dirty)
+				if(!exists)
 					return game;
 				return null;
 			}
