@@ -28,7 +28,10 @@ import violet.jpa.Image;
 import violet.jpa.Screenshot;
 
 public class SteamGatherer extends Gatherer {
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("d MMM, yyyy");
+	private static final SimpleDateFormat[] dateFormatters = {
+			new SimpleDateFormat("d MMM, yyyy"),
+			new SimpleDateFormat("MMM d, yyyy")
+	};
 	
 	private class SteamGathererRunnable implements Runnable {
 		public void run() {
@@ -134,11 +137,14 @@ public class SteamGatherer extends Gatherer {
 				if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
 					if(!releaseDate.getBoolean("coming_soon")) {
 						value = releaseDate.getString("date");
-						try {
-							Date release = dateFormatter.parse(value);
-							game.setRelease(release);
-						} catch(ParseException e) {
-							Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value, e);
+						for(int i=0; i<dateFormatters.length; i++) {
+							try {
+								Date release = dateFormatters[i].parse(value);
+								game.setRelease(release);
+								break;
+							} catch(ParseException e) {
+								Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
+							}
 						}
 					}
 				}
