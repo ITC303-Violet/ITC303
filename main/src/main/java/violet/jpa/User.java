@@ -36,6 +36,7 @@ public class User implements Serializable {
 	
 	public User() {
 		ratings = new ArrayList<Rating>();
+		is_staff = true;
 	}
 	
 	public User(String username, String email, String password) {
