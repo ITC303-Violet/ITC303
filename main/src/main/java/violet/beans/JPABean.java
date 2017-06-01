@@ -8,28 +8,30 @@ import javax.faces.bean.ManagedBean;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
-import javax.persistence.Persistence;
+//import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
+import violet.jpa.FactoryManager;
 import violet.jpa.Game;
 import violet.jpa.User;
 
-@ManagedBean(name="jpaBean")
+@ManagedBean(name="jpaBean", eager=true)
 @ApplicationScoped
 public class JPABean {
-	private EntityManagerFactory emf;
+	//private EntityManagerFactory emf;
 	
 	public EntityManagerFactory getEMF() {
-		if(emf == null)
+		return FactoryManager.get();
+		/*if(emf == null)
 			emf = Persistence.createEntityManagerFactory("default");
 		
-		return emf;
+		return emf;*/
 	}
 	
 	public List<Game> getGames(int length) {
 		EntityManager em = getEMF().createEntityManager();
 		try {
-			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g ORDER BY g.id ASC", Game.class);
+			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g ORDER BY g.release DESC, g.id ASC", Game.class);
 			List<Game> result = tq.setMaxResults(length).getResultList();
 			return result; // We need to grab it first, or the finally below will close the em before we get the row
 		} catch(NoResultException e) {

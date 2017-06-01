@@ -11,6 +11,10 @@
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="content">
 			<h:outputText value="#{gameBean.game.name}" />
+			<c:set var="screenshots" value="#{gameBean.game.screenshots}" scope="request" />
+			<ui:repeat var="screenshot" value="#{screenshots}">
+				<img src="#{screenshot.thumbnail.URL}" />
+			</ui:repeat>
 		</ui:define>
 	</ui:composition>
 </html>

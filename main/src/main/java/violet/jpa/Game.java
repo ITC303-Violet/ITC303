@@ -1,6 +1,7 @@
 package violet.jpa;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -20,21 +21,30 @@ public class Game {
 	private String short_description;
 	
 	@ManyToMany(mappedBy="games")
-	private final List<Genre> genres = new ArrayList<Genre>();
+	private List<Genre> genres;
 	
-	@OneToMany
-	private final List<Rating> ratings = new ArrayList<Rating>();
+	@OneToMany(mappedBy="game")
+	private List<Rating> ratings;
+	
+	@OneToMany(mappedBy="game")
+	private List<Screenshot> screenshots;
 	
 	@Embedded
 	private Image heroImage;
 	
 	private int steam_id;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date release;
+	
 	public Game() {
-		
+		genres = new ArrayList<Genre>();
+		ratings = new ArrayList<Rating>();
+		screenshots = new ArrayList<Screenshot>();
 	}
 	
 	public Game(String name) {
+		this();
 		this.name = name;
 	}
 	
@@ -98,19 +108,72 @@ public class Game {
 		this.steam_id = steam_id;
 	}
 	
-	public boolean addGenre(Genre genre) {
-		return genres.add(genre);
+	public void addGenre(Genre genre) {
+		if(genres.contains(genre))
+			return;
+		
+		genres.add(genre);
+		genre.addGame(this);
 	}
 	
 	public List<Genre> getGenres() {
 		return genres;
 	}
 	
-	public boolean addRating(Rating rating) {
-		return ratings.add(rating);
+	public void addRating(Rating rating) {
+		if(ratings.contains(rating))
+			return;
+		
+		ratings.add(rating);
+		
+		Game current = rating.getGame();
+		if(current != null)
+			current.getRatings().remove(rating);
+		
+		rating.setGame(this);
 	}
 	
 	public List<Rating> getRatings() {
 		return ratings;
+	}
+	
+	public void setRelease(Date release) {
+		this.release = release;
+	}
+	
+	public Date getRelease() {
+		return release;
+	}
+	
+	public void addScreenshot(Screenshot screenshot) {
+		if(screenshots.contains(screenshot))
+			return;
+		
+		screenshots.add(screenshot);
+		
+		Game current = screenshot.getGame();
+		if(current != null)
+			current.getScreenshots().remove(screenshot);
+		
+		screenshot.setGame(this);
+	}
+	
+	public List<Screenshot> getScreenshots() {
+		return screenshots;
+	}
+	
+	public boolean hasScreenshot(String remoteId) {
+		EntityManager em = FactoryManager.get().createEntityManager();
+		try {
+			TypedQuery<Long> tq = em.createQuery("SELECT COUNT(s) FROM Game g INNER JOIN g.screenshots s WHERE g.id=:id AND s.remoteIdentifier=:rid", Long.class);
+			Long result = tq.setParameter("id", id)
+					.setParameter("rid", remoteId)
+					.getSingleResult();
+			return result > 0;
+		} catch(NoResultException e) {
+			return false;
+		} finally {
+			em.close();
+		} 
 	}
 }

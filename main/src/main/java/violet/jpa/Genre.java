@@ -13,27 +13,39 @@ public class Genre {
 	
 	private String name;
 	
-	private final List<Game> games = new ArrayList<Game>();
-	private final List<Characteristic> characteristics = new ArrayList<Characteristic>();
+	@ManyToMany
+	private List<Game> games;
+	
+	@ManyToMany(mappedBy="genres")
+	private List<Characteristic> characteristics;
 	
 	public Genre() {
-		
+		games = new ArrayList<Game>();
+		characteristics = new ArrayList<Characteristic>();
 	}
 	
 	public String getName() {
 		return name;
 	}
 	
-	public boolean addGame(Game game) {
-		return games.add(game);
+	public void addGame(Game game) {
+		if(games.contains(game))
+			return;
+		
+		games.add(game);
+		game.addGenre(this);
 	}
 	
 	public List<Game> getGames() {
 		return games;
 	}
 	
-	public boolean addCharacteristic(Characteristic characteristic) {
-		return characteristics.add(characteristic);
+	public void addCharacteristic(Characteristic characteristic) {
+		if(characteristics.contains(characteristic))
+			return;
+		
+		characteristics.add(characteristic);
+		characteristic.addGenre(this);
 	}
 	
 	public List<Characteristic> getCharacteristics() {

@@ -1,6 +1,6 @@
 .game-description {
-	max-height: 250px;
-	overflow-y: hidden;
+	height: 250px;
+	overflow: hidden;
 	position: relative;
 }
 

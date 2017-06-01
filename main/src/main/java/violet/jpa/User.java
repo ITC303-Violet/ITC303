@@ -29,16 +29,17 @@ public class User implements Serializable {
 	
 	private String passwordHash;
 	
-	private boolean is_staff=false;
+	private boolean is_staff=true; // TODO: SWITCH BACK TO FALSE BEFORE PRODUCTION
 	
-	@OneToMany
-	private final List<Rating> ratings = new ArrayList<Rating>();
+	@OneToMany(mappedBy="user")
+	private List<Rating> ratings;
 	
 	public User() {
-		
+		ratings = new ArrayList<Rating>();
 	}
 	
 	public User(String username, String email, String password) {
+		this();
 		this.username = username;
 		this.email = email;
 		setPassword(password);
@@ -92,8 +93,17 @@ public class User implements Serializable {
 		this.location = location;
 	}
 	
-	public boolean addRating(Rating rating) {
-		return ratings.add(rating);
+	public void addRating(Rating rating) {
+		if(ratings.contains(rating))
+			return;
+		
+		ratings.add(rating);
+		
+		User current = rating.getUser();
+		if(current != null)
+			current.getRatings().remove(rating);
+		
+		rating.setUser(this);
 	}
 	
 	public List<Rating> getRatings() {

@@ -110,7 +110,7 @@ public class Image implements Collection {
 			ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
 			outputStream.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 		} catch(IOException e) {
-			Logger.getLogger(Image.class.getName()).log(Level.SEVERE, "Failed to save image", e);
+			Logger.getLogger(Image.class.getName()).log(Level.SEVERE, "Failed to save image");
 			return null;
 		} finally {
 			if(outputStream != null) {

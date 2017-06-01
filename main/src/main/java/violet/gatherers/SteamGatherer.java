@@ -2,6 +2,9 @@ package violet.gatherers;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -11,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -21,8 +25,11 @@ import org.primefaces.json.JSONObject;
 
 import violet.jpa.Game;
 import violet.jpa.Image;
+import violet.jpa.Screenshot;
 
 public class SteamGatherer extends Gatherer {
+	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("d MMM, yyyy");
+	
 	private class SteamGathererRunnable implements Runnable {
 		public void run() {
 			EntityManager em = getJPAEMF().createEntityManager();
@@ -33,13 +40,10 @@ public class SteamGatherer extends Gatherer {
 				Integer id;
 				int i = 0;
 				while((id = ids.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) {
-					Game game = null;
-					game = retryQuerySingleApp(id);
-					if(game != null) {
-						em.persist(game);
+					if(retryQuerySingleApp(id, em)) {
 						i++;
 						gamesGrabbed.incrementAndGet();
-						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Persisted " + id);
+						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Saved " + id);
 					}
 					
 					if(i > 0 && i % BATCH_SIZE == 0) {
@@ -66,19 +70,19 @@ public class SteamGatherer extends Gatherer {
 			}
 		}
 		
-		private Game retryQuerySingleApp(int appId) throws InterruptedException {
+		private boolean retryQuerySingleApp(int appId, EntityManager em) throws InterruptedException {
 			int wait = 1;
 			int retries = 0;
 			while(true) {
 				try {
-					return querySingleApp(appId);
+					return querySingleApp(appId, em);
 				} catch(JSONException e) {
-					return null;
+					return false;
 				} catch(IOException e) { // Rate limiting
 					if(retries >= MAX_RETRIES)
-						return null;
+						return false;
 					
-					Logger.getLogger(this.getClass().getName()).log(Level.FINEST, "IOException occurred during gathering, halting for " + wait);
+					Logger.getLogger(this.getClass().getName()).log(Level.FINE, "IOException occurred during gathering, halting for " + wait);
 					TimeUnit.SECONDS.sleep(wait);
 					retries++;
 					wait *= 2;
@@ -86,16 +90,19 @@ public class SteamGatherer extends Gatherer {
 			}
 		}
 		
-		private Game querySingleApp(int appId) throws JSONException, IOException, InterruptedException {
+		private boolean querySingleApp(int appId, EntityManager em) throws JSONException, IOException, InterruptedException {
 			String stringId = Integer.toString(appId);
 			
 			JSONObject data = jsonFromURL(URL_APPDETAILS + appId).getJSONObject(stringId);
+			if(data == null)
+				return false;
+			
 			if(data.getBoolean("success")) {
 				data = data.getJSONObject("data");
-				if(!data.getString("type").equals("game")) return null;
+				if(!data.getString("type").equals("game")) return false;
 				
 				boolean exists = false;
-				Game game = getGame(COLUMN_NAME, appId);
+				Game game = getGame(em, COLUMN_NAME, appId);
 				if(game != null)
 					exists = true;
 				else
@@ -108,11 +115,11 @@ public class SteamGatherer extends Gatherer {
 				if(game.getName() != value)
 					game.setName(value);
 				
-				value = data.getString("short_description");
+				value = cleanDescription(data.getString("short_description"));
 				if(game.getShortDescription() != value)
 					game.setShortDescription(value);
 				
-				value = data.getString("about_the_game");
+				value = cleanDescription(data.getString("about_the_game"));
 				if(game.getDescription() != value)
 					game.setDescription(value);
 				
@@ -123,12 +130,50 @@ public class SteamGatherer extends Gatherer {
 						game.setHeroImage(heroImage);
 				}
 				
+				JSONObject releaseDate;
+				if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
+					if(!releaseDate.getBoolean("coming_soon")) {
+						value = releaseDate.getString("date");
+						try {
+							Date release = dateFormatter.parse(value);
+							game.setRelease(release);
+						} catch(ParseException e) {
+							Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value, e);
+						}
+					}
+				}
+				
+				
 				if(!exists)
-					return game;
-				return null;
+					em.persist(game);
+				
+				JSONArray screenshots;
+				if(data.has("screenshots") && (screenshots = data.getJSONArray("screenshots")) != null) {
+					for(int i=0; i<screenshots.length(); i++) {
+						JSONObject screenshotData = screenshots.getJSONObject(i);
+						String id = Integer.toString(screenshotData.getInt("id"));
+						if(!exists || !game.hasScreenshot(id)) {
+							Screenshot screenshot = new Screenshot();
+							screenshot.setRemoteIdentifier(id);
+							Image thumbnail = Image.saveImage(new URL(screenshotData.getString("path_thumbnail")));
+							Image image = Image.saveImage(new URL(screenshotData.getString("path_full")));
+							
+							if(thumbnail != null && image != null) {
+								screenshot.setThumbnail(thumbnail);
+								screenshot.setImage(image);
+								
+								game.addScreenshot(screenshot);
+								
+								em.persist(screenshot);
+							}
+						}
+					}
+				}
+				
+				return true;
 			}
 			
-			return null;
+			return false;
 		}
 	}
 	
@@ -145,6 +190,15 @@ public class SteamGatherer extends Gatherer {
 	public SteamGatherer() {
 		gamesGrabbed = new AtomicInteger();
 		ids = new LinkedBlockingDeque<Integer>();
+	}
+	
+	private static final Pattern[] patterns = {
+		Pattern.compile("<a.*?>.*?</a>")
+	};
+	private static String cleanDescription(String description) {
+		for(int i=0; i<patterns.length; i++)
+			description = patterns[i].matcher(description).replaceAll("");
+		return description;
 	}
 	
 	public void gather(int maxGames) {
@@ -184,14 +238,18 @@ public class SteamGatherer extends Gatherer {
 	
 	private void queryApps() throws JSONException, IOException {
 		List<Integer> existing_ids = getExistingGameIds(COLUMN_NAME, Integer.class);
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Query apps " + (insertOnly ? "insert only" : "update"));
 		
 		JSONArray apps = jsonFromURL(URL_APPLIST).getJSONObject("applist").getJSONObject("apps").getJSONArray("app");
 		for(int i=0; i<apps.length(); i++) {
-			int appid = apps.getJSONObject(i).getInt("appid");
+			Integer appid = apps.getJSONObject(i).getInt("appid");
+			
 			if(!insertOnly || !existing_ids.contains(appid)) {
 				try {
 					ids.put(appid);
-				} catch(InterruptedException e) {}
+				} catch(InterruptedException e) {
+					return;
+				}
 			}
 		}
 	}
