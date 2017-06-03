@@ -13,29 +13,32 @@ import javax.persistence.TypedQuery;
 
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
+import violet.jpa.Paginator;
 import violet.jpa.User;
 
 @ManagedBean(name="jpaBean", eager=true)
 @ApplicationScoped
 public class JPABean {
-	//private EntityManagerFactory emf;
-	
 	public EntityManagerFactory getEMF() {
 		return FactoryManager.get();
-		/*if(emf == null)
-			emf = Persistence.createEntityManagerFactory("default");
-		
-		return emf;*/
 	}
 	
-	public List<Game> getGames(int length) {
+	public Paginator<Game> getPaginatedGames(int page, int length, boolean releasedOnly) {
 		EntityManager em = getEMF().createEntityManager();
 		try {
-			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g ORDER BY g.release DESC, g.id ASC", Game.class);
-			List<Game> result = tq.setMaxResults(length).getResultList();
-			return result; // We need to grab it first, or the finally below will close the em before we get the row
+			String queryStart = "SELECT g FROM Game g";
+			if(releasedOnly)
+				queryStart += " WHERE g.release < CURRENT_TIMESTAMP";
+			TypedQuery<Game> tq = em.createQuery(queryStart + " ORDER BY g.release DESC NULLS LAST, g.id ASC", Game.class);
+			List<Game> list = tq
+					.setFirstResult((page-1) * length)
+					.setMaxResults(length)
+					.getResultList();
+			Long count = em.createQuery("SELECT COUNT(g) FROM Game g", Long.class).getSingleResult();
+			return new Paginator<Game>(page, length, (int)(count/length+1), list); // We need to grab it first, or the finally below will close the em before we get the row
 		} catch(NoResultException e) {
-			return Collections.<Game>emptyList();
+			List<Game> list = Collections.<Game>emptyList();
+			return new Paginator<Game>(page, length, 0, list);
 		} finally {
 			em.close();
 		}

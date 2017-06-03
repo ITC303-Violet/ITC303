@@ -5,7 +5,11 @@
 <facelet-taglib>
 	<namespace>http://violet.csu.edu.au/facelets</namespace>
 	<tag>
-		<tag-name>gameInline</tag-name>
-		<source>tags/inlineGame.xhtml</source>
+		<tag-name>gameCard</tag-name>
+		<source>tags/gameCard.xhtml</source>
+	</tag>
+	<tag>
+		<tag-name>gameRow</tag-name>
+		<source>tags/gameRow.xhtml</source>
 	</tag>
 </facelet-taglib>

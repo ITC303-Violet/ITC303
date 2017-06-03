@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pretty="http://ocpsoft.com/prettyfaces">
+	<h:body>
+		<ui:composition>
+			<pretty:link mappingId="view-game" styleClass="deco-none game-inline">
+				<f:param value="#{game.id}" />
+				<f:param value="#{game.cleanedName}" />
+				<ui:fragment rendered="#{not empty game.heroImage}">
+					<img class="game-inline-image float-left" src="#{game.heroImage.URL}" />
+				</ui:fragment>
+				<div class="game-inline-info float-left">
+					<h6><h:outputText value="#{game.name}"/></h6>
+					<ui:fragment rendered="#{game.hasRelease}">
+						<small class="text-muted">
+							<h:outputText value="#{game.released ? 'Released' : 'Releases'} "/>
+							<h:outputText value="#{game.release}">
+								<f:convertDateTime pattern="d 'of' MMMM, yyyy" />
+							</h:outputText>
+						</small>
+					</ui:fragment>
+				</div>
+			</pretty:link>
+		</ui:composition>
+	</h:body>
+</html>

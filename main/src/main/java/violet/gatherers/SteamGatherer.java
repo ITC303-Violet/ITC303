@@ -104,6 +104,12 @@ public class SteamGatherer extends Gatherer {
 				data = data.getJSONObject("data");
 				if(!data.getString("type").equals("game")) return false;
 				
+				appId = data.getInt("steam_appid");
+				if(savedIds.contains(appId))
+					return false;
+				else
+					savedIds.offer(appId, QUEUE_TIMEOUT, TimeUnit.SECONDS);
+				
 				boolean exists = false;
 				Game game = getGame(em, COLUMN_NAME, appId);
 				if(game != null)
@@ -137,15 +143,18 @@ public class SteamGatherer extends Gatherer {
 				if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
 					if(!releaseDate.getBoolean("coming_soon")) {
 						value = releaseDate.getString("date");
+						boolean success = false;
 						for(int i=0; i<dateFormatters.length; i++) {
 							try {
 								Date release = dateFormatters[i].parse(value);
 								game.setRelease(release);
+								success = true;
 								break;
-							} catch(ParseException e) {
-								Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
-							}
+							} catch(ParseException e) {}
 						}
+						
+						if(!success)
+							Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
 					}
 				}
 				
@@ -192,14 +201,17 @@ public class SteamGatherer extends Gatherer {
 	private ExecutorService executor = null;
 	
 	private BlockingQueue<Integer> ids;
+	private BlockingQueue<Integer> savedIds;
 	
 	public SteamGatherer() {
 		gamesGrabbed = new AtomicInteger();
 		ids = new LinkedBlockingDeque<Integer>();
+		savedIds = new LinkedBlockingDeque<Integer>();
 	}
 	
 	private static final Pattern[] patterns = {
-		Pattern.compile("<a.*?>.*?</a>")
+		Pattern.compile("<a.*?>.*?</a>"),
+		Pattern.compile("<img.*?>")
 	};
 	private static String cleanDescription(String description) {
 		for(int i=0; i<patterns.length; i++)
@@ -250,7 +262,7 @@ public class SteamGatherer extends Gatherer {
 		for(int i=0; i<apps.length(); i++) {
 			Integer appid = apps.getJSONObject(i).getInt("appid");
 			
-			if(!insertOnly || !existing_ids.contains(appid)) {
+			if(!insertOnly || !existing_ids.contains(appid) && !ids.contains(appid)) {
 				try {
 					ids.put(appid);
 				} catch(InterruptedException e) {

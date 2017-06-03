@@ -32,6 +32,7 @@ public class Game {
 	@Embedded
 	private Image heroImage;
 	
+	@Column(unique=true)
 	private int steam_id;
 	
 	@Temporal(TemporalType.TIMESTAMP)
@@ -143,6 +144,16 @@ public class Game {
 	
 	public Date getRelease() {
 		return release;
+	}
+	
+	public boolean getHasRelease() {
+		return release != null;
+	}
+	
+	public boolean getReleased() {
+		if(!getHasRelease())
+			return false;
+		return new Date().after(release);
 	}
 	
 	public void addScreenshot(Screenshot screenshot) {

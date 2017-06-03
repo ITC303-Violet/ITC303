@@ -1,6 +1,14 @@
 # ITC303
 Software Development Project 1
 
+## Architecture
+The system is designed to run using docker containers:
+* Tomcat runs the application
+* Nginx forwards requests to tomcat and serves static content
+* Postgresql is used for data storage
+
+The system can also be run without using docker at all, however will need to be setup similarly to the docker based environment (this shouldn't require too much work)
+
 ## Environment Setup
 * Download and install Docker
   * [Windows 10](https://store.docker.com/editions/community/docker-ce-desktop-windows)

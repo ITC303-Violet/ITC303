@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pretty="http://ocpsoft.com/prettyfaces">
+	<h:body>
+		<ui:composition>
+			<pretty:link mappingId="view-game" styleClass="deco-none col-xl-3 col-lg-4 col-md-6 col-sm-12">
+				<f:param value="#{game.id}" />
+				<f:param value="#{game.cleanedName}" />
+				<div class="card game-card">
+					<ui:fragment rendered="#{not empty game.heroImage}">
+						<img class="card-img-top" src="#{game.heroImage.URL}" />
+					</ui:fragment>
+					<div class="card-block game-description">
+						<h5 class="card-title"><h:outputText value="#{game.name}"/></h5>
+						<ui:fragment rendered="#{game.hasRelease}">
+							<small class="card-subtitle mb-2 text-muted d-block">
+								<h:outputText value="#{game.released ? 'Released' : 'Releases'} "/>
+								<h:outputText value="#{game.release}">
+									<f:convertDateTime pattern="d 'of' MMMM, yyyy" />
+								</h:outputText>
+							</small>
+						</ui:fragment>
+						<div class="card-text"><h:outputText value="#{game.shortDescription}" escape="false"/></div>
+					</div>
+					<div class="card-footer game-footer">
+						<ui:fragment rendered="#{not empty game.steamId}"><small>Steam</small></ui:fragment>
+					</div>
+				</div>
+			</pretty:link>
+		</ui:composition>
+	</h:body>
+</html>

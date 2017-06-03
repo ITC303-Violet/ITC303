@@ -1,5 +1,5 @@
 .game-description {
-	height: 250px;
+	height: 175px;
 	overflow: hidden;
 	position: relative;
 }
@@ -11,7 +11,7 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	background: linear-gradient(transparent 150px, white);
+	background: linear-gradient(transparent 120px, white);
 	pointer-events: none;
 }
 
@@ -27,4 +27,115 @@ img {
 a.deco-none, a.deco-none:hover, a.deco-none:focus {
 	color: inherit;
 	text-decoration: inherit;
+}
+
+.padded-input {
+	width: 100%;
+	border-radius: 0;
+}
+
+input.padded-input {
+	padding: 0.75rem;
+}
+
+button.padded-input {
+	padding: 0.5rem;
+}
+
+.form-group-minor-margin {
+	margin-bottom: 0.5rem;
+}
+
+.btn-signin {
+	color: #FFF;
+	background-color: #4d90fe;
+	border-color: #3d7fea;
+}
+
+.ui-messages-info,.ui-messages-warn,.ui-messages-error {
+	position: relative;
+}
+
+.ui-messages ul {
+	margin: 0 30px !important;
+}
+
+.ui-messages-info-summary,.ui-messages-warn-summary,.ui-messages-error-summary {
+	margin-left: 0 !important;
+	font-weight: inherit !important;
+}
+
+.ui-messages-info-icon,.ui-messages-warn-icon,.ui-messages-error-icon {
+	background-repeat: no-repeat !important;
+	background-position: center !important;
+	background-size: 1.5rem 1.5rem !important;
+	position: absolute !important;
+	top: 50%;
+	margin-top: -12px !important;
+}
+
+.ui-messages-info-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cpath fill='#31708f' fill-rule='evenodd' d='M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z'/%3E%3C/svg%3E") !important;
+}
+
+.ui-messages-error-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d9534f' viewBox='-2 -2 7 7'%3E%3Cpath stroke='%23d9534f' d='M0 0l3 3m0-3L0 3'/%3E%3Ccircle r='.5'/%3E%3Ccircle cx='3' r='.5'/%3E%3Ccircle cy='3' r='.5'/%3E%3Ccircle cx='3' cy='3' r='.5'/%3E%3C/svg%3E") !important;
+}
+
+.ui-messages-warning-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%23f0ad4e' d='M4.4 5.324h-.8v-2.46h.8zm0 1.42h-.8V5.89h.8zM3.76.63L.04 7.075c-.115.2.016.425.26.426h7.397c.242 0 .372-.226.258-.426C6.726 4.924 5.47 2.79 4.253.63c-.113-.174-.39-.174-.494 0z'/%3E%3C/svg%3E") !important;
+}
+
+.brand-Y {
+	color: #357ae8;
+}
+
+.brand-M {
+	color: #fff;
+}
+
+.brand-D {
+	color: #C25154;
+}
+
+@media (max-width: 576px) {
+	.container {
+		width: 100%;
+	}
+}
+
+.card-text {
+	font-size: 0.75rem;
+}
+
+.game-footer {
+	padding: 0.25rem 1rem;
+}
+
+.game-browse-list {
+	margin-top: 1rem;
+}
+
+.game-inline {
+	width: 100%;
+	border: 1px solid #b1b1b1;
+	border-bottom: none;
+}
+
+.game-inline:first-child {
+	border-radius: 4px 4px 0 0;
+}
+
+.game-inline:last-child {
+	border-bottom: 1px solid #b1b1b1;
+	margin-bottom: 1rem;
+	border-radius: 0 0 4px 4px;
+}
+
+.game-inline-info {
+	padding: 0.5rem;
+}
+
+.game-inline-image {
+	max-height: 70px;
 }
