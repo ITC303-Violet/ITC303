@@ -10,34 +10,74 @@
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="content">
-			<h1><h:outputText value="#{gameBean.game.name}" /></h1>
 			<c:set var="screenshots" value="#{gameBean.game.screenshots}" scope="request" />
+						
+			<div class="game-carousel slick-carousel">
+				<ui:repeat var="screenshot" value="#{screenshots}">
+					<div>
+						<img class="d-block img-fluid mx-auto game-screenshot" src="#{screenshot.thumbnail.URL}" />
+					</div>
+				</ui:repeat>
+			</div>
 			
-			<div id="screenshot-carousel" class="carousel slide card card-inverse" style="background-color: #333; border-color: #333;" data-ride="carousel">
-				<ol class="carousel-indicators">
-					<ui:repeat var="screenshot" value="#{screenshots}" varStatus="status">
-						<li data-target="#screenshot-carousel" data-slide-to="#{status.index}" class="#{status.first ? 'active' : ''}"></li>
-					</ui:repeat>
-				</ol>
-				<div class="carousel-inner">
-					<ui:repeat var="screenshot" value="#{screenshots}" varStatus="status">
-						<div class="carousel-item#{status.first ? ' active' : ''}">
-							<img class="d-block img-fluid mx-auto" src="#{screenshot.thumbnail.URL}" />
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<div class="game-title-bar">
+							<ui:fragment rendered="#{not empty gameBean.game.heroImage}">
+								<img class="game-heroimage" src="#{gameBean.game.heroImage.URL}" />
+							</ui:fragment>
+							<h1 class="d-inline"><h:outputText value="#{gameBean.game.name}" /></h1>
+							<div class="game-rating#{game.averageRating == null ? ' rating-muted' : ''}">
+								<h:outputText value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}">
+									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+								</h:outputText>
+							</div>
 						</div>
-					</ui:repeat>
+						
+						<div>
+							<h:outputText value="#{gameBean.game.description}" escape="false" />
+						</div>
+					</div>
 				</div>
-				<a class="carousel-control-prev" href="#screenshot-carousel" data-slide="prev">
-					<span class="carousel-control-prev-icon"></span>
-				</a>
+			</div>
 				
-				<a class="carousel-control-next" href="#screenshot-carousel" data-slide="next">
-					<span class="carousel-control-next-icon"></span>
-				</a>
-			</div>
-			
-			<div>
-				<h:outputText value="#{gameBean.game.description}" escape="false" />
-			</div>
+			<script type="text/javascript">
+				$(".slick-carousel").slick({
+			        infinite: true,
+			        autoplay: true,
+			        speed: 500,
+			        slidesToShow: 10,
+			        centerMode: true,
+			        variableWidth: true,
+			        draggable: false
+			    });
+
+			    function recalculateSingleSlidesToShow(container) {
+			    	var containerWidth = $(container).width();
+		    		var totalSlideWidth = 0;
+
+		    		var slides = $(container).find(".slick-slide");
+		    		slides.each(function() {
+		    			totalSlideWidth += $(this).outerWidth();
+			    	});
+
+			    	var averageSlideWidth = totalSlideWidth / slides.length;
+		    		$(container).slick("slickSetOption", "slidesToShow", Math.ceil(containerWidth / averageSlideWidth), true);
+				}
+
+			    function recalculateSlidesToShow() {
+			    	$(".slick-carousel").each(function() {
+			    		recalculateSingleSlidesToShow(this);
+				  	});
+				}
+
+			    $(window).resize(function() {
+			    	recalculateSlidesToShow();
+				});
+
+				$(recalculateSlidesToShow);
+			</script>
 		</ui:define>
 	</ui:composition>
 </html>

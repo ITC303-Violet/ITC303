@@ -10,14 +10,20 @@
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="content">
-			<c:set var="gameList" value="#{gameListBean.frontPageGames}" scope="request" />
-			<div class="row">
-				<ui:repeat var="game" value="#{gameList}">
-					<violet:gameCard game="#{game}"/>
-				</ui:repeat>
-				<c:if test="#{empty gameList}">
-					<div class="col text-center"><h2>Our database is empty :(</h2></div>
-				</c:if>
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<c:set var="gameList" value="#{gameListBean.frontPageGames}" scope="request" />
+						<div class="row">
+							<ui:repeat var="game" value="#{gameList}">
+								<violet:gameCard game="#{game}"/>
+							</ui:repeat>
+							<c:if test="#{empty gameList}">
+								<div class="col text-center"><h2>Our database is empty :(</h2></div>
+							</c:if>
+						</div>
+					</div>
+				</div>
 			</div>
 		</ui:define>
 	</ui:composition>

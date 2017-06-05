@@ -110,6 +110,7 @@ button.padded-input {
 
 .game-footer {
 	padding: 0.25rem 1rem;
+	font-size: 0.75rem;
 }
 
 .game-browse-list {
@@ -138,4 +139,73 @@ button.padded-input {
 
 .game-inline-image {
 	max-height: 70px;
+}
+
+.game-inline-rating {
+	font-size: 40px;
+	font-weight: bold;
+	height: 100%;
+	line-height: 70px;
+	padding: 0 16px;
+}
+
+.slick-next {
+	right: 0 !important;
+}
+
+.slick-prev {
+	left: 0 !important;
+}
+
+.slick-next, .slick-prev {
+	height: 100% !important;
+	width: 50px !important;
+	z-index: 999;
+}
+
+.rating-muted {
+	color: #636c72;
+}
+
+.game-carousel, .game-carousel img {
+	max-height: 350px;
+}
+
+.game-carousel {
+	background-color: #161819;
+}
+
+.game-heroimage {
+	max-height: 150px;
+	margin-top: -75px;
+	border-radius: 6px;
+	border: 1px solid #fff;
+}
+
+.game-title-bar {
+	padding-top: 1rem;
+	padding-right: 150px;
+	margin-bottom: 1rem;
+}
+
+.game-rating {
+	font-size: 50px;
+	font-weight: bold;
+	text-align: center;
+	background-color: #fff;
+	border-top: 1px solid #383838;
+	border-bottom: 1px solid #ececec;
+	
+	width: 150px;
+	height: 150px;
+	line-height: 150px;
+	border-radius: 50%;
+	
+	position: absolute;
+	top: -75px;
+	right: 0;
+}
+
+.game-screenshot {
+	padding: 1rem 0.5rem;
 }

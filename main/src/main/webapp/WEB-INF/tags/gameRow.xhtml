@@ -27,6 +27,13 @@
 						</small>
 					</ui:fragment>
 				</div>
+				<div class="game-inline-rating float-right">
+					<span class="#{game.averageRating == null ? 'rating-muted' : ''}">
+						<h:outputText value="#{game.averageRating == null ? 0 : game.averageRating.rating}">
+							<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+						</h:outputText>
+					</span>
+				</div>
 			</pretty:link>
 		</ui:composition>
 	</h:body>

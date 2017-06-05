@@ -28,16 +28,12 @@ public class Characteristic {
 		return name;
 	}
 	
-	public void addGenres(Genre genre) {
+	public void addGenre(Genre genre) {
 		if(genres.contains(genre))
 			return;
 		
 		genres.add(genre);
 		genre.addCharacteristic(this);
-	}
-	
-	public boolean addGenre(Genre genre) {
-		return genres.add(genre);
 	}
 	
 	public List<Genre> getGenres() {

@@ -8,6 +8,10 @@ import java.util.regex.Pattern;
 import javax.persistence.*;
 
 @Entity
+@NamedQueries({
+	@NamedQuery(name="Game.findAverageRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user IS NULL AND r.characteristic IS NULL"),
+	@NamedQuery(name="Game.findAverageCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.characteristic=:characteristic AND r.user IS NULL")
+})
 public class Game {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +51,51 @@ public class Game {
 	public Game(String name) {
 		this();
 		this.name = name;
+	}
+	
+	public Rating getAverageRating() {
+		EntityManager em = FactoryManager.getCommonEM();
+		Rating rating = getAverageRating(em);
+		em.close();
+		
+		return rating;
+	}
+	
+	public List<Rating> getAverageCharacteristicRatings() {
+		List<Characteristic> characteristics = new ArrayList<Characteristic>();
+		List<Rating> ratings = new ArrayList<Rating>();
+		
+		EntityManager em = FactoryManager.getCommonEM();
+		for(Genre genre : genres)
+			for(Characteristic characteristic : genre.getCharacteristics())
+				if(!characteristics.contains(characteristic)) {
+					characteristics.add(characteristic);
+					ratings.add(getAverageCharacteristicRating(characteristic, em));
+				}
+		
+		em.close();
+		
+		return ratings;
+	}
+	
+	public Rating getAverageRating(EntityManager em) {
+		return getAverageCharacteristicRating(null, em);
+	}
+	
+	public Rating getAverageCharacteristicRating(Characteristic characteristic, EntityManager em) {
+		TypedQuery<Rating> tq;
+		if(characteristic == null)
+			tq = em.createNamedQuery("Game.findAverageRating", Rating.class);
+		else
+			tq = em.createNamedQuery("Game.findAverageCharacteristicRating", Rating.class)
+				.setParameter("characteristic", characteristic);
+		try {
+			Rating rating = tq.setParameter("game", this)
+					.getSingleResult();
+			return rating;
+		} catch(NoResultException e) {
+			return null;
+		}
 	}
 	
 	public Long getId() {

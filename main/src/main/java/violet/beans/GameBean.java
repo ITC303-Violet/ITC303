@@ -12,6 +12,9 @@ public class GameBean {
 	@ManagedProperty(value = "#{jpaBean}")
 	private JPABean jpaBean;
 	
+	@ManagedProperty(value = "#{userBean}")
+	private UserBean userBean;
+	
 	private Long id;
 	private Game game;
 	
@@ -21,6 +24,14 @@ public class GameBean {
 
 	public void setJpaBean(JPABean jpaBean) {
 		this.jpaBean = jpaBean;
+	}
+	
+	public UserBean getUserBean() {
+		return userBean;
+	}
+
+	public void setUserBean(UserBean userBean) {
+		this.userBean = userBean;
 	}
 
 	public Long getId() {
@@ -38,5 +49,9 @@ public class GameBean {
 	
 	public void setGame(Game game) {
 		this.game = game;
+	}
+	
+	public String rateGame() {
+		return null;
 	}
 }

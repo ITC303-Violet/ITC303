@@ -30,7 +30,13 @@
 						<div class="card-text"><h:outputText value="#{game.shortDescription}" escape="false"/></div>
 					</div>
 					<div class="card-footer game-footer">
-						<ui:fragment rendered="#{not empty game.steamId}"><small>Steam</small></ui:fragment>
+						<ui:fragment rendered="#{not empty game.steamId}">Steam</ui:fragment>
+						
+						<span class="float-right">
+							<h:outputText value="#{game.averageRating == null ? 0 : game.averageRating.rating}">
+								<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+							</h:outputText>
+						</span>
 					</div>
 				</div>
 			</pretty:link>

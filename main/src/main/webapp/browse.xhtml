@@ -14,40 +14,46 @@
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="content">
-			<c:set var="pagination" value="#{gameListBean.paginatedGames}" scope="request" />
-			<div class="row game-browse-list">
-				<ui:repeat var="game" value="#{pagination.items}">
-					<violet:gameRow game="#{game}"/>
-				</ui:repeat>
-				<c:if test="#{empty pagination.items}">
-					<div class="col text-center"><h2>Our database is empty :(</h2></div>
-				</c:if>
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<c:set var="pagination" value="#{gameListBean.paginatedGames}" scope="request" />
+						<div class="row game-browse-list">
+							<ui:repeat var="game" value="#{pagination.items}">
+								<violet:gameRow game="#{game}"/>
+							</ui:repeat>
+							<c:if test="#{empty pagination.items}">
+								<div class="col text-center"><h2>Our database is empty :(</h2></div>
+							</c:if>
+						</div>
+						
+						<nav>
+							<ul class="pagination justify-content-center">
+								<li class="page-item#{pagination.page le 1 ? ' disabled' : ''}">
+									<pretty:link mappingId="browse-games-paged" styleClass="page-link">
+										<f:param value="#{pagination.page-1}" />
+										<span>&laquo;</span>
+									</pretty:link>
+								</li>
+								<c:forEach begin="1" end="#{pagination.pages}" var="i">
+									<li class="page-item#{pagination.page == i ? ' disabled' : ''}">
+										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
+											<f:param value="#{i}" />
+											<h:outputText value="#{i}" />
+										</pretty:link>
+									</li>
+								</c:forEach>
+								<li class="page-item#{pagination.page ge pagination.pages ? ' disabled' : ''}">
+									<pretty:link mappingId="browse-games-paged" styleClass="page-link">
+										<f:param value="#{pagination.page+1}" />
+										<span>&raquo;</span>
+									</pretty:link>
+								</li>
+							</ul>
+						</nav>
+					</div>
+				</div>
 			</div>
-			
-			<nav>
-				<ul class="pagination justify-content-center">
-					<li class="page-item#{pagination.page le 1 ? ' disabled' : ''}">
-						<pretty:link mappingId="browse-games-paged" styleClass="page-link">
-							<f:param value="#{pagination.page-1}" />
-							<span>&laquo;</span>
-						</pretty:link>
-					</li>
-					<c:forEach begin="1" end="#{pagination.pages}" var="i">
-						<li class="page-item">
-							<pretty:link mappingId="browse-games-paged" styleClass="page-link#{pagination.page == i ? ' disabled' : ''}">
-								<f:param value="#{i}" />
-								<h:outputText value="#{i}" />
-							</pretty:link>
-						</li>
-					</c:forEach>
-					<li class="page-item#{pagination.page ge pagination.pages ? ' disabled' : ''}">
-						<pretty:link mappingId="browse-games-paged" styleClass="page-link">
-							<f:param value="#{pagination.page+1}" />
-							<span>&raquo;</span>
-						</pretty:link>
-					</li>
-				</ul>
-			</nav>
 		</ui:define>
 	</ui:composition>
 </html>

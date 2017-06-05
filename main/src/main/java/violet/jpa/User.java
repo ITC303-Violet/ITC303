@@ -10,6 +10,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="VUser")
+@NamedQueries({
+	@NamedQuery(name="User.getOverallRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic IS NULL"),
+	@NamedQuery(name="User.getCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic=:characteristic")
+})
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -44,6 +48,48 @@ public class User implements Serializable {
 		this.username = username;
 		this.email = email;
 		setPassword(password);
+	}
+	
+	public Rating getRating(Game game, Characteristic characteristic, EntityManager em) {
+		TypedQuery<Rating> tq;
+		if(characteristic == null)
+			tq = em.createNamedQuery("User.getOverallRating", Rating.class);
+		else
+			tq = em.createNamedQuery("User.getCharacteristicRating", Rating.class)
+				.setParameter("characteristic", characteristic);
+		
+		tq.setParameter("game", game)
+			.setParameter("user", this);
+		
+		try {
+			Rating rating = tq.getSingleResult();
+			return rating;
+		} catch(NoResultException e) {
+			return null;
+		}
+	}
+	
+	public void rateGame(Game game, Characteristic characteristic, Double rating) {
+		EntityManager em = FactoryManager.getCommonEM();
+		em.getTransaction().begin();
+		
+		boolean created = false;
+		Rating ratingObj = getRating(game, characteristic, em);
+		if(ratingObj == null) {
+			created = true;
+			ratingObj = new Rating();
+			ratingObj.setGame(game);
+			ratingObj.setUser(this);
+			ratingObj.setCharacteristic(characteristic);
+		}
+		
+		ratingObj.setRating(rating);
+		
+		if(created)
+			em.persist(ratingObj);
+		
+		em.getTransaction().commit();
+		em.close();
 	}
 	
 	public String getUsername() {
