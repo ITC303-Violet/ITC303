@@ -14,9 +14,9 @@
 				<f:param value="#{game.id}" />
 				<f:param value="#{game.cleanedName}" />
 				<ui:fragment rendered="#{not empty game.heroImage}">
-					<img class="game-inline-image float-left" src="#{game.heroImage.URL}" />
+					<img class="game-inline-image" src="#{game.heroImage.URL}" />
 				</ui:fragment>
-				<div class="game-inline-info float-left">
+				<div class="game-inline-info">
 					<h6><h:outputText value="#{game.name}"/></h6>
 					<ui:fragment rendered="#{game.hasRelease}">
 						<small class="text-muted">
@@ -27,7 +27,7 @@
 						</small>
 					</ui:fragment>
 				</div>
-				<div class="game-inline-rating float-right">
+				<div class="game-inline-rating">
 					<span class="#{game.averageRating == null ? 'rating-muted' : ''}">
 						<h:outputText value="#{game.averageRating == null ? 0 : game.averageRating.rating}">
 							<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>

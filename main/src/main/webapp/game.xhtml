@@ -43,40 +43,42 @@
 			</div>
 				
 			<script type="text/javascript">
-				$(".slick-carousel").slick({
-			        infinite: true,
-			        autoplay: true,
-			        speed: 500,
-			        slidesToShow: 10,
-			        centerMode: true,
-			        variableWidth: true,
-			        draggable: false
-			    });
+				$(function() {
+					$(".slick-carousel").slick({
+				        infinite: true,
+				        autoplay: true,
+				        speed: 500,
+				        slidesToShow: 10,
+				        centerMode: true,
+				        variableWidth: true,
+				        draggable: false
+				    });
 
-			    function recalculateSingleSlidesToShow(container) {
-			    	var containerWidth = $(container).width();
-		    		var totalSlideWidth = 0;
+				    function recalculateSingleSlidesToShow(container) {
+				    	var containerWidth = $(container).width();
+			    		var totalSlideWidth = 0;
 
-		    		var slides = $(container).find(".slick-slide");
-		    		slides.each(function() {
-		    			totalSlideWidth += $(this).outerWidth();
-			    	});
+			    		var slides = $(container).find(".slick-slide");
+			    		slides.each(function() {
+			    			totalSlideWidth += $(this).outerWidth();
+				    	});
 
-			    	var averageSlideWidth = totalSlideWidth / slides.length;
-		    		$(container).slick("slickSetOption", "slidesToShow", Math.ceil(containerWidth / averageSlideWidth), true);
-				}
+				    	var averageSlideWidth = totalSlideWidth / slides.length;
+			    		$(container).slick("slickSetOption", "slidesToShow", Math.ceil(containerWidth / averageSlideWidth), true);
+					}
 
-			    function recalculateSlidesToShow() {
-			    	$(".slick-carousel").each(function() {
-			    		recalculateSingleSlidesToShow(this);
-				  	});
-				}
+				    function recalculateSlidesToShow() {
+				    	$(".slick-carousel").each(function() {
+				    		recalculateSingleSlidesToShow(this);
+					  	});
+					}
 
-			    $(window).resize(function() {
-			    	recalculateSlidesToShow();
+				    $(window).resize(function() {
+				    	recalculateSlidesToShow();
+					});
+
+					$(recalculateSlidesToShow);
 				});
-
-				$(recalculateSlidesToShow);
 			</script>
 		</ui:define>
 	</ui:composition>
