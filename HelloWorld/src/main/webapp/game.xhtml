@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
+		<ui:define name="content">
+			<h1><h:outputText value="#{gameBean.game.name}" /></h1>
+			<c:set var="screenshots" value="#{gameBean.game.screenshots}" scope="request" />
+			
+			<div id="screenshot-carousel" class="carousel slide card card-inverse" style="background-color: #333; border-color: #333;" data-ride="carousel">
+				<ol class="carousel-indicators">
+					<ui:repeat var="screenshot" value="#{screenshots}" varStatus="status">
+						<li data-target="#screenshot-carousel" data-slide-to="#{status.index}" class="#{status.first ? 'active' : ''}"></li>
+					</ui:repeat>
+				</ol>
+				<div class="carousel-inner">
+					<ui:repeat var="screenshot" value="#{screenshots}" varStatus="status">
+						<div class="carousel-item#{status.first ? ' active' : ''}">
+							<img class="d-block img-fluid mx-auto" src="#{screenshot.thumbnail.URL}" />
+						</div>
+					</ui:repeat>
+				</div>
+				<a class="carousel-control-prev" href="#screenshot-carousel" data-slide="prev">
+					<span class="carousel-control-prev-icon"></span>
+				</a>
+				
+				<a class="carousel-control-next" href="#screenshot-carousel" data-slide="next">
+					<span class="carousel-control-next-icon"></span>
+				</a>
+			</div>
+			
+			<div>
+				<h:outputText value="#{gameBean.game.description}" escape="false" />
+			</div>
+		</ui:define>
+	</ui:composition>
+</html>
