@@ -12,9 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
-//import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
 import org.primefaces.json.JSONException;
@@ -24,7 +22,6 @@ import violet.jpa.FactoryManager;
 import violet.jpa.Game;
 
 public class Gatherer {
-//	private EntityManagerFactory emf;
 	protected static final int BATCH_SIZE = 50;
 	protected static final int MAX_RETRIES = 10;
 	protected static final long QUEUE_TIMEOUT = 10;
@@ -87,16 +84,8 @@ public class Gatherer {
 		return stringBuilder.toString();
 	}
 	
-	protected EntityManagerFactory getJPAEMF() {
-		return FactoryManager.get();
-		/*if(emf == null)
-			emf = Persistence.createEntityManagerFactory("default");
-		
-		return emf;*/
-	}
-	
 	protected <T> List<T> getExistingGameIds(String column, Class<T> type) {
-		EntityManager em = getJPAEMF().createEntityManager();
+		EntityManager em = FactoryManager.getEM();
 		try {
 			List<T> result = getExistingGameIds(em, column, type);
 			return result;

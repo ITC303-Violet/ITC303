@@ -23,6 +23,7 @@ import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
 
+import violet.jpa.FactoryManager;
 import violet.jpa.Game;
 import violet.jpa.Image;
 import violet.jpa.Screenshot;
@@ -35,7 +36,7 @@ public class SteamGatherer extends Gatherer {
 	
 	private class SteamGathererRunnable implements Runnable {
 		public void run() {
-			EntityManager em = getJPAEMF().createEntityManager();
+			EntityManager em = FactoryManager.getEM();
 			EntityTransaction transaction = null;
 			try {
 				transaction = em.getTransaction();

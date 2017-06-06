@@ -19,9 +19,13 @@ public class FactoryManager {
 		return emf;
 	}
 	
+	public static EntityManager getEM() {
+		return get().createEntityManager();
+	}
+	
 	public static EntityManager getCommonEM() {
 		if(em == null || !em.isOpen())
-			em = get().createEntityManager();
+			em = getEM();
 		
 		return em;
 	}

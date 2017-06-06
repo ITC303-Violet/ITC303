@@ -62,15 +62,14 @@ public class User implements Serializable {
 			.setParameter("user", this);
 		
 		try {
-			Rating rating = tq.getSingleResult();
-			return rating;
+			return tq.getSingleResult();
 		} catch(NoResultException e) {
 			return null;
 		}
 	}
 	
 	public void rateGame(Game game, Characteristic characteristic, Double rating) {
-		EntityManager em = FactoryManager.getCommonEM();
+		EntityManager em = FactoryManager.getEM();
 		em.getTransaction().begin();
 		
 		boolean created = false;
@@ -78,9 +77,10 @@ public class User implements Serializable {
 		if(ratingObj == null) {
 			created = true;
 			ratingObj = new Rating();
-			ratingObj.setGame(game);
-			ratingObj.setUser(this);
-			ratingObj.setCharacteristic(characteristic);
+			game.addRating(ratingObj);
+			addRating(ratingObj);
+			if(characteristic != null)
+				characteristic.addRating(ratingObj);
 		}
 		
 		ratingObj.setRating(rating);

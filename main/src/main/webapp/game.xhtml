@@ -29,15 +29,33 @@
 							</ui:fragment>
 							<h1 class="d-inline"><h:outputText value="#{gameBean.game.name}" /></h1>
 							<div class="game-rating#{game.averageRating == null ? ' rating-muted' : ''}">
-								<h:outputText value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}">
+								<h:outputText id="averageRating" value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}">
 									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
 								</h:outputText>
 							</div>
 						</div>
-						
-						<div>
-							<h:outputText value="#{gameBean.game.description}" escape="false" />
-						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<h:form>
+							<p:messages/>
+							
+							<label>Overall Rating</label>
+							<p:rating value="#{gameBean.overallRating}" stars="10" cancel="false" />
+							<ui:repeat var="characteristic" value="#{gameBean.game.characteristics}">
+								<label><h:outputText value="#{characteristic.name}" /></label>
+								<p:rating value="#{gameBean.characteristicRatings[characteristic]}" stars="10" cancel="false" />	
+							</ui:repeat>
+							
+							<p:commandButton styleClass="btn btn-primary" type="submit" value="Rate" action="#{gameBean.rateGame}">
+								<f:ajax execute="@form" render="@form averageRating" />
+							</p:commandButton>
+						</h:form>
+					</div>
+					
+					<div class="col">
+						<h:outputText value="#{gameBean.game.description}" escape="false" />
 					</div>
 				</div>
 			</div>

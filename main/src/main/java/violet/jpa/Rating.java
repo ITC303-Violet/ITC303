@@ -1,22 +1,23 @@
 package violet.jpa;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.persistence.*;
 
 @Entity
 public class Rating {
-	@EmbeddedId
-	private RatingKey id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	
 	@ManyToOne(optional=true)
-	@MapsId("userId")
 	private User user;
 	
 	@ManyToOne
-	@MapsId("gameId")
 	private Game game;
 	
 	@ManyToOne(optional=true)
-	@MapsId("characteristicId")
 	private Characteristic characteristic;
 	
 	private Double rating;
@@ -25,36 +26,69 @@ public class Rating {
 		
 	}
 	
+	@PostUpdate
 	@PostPersist
 	public void updateAverage() {
 		if(game == null || user == null) // Don't wind up in a loop updating averages
 			return;
 		
-		EntityManager em = FactoryManager.getCommonEM();
+		EntityManager em = FactoryManager.getEM();
+		
+		Double average = 0.0D;
+		try {
+			String query = "SELECT AVG(r.rating) FROM Rating r WHERE r.user IS NOT NULL AND r.game=:game AND r.characteristic";
+			
+			if(characteristic == null)
+				query += " IS NULL";
+			else
+				query += "=:characteristic";
+			
+			if(id != null) // Lets us update the provided average from the db with the rating stored in this entity (postupdate doesn't fire after the commit)
+				query += " AND r.id!=:id";
+			
+			TypedQuery<Double> tq;
+			tq = em.createQuery(query, Double.class).setParameter("game", game);
+			
+			if(characteristic != null)
+				tq.setParameter("characteristic", characteristic);
+			
+			if(id != null)
+				tq.setParameter("id", id);
+			
+			average = tq.getSingleResult();
+			
+			if(average == null)
+				average = rating;
+			else
+				average = (average + rating) / 2;
+		} catch(NoResultException e) {
+			average = rating;
+		} 
+		
 		EntityTransaction et = em.getTransaction();
 		et.begin();
 		if(et.isActive()) {
-			Rating average;
-			average = game.getAverageCharacteristicRating(characteristic, em);
+			Rating averageRating;
+			averageRating = game.getAverageCharacteristicRating(characteristic, em);
 			
-			if(average == null) {
-				average = new Rating();
-				average.setGame(game);
-				average.setCharacteristic(characteristic);
-				average.setRating(rating);
+			if(averageRating == null) {
+				averageRating = new Rating();
+				averageRating.setGame(game);
+				averageRating.setCharacteristic(characteristic);
+				averageRating.setRating(average);
+				em.persist(averageRating);
 			} else {
-				average.setRating((average.getRating() + rating)/2);
-				em.persist(average);
+				averageRating.setRating(average);
 			}
 		}
 		et.commit();
 	}
 
-	public RatingKey getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(RatingKey id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -63,8 +97,13 @@ public class Rating {
 	}
 
 	public void setUser(User user) {
+		setUser(user, false);
+	}
+	
+	public void setUser(User user, boolean reflect) {
 		this.user = user;
-		user.addRating(this);
+		if(reflect)
+			user.addRating(this);
 	}
 
 	public Game getGame() {
@@ -72,8 +111,13 @@ public class Rating {
 	}
 
 	public void setGame(Game game) {
+		setGame(game, false);
+	}
+	
+	public void setGame(Game game, boolean reflect) {
 		this.game = game;
-		game.addRating(this);
+		if(reflect)
+			game.addRating(this);
 	}
 
 	public Characteristic getCharacteristic() {
@@ -81,8 +125,13 @@ public class Rating {
 	}
 
 	public void setCharacteristic(Characteristic characteristic) {
+		setCharacteristic(characteristic, false);
+	}
+	
+	public void setCharacteristic(Characteristic characteristic, boolean reflect) {
 		this.characteristic = characteristic;
-		characteristic.addRating(this);
+		if(reflect)
+			characteristic.addRating(this);
 	}
 
 	public Double getRating() {

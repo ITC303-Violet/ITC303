@@ -18,7 +18,7 @@
 				<div class="row">
 					<div class="col">
 						<c:set var="pagination" value="#{gameListBean.paginatedGames}" scope="request" />
-						<div class="row mt-3-sm">
+						<div class="row mt-sm-3">
 							<ui:repeat var="game" value="#{pagination.items}">
 								<violet:gameRow game="#{game}"/>
 							</ui:repeat>

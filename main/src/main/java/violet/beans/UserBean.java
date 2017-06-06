@@ -21,4 +21,8 @@ public class UserBean {
 	public boolean isStaff() {
 		return user != null && user.getIsStaff();
 	}
+	
+	public boolean isAuthenticated() {
+		return user != null;
+	}
 }

@@ -170,6 +170,16 @@ public class Game {
 		return genres;
 	}
 	
+	public List<Characteristic> getCharacteristics() {
+		List<Characteristic> characteristics = new ArrayList<Characteristic>();
+		for(Genre genre : genres)
+			for(Characteristic characteristic : genre.getCharacteristics())
+				if(!characteristics.contains(characteristic))
+					characteristics.add(characteristic);
+		
+		return characteristics;
+	}
+	
 	public void addRating(Rating rating) {
 		if(ratings.contains(rating))
 			return;

@@ -45,6 +45,8 @@ Perform the same settings as above however:
 * Copy settings.xml.default to %HOMEPATH%\\.m2 and rename to settings.xml (If you have an existing settings.xml you'll need to merge them)
 * Edit the credentials within the new settings.xml to match your running tomcat server
 
+nginx will require some additional configuration and a shared path between tomcat and nginx will need to be specified in `violet.properties`
+
 After this, compiling and deployment should be the same as using docker.
 
 **NOTE:** If docker toolbox is installed, you'll also need to un-comment `<!-- <activeProfile>violet-no-docker</activeProfile> -->` within settings.xml to use the tomcat instance running on localhost
