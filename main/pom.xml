@@ -17,7 +17,7 @@
 					<source>1.7</source>
 					<target>1.7</target>
 					<debug>true</debug>
-					<debuglevel>lines,vars,source</debuglevel> 
+					<debuglevel>lines,vars,source</debuglevel>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -31,6 +31,10 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	
 	<profiles>
 		<profile>

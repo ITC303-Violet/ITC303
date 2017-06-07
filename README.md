@@ -23,13 +23,18 @@ The system can also be run without using docker at all, however will need to be 
 
 ## Running
 ### Using Docker
-Start the docker containers by running docker-start-containers.bat in the main directory
+Start the docker containers by running docker-start-containers.bat in the main directory. This could take a while the first time it is run
 
 To build and test the project within eclipse:
 
+* Ensure you have [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) installed
 * Click run and choose "Maven build"
 * If asked to enter some goals enter `clean tomcat7:redeploy`
 * This should build and then deploy the application to the docker container running tomcat
+
+If the build fails for anything besides source errors please let Somer know.
+
+If the error given is: `No compiler is provided in this environment. Perhaps you are running on a JRE rather than a JDK?` try [adding your jdk environment](https://stackoverflow.com/questions/19655184/no-compiler-is-provided-in-this-environment-perhaps-you-are-running-on-a-jre-ra)
 
 The tomcat instance once running can be reached at [http://localhost:8080/](http://localhost:8080/) (*Docker Toolbox* will require the address of your docker machine which tends to be [http://192.168.99.100:8080/](http://192.168.99.100:8080/))
 
