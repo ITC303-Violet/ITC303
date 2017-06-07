@@ -39,9 +39,9 @@
 				
 				<div class="row">
 					<div class="col-12 col-lg-9">
-						<ul>
+						<ul class="list-inline">
 							<ui:repeat var="genre" value="#{gameBean.game.genres}">
-								<li><h:outputText value="#{genre.name}" /></li>
+								<li class="list-inline-item"><h:outputText value="#{genre.name}" /></li>
 							</ui:repeat>
 						</ul>
 						<h:outputText value="#{gameBean.game.description}" escape="false" />
