@@ -15,7 +15,7 @@
 				<f:param value="#{game.cleanedName}" />
 				<div class="card game-card">
 					<ui:fragment rendered="#{not empty game.heroImage}">
-						<img class="card-img-top" src="#{game.heroImage.URL}" />
+						<img class="card-img-top game-card-img" src="#{game.heroImage.URL}" />
 					</ui:fragment>
 					<div class="card-block game-description">
 						<h5 class="card-title"><h:outputText value="#{game.name}"/></h5>

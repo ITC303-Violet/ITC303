@@ -1,6 +1,8 @@
 package violet.jpa;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.*;
@@ -8,8 +10,7 @@ import javax.persistence.*;
 @Entity
 public class Genre {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String identifier;
 	
 	private String name;
 	
@@ -24,8 +25,22 @@ public class Genre {
 		characteristics = new ArrayList<Characteristic>();
 	}
 	
+	public Genre(String name) {
+		this();
+		this.identifier = name.toLowerCase();;
+		this.name = name;
+	}
+	
+	public String getIndentifier() {
+		return identifier;
+	}
+	
 	public String getName() {
 		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public void addGame(Game game) {
@@ -50,5 +65,25 @@ public class Genre {
 	
 	public List<Characteristic> getCharacteristics() {
 		return characteristics;
+	}
+	
+	public static Genre getGenre(String name, boolean create, EntityManager em) {
+		try {
+			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g WHERE LOWER(g.identifier)=:identifier", Genre.class);
+			return tq.setParameter("identifier", name.toLowerCase()).getSingleResult();
+		} catch(NoResultException e) {
+			if(create)
+				return new Genre(name);
+			return null;
+		}
+	}
+	
+	public static Collection<Genre> getGenres(EntityManager em) {
+		try {
+			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g", Genre.class);
+			return tq.getResultList();
+		} catch(NoResultException e) {
+			return Collections.emptyList();
+		}
 	}
 }

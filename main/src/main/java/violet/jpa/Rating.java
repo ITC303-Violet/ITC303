@@ -1,8 +1,5 @@
 package violet.jpa;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.persistence.*;
 
 @Entity

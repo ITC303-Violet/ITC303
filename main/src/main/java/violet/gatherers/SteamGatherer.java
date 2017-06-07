@@ -25,6 +25,7 @@ import org.primefaces.json.JSONObject;
 
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
+import violet.jpa.Genre;
 import violet.jpa.Image;
 import violet.jpa.Screenshot;
 
@@ -34,23 +35,29 @@ public class SteamGatherer extends Gatherer {
 			new SimpleDateFormat("MMM d, yyyy")
 	};
 	
+	EntityManager em;
+	EntityTransaction transaction;
+	
 	private class SteamGathererRunnable implements Runnable {
+		private EntityManager em;
+		private EntityTransaction transaction;
+		
 		public void run() {
-			EntityManager em = FactoryManager.getEM();
-			EntityTransaction transaction = null;
+			em = FactoryManager.getEM();
+			transaction = null;
 			try {
 				transaction = em.getTransaction();
 				transaction.begin();
+				
 				Integer id;
-				int i = 0;
 				while((id = ids.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) {
+					Integer i = null;
 					if(retryQuerySingleApp(id, em)) {
-						i++;
-						gamesGrabbed.incrementAndGet();
-						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Saved " + id);
+						i = gamesGrabbed.incrementAndGet();
+//						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Saved " + id);
 					}
 					
-					if(i > 0 && i % BATCH_SIZE == 0) {
+					if(i != null && i > 0 && i % BATCH_SIZE == 0) {
 						em.flush();
 						em.clear();
 						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Flushed cache");
@@ -66,11 +73,10 @@ public class SteamGatherer extends Gatherer {
 					transaction.commit();
 				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Gathering interrupted");
 			} catch(Exception e) {
-				if(transaction != null)
+				if(transaction != null && transaction.isActive())
 					transaction.rollback();
 				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Exception thrown during gathering", e);
-			} finally {
-				em.close();
+				executor.shutdownNow();
 			}
 		}
 		
@@ -98,98 +104,124 @@ public class SteamGatherer extends Gatherer {
 			String stringId = Integer.toString(appId);
 			
 			JSONObject data = jsonFromURL(URL_APPDETAILS + appId).getJSONObject(stringId);
-			if(data == null)
+			if(data == null || !data.getBoolean("success"))
 				return false;
 			
-			if(data.getBoolean("success")) {
-				data = data.getJSONObject("data");
-				if(!data.getString("type").equals("game")) return false;
-				
-				appId = data.getInt("steam_appid");
-				if(savedIds.contains(appId))
-					return false;
-				else
-					savedIds.offer(appId, QUEUE_TIMEOUT, TimeUnit.SECONDS);
-				
-				boolean exists = false;
-				Game game = getGame(em, COLUMN_NAME, appId);
-				if(game != null)
-					exists = true;
-				else
-					game = new Game();
-				
-				if(game.getSteamId() != appId)
-					game.setSteamId(appId);
-				
-				String value = data.getString("name");
-				if(game.getName() != value)
-					game.setName(value);
-				
-				value = cleanDescription(data.getString("short_description"));
-				if(game.getShortDescription() != value)
-					game.setShortDescription(value);
-				
-				value = cleanDescription(data.getString("about_the_game"));
-				if(game.getDescription() != value)
-					game.setDescription(value);
-				
-				value = data.getString("header_image");
-				if(!value.isEmpty()) {
-					Image heroImage = Image.saveImage(new URL(value));
-					if(heroImage != null)
-						game.setHeroImage(heroImage);
-				}
-				
-				JSONObject releaseDate;
-				if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
-					if(!releaseDate.getBoolean("coming_soon")) {
-						value = releaseDate.getString("date");
-						boolean success = false;
-						for(int i=0; i<dateFormatters.length; i++) {
-							try {
-								Date release = dateFormatters[i].parse(value);
-								game.setRelease(release);
-								success = true;
-								break;
-							} catch(ParseException e) {}
-						}
-						
-						if(!success)
-							Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
-					}
-				}
-				
-				
-				if(!exists)
-					em.persist(game);
-				
-				JSONArray screenshots;
-				if(data.has("screenshots") && (screenshots = data.getJSONArray("screenshots")) != null) {
-					for(int i=0; i<screenshots.length(); i++) {
-						JSONObject screenshotData = screenshots.getJSONObject(i);
-						String id = Integer.toString(screenshotData.getInt("id"));
-						if(!exists || !game.hasScreenshot(id)) {
-							Screenshot screenshot = new Screenshot();
-							screenshot.setRemoteIdentifier(id);
-							Image thumbnail = Image.saveImage(new URL(screenshotData.getString("path_thumbnail")));
-							Image image = Image.saveImage(new URL(screenshotData.getString("path_full")));
-							
-							if(thumbnail != null && image != null) {
-								screenshot.setThumbnail(thumbnail);
-								screenshot.setImage(image);
-								
-								game.addScreenshot(screenshot);
-								
-								em.persist(screenshot);
-							}
-						}
-					}
-				}
-				
-				return true;
+			return processAppData(appId, data, em);
+		}
+		
+		private boolean processAppData(int appId, JSONObject data, EntityManager em) throws JSONException, IOException, InterruptedException {
+			data = data.getJSONObject("data");
+			if(!data.getString("type").equals("game")) return false;
+			
+			appId = data.getInt("steam_appid");
+			if(savedIds.contains(appId))
+				return false;
+			else
+				savedIds.offer(appId, QUEUE_TIMEOUT, TimeUnit.SECONDS);
+			
+			boolean exists = false;
+			Game game = getGame(em, COLUMN_NAME, appId);
+			if(game != null)
+				exists = true;
+			else
+				game = new Game();
+			
+			if(game.getSteamId() != appId)
+				game.setSteamId(appId);
+			
+			String value = data.getString("name");
+			if(game.getName() != value)
+				game.setName(value);
+			
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Processing " + appId + ":" + value);
+			
+			value = cleanDescription(data.getString("short_description"));
+			if(game.getShortDescription() != value)
+				game.setShortDescription(value);
+			
+			value = cleanDescription(data.getString("about_the_game"));
+			if(game.getDescription() != value)
+				game.setDescription(value);
+			
+			value = data.getString("header_image");
+			if(!value.isEmpty()) {
+				Image heroImage = Image.saveImage(new URL(value));
+				if(heroImage != null)
+					game.setHeroImage(heroImage);
 			}
 			
-			return false;
+			JSONObject releaseDate;
+			if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
+				if(!releaseDate.getBoolean("coming_soon")) {
+					value = releaseDate.getString("date");
+					boolean success = false;
+					for(int i=0; i<dateFormatters.length; i++) {
+						try {
+							Date release = dateFormatters[i].parse(value);
+							game.setRelease(release);
+							success = true;
+							break;
+						} catch(ParseException e) {}
+					}
+					
+					if(!success)
+						Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
+				}
+			}
+			
+			if(!exists)
+				game = em.merge(game);
+			
+			synchronized(this.getClass()) {
+				JSONArray genres;
+				if(data.has("genres") && (genres = data.getJSONArray("genres")) != null) {
+					for(int i=0; i<genres.length(); i++) {
+						JSONObject genreData = genres.getJSONObject(i);
+						
+						Genre genre;
+						String name = genreData.getString("description");
+						
+						genre = Genre.getGenre(name, true, em);
+						Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
+						
+	//					if(exists)
+	//						em.merge(genre);
+						
+						game.addGenre(genre);
+					}
+					
+					if(genres.length() > 0) {
+						transaction.commit();
+						transaction.begin();
+					}
+				}
+			}
+			
+			JSONArray screenshots;
+			if(data.has("screenshots") && (screenshots = data.getJSONArray("screenshots")) != null) {
+				for(int i=0; i<screenshots.length(); i++) {
+					JSONObject screenshotData = screenshots.getJSONObject(i);
+					String id = Integer.toString(screenshotData.getInt("id"));
+					if(!exists || !game.hasScreenshot(id)) {
+						Screenshot screenshot = new Screenshot();
+						screenshot.setRemoteIdentifier(id);
+						Image thumbnail = Image.saveImage(new URL(screenshotData.getString("path_thumbnail")));
+						Image image = Image.saveImage(new URL(screenshotData.getString("path_full")));
+						
+						if(thumbnail != null && image != null) {
+							screenshot.setThumbnail(thumbnail);
+							screenshot.setImage(image);
+							
+							game.addScreenshot(screenshot);
+							
+							em.persist(screenshot);
+						}
+					}
+				}
+			}
+			
+			return true;
 		}
 	}
 	
@@ -234,6 +266,9 @@ public class SteamGatherer extends Gatherer {
 		}
 		
 		this.maxGames = maxGames;
+		
+		//for(Genre genre : Genre.getGenres(em))
+		//	existingGenres.put(genre.getName().toLowerCase());
 		
 		executor = Executors.newFixedThreadPool(THREAD_COUNT);
 		for(int i=0; i<THREAD_COUNT; i++)

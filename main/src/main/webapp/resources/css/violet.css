@@ -113,6 +113,10 @@ button.padded-input {
 	font-size: 0.75rem;
 }
 
+.game-card-img {
+	width: 100%;
+}
+
 .game-inline {
 	width: 100%;
 	border: 1px solid #b1b1b1;

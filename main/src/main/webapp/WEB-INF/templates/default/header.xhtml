@@ -77,8 +77,8 @@
 										<f:validateLength minimum="5"/>
 									</p:inputText>
 								</div>
-								<p:commandButton styleClass="btn btn-primary btn-signin padded-input" type="submit" value="Sign in" action="#{signInBean.signIn}">
-									<f:ajax execute="@form" render="@form" />
+								<p:commandButton styleClass="btn btn-primary btn-signin padded-input" type="submit" value="Sign in" action="#{signInBean.signIn}" update="@form">
+									<!-- <f:ajax execute="@form" render="@form" /> -->
 								</p:commandButton>
 							</div>
 						</h:form>
@@ -111,8 +111,8 @@
 										<f:validateLength minimum="5"/>
 									</p:inputText>
 								</div>
-								<p:commandButton styleClass="btn btn-primary btn-signin padded-input" type="submit" value="Sign up" action="#{signUpBean.signUp}">
-									<f:ajax execute="@form" render="@form" />
+								<p:commandButton styleClass="btn btn-primary btn-signin padded-input" type="submit" value="Sign up" action="#{signUpBean.signUp}" update="@form">
+									<!-- <f:ajax execute="@form" render="@form" /> -->
 								</p:commandButton>
 							</div>
 						</h:form>

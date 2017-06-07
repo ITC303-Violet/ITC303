@@ -2,15 +2,16 @@ package violet.beans;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.persistence.EntityManager;
 
 import violet.jpa.Characteristic;
+import violet.jpa.FactoryManager;
 import violet.jpa.Game;
+import violet.jpa.Rating;
 import violet.jpa.User;
 
 @ManagedBean
@@ -25,7 +26,7 @@ public class GameBean {
 	private Long id;
 	private Game game;
 	
-	private Integer overallRating = 0;
+	private Integer overallRating = null;
 	private Map<Characteristic, Integer> characteristicRatings;
 	
 	public JPABean getJpaBean() {
@@ -52,10 +53,28 @@ public class GameBean {
 		this.id = id;
 		game = getJpaBean().getGame(id);
 		
+		User user = userBean.getUser();
+		
+		EntityManager em = FactoryManager.getEM();
+		if(user != null) {
+			Rating rating = user.getRating(game, null, em);
+			if(rating != null)
+				overallRating = rating.getRating().intValue();
+		} else if(game.getAverageRating(em) != null)
+			overallRating = game.getAverageRating(em).getRating().intValue();
+			
 		characteristicRatings = new HashMap<Characteristic, Integer>();
 		for(Characteristic characteristic : game.getCharacteristics()) {
-			characteristicRatings.put(characteristic, 0);
+			if(user != null) {
+				Rating rating = user.getRating(game, characteristic, em);
+				if(rating != null)
+					characteristicRatings.put(characteristic, rating.getRating().intValue());
+			} else {
+				Rating averageRating = game.getAverageCharacteristicRating(characteristic, em);
+				characteristicRatings.put(characteristic, averageRating == null ? 0 : averageRating.getRating().intValue());
+			}
 		}
+		em.close();
 	}
 	
 	public Game getGame() {
@@ -79,20 +98,23 @@ public class GameBean {
 	}
 	
 	public String rateGame() {
-		if(!userBean.isAuthenticated()) {
-			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Not authenticated");
+		if(!userBean.isAuthenticated())
 			return null;
-		}
 			
 		
 		User user = userBean.getUser(); 
 		user.rateGame(game, null, overallRating.doubleValue());
 		
 		for(Map.Entry<Characteristic, Integer> rating : characteristicRatings.entrySet()) {
-			user.rateGame(game, rating.getKey(), rating.getValue().doubleValue());
+			Object ratingValue = rating.getValue();
+			if(ratingValue instanceof String) {
+				if(((String)ratingValue).isEmpty())
+					continue;
+				
+				ratingValue = Integer.parseInt((String)ratingValue);
+			}
+			user.rateGame(game, rating.getKey(), ((Integer)ratingValue).doubleValue());
 		}
-		
-		Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Rated");
 		
 		return null;
 	}

@@ -2,7 +2,9 @@ package violet.jpa;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.persistence.*;
@@ -24,7 +26,7 @@ public class Game {
 	@Lob
 	private String short_description;
 	
-	@ManyToMany(mappedBy="games")
+	@ManyToMany(mappedBy="games", cascade=CascadeType.PERSIST)
 	private List<Genre> genres;
 	
 	@OneToMany(mappedBy="game")
@@ -61,18 +63,14 @@ public class Game {
 		return rating;
 	}
 	
-	public List<Rating> getAverageCharacteristicRatings() {
-		List<Characteristic> characteristics = new ArrayList<Characteristic>();
-		List<Rating> ratings = new ArrayList<Rating>();
+	public Map<Characteristic, Rating> getAverageCharacteristicRatings() {
+		HashMap<Characteristic, Rating> ratings = new HashMap<>();
 		
-		EntityManager em = FactoryManager.getCommonEM();
+		EntityManager em = FactoryManager.getEM();
 		for(Genre genre : genres)
 			for(Characteristic characteristic : genre.getCharacteristics())
-				if(!characteristics.contains(characteristic)) {
-					characteristics.add(characteristic);
-					ratings.add(getAverageCharacteristicRating(characteristic, em));
-				}
-		
+				if(!ratings.containsKey(characteristic))
+					ratings.put(characteristic, getAverageCharacteristicRating(characteristic, em));
 		em.close();
 		
 		return ratings;
@@ -168,6 +166,10 @@ public class Game {
 	
 	public List<Genre> getGenres() {
 		return genres;
+	}
+	
+	public boolean hasGenre(Genre genre) {
+		return genres.contains(genre);
 	}
 	
 	public List<Characteristic> getCharacteristics() {
