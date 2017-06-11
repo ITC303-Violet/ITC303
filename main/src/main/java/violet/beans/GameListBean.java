@@ -9,6 +9,10 @@ import javax.faces.bean.RequestScoped;
 import violet.jpa.Game;
 import violet.jpa.Paginator;
 
+/**
+ * Provides the list of games for the front page and browse page
+ * @author somer
+ */
 @ManagedBean(name="gameListBean")
 @RequestScoped
 public class GameListBean {

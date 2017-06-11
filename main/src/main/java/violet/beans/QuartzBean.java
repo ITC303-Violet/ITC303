@@ -10,6 +10,10 @@ import org.quartz.SchedulerException;
 import org.quartz.ee.servlet.QuartzInitializerListener;
 import org.quartz.impl.StdSchedulerFactory;
 
+/**
+ * Provides easy access to the Quartz scheduler for other beans 
+ * @author somer
+ */
 @ManagedBean
 @ApplicationScoped
 public class QuartzBean {

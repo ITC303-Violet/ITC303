@@ -11,6 +11,10 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
 
+/**
+ * Runs all gatherers to update all games
+ * @author somer
+ */
 @DisallowConcurrentExecution
 public class ScheduledJob implements InterruptableJob {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -28,10 +32,10 @@ public class ScheduledJob implements InterruptableJob {
 	private Gatherer currentGatherer = null;
 	
 	public void processGatherers(boolean insertOnly, int maxGames, Stack<Gatherer> gatherers) {
-		while(!gatherers.isEmpty()) {
+		while(!gatherers.isEmpty()) { // loop through all our gatherers
 			currentGatherer = gatherers.pop();
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Executing " + currentGatherer.getClass().getName());
-			try {
+			try { // run gather on all gatherers
 				currentGatherer.gather(insertOnly, maxGames);
 			} catch(Exception e) {
 				Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Failed executing", e);
@@ -41,7 +45,7 @@ public class ScheduledJob implements InterruptableJob {
 	}
 
 	public void interrupt() throws UnableToInterruptJobException {
-		if(currentGatherer != null)
+		if(currentGatherer != null) // interrupt the currently running gatherer
 			currentGatherer.interrupt();
 		Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Interrupted job");
 	}

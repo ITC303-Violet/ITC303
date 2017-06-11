@@ -2,6 +2,12 @@ package violet.jpa;
 
 import java.util.List;
 
+/**
+ * Keeps track of what page we're on, the page size, etc of a paged dataset
+ * @author somer
+ *
+ * @param <T> The class we're paginating
+ */
 public class Paginator<T> {
 	private int page;
 	private int pageSize;

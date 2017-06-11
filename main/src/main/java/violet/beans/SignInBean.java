@@ -13,6 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import violet.jpa.User;
 
+/**
+ * Handles users signing in
+ * @author somer
+ */
 @ManagedBean
 @RequestScoped
 public class SignInBean {
@@ -56,7 +60,12 @@ public class SignInBean {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
+	
+	/**
+	 * Persists a user object in the database
+	 * @param user
+	 * @return true if the user is persisted successfully
+	 */
 	protected boolean createUser(User user) {
 		EntityManager em = getJpaBean().getEMF().createEntityManager();
 		try {
@@ -72,9 +81,14 @@ public class SignInBean {
 		return true;
 	}
 
+	/**
+	 * JSF action to sign a user in
+	 * @return
+	 */
 	public String signIn() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		
+		// check the user exists, if so, check the password is correct
 		User checkUser = getJpaBean().findUsername(getUsername());
 		if(checkUser == null || !checkUser.checkPassword(getPassword())) {
 			context.addMessage(null, new FacesMessage("Incorrect username or password"));
@@ -86,7 +100,7 @@ public class SignInBean {
 		ExternalContext externalContext = context.getExternalContext();
 		HttpServletRequest request = (HttpServletRequest)externalContext.getRequest();
 		
-		try {
+		try { // Reload the page to ensure the page data is correct and up to date
 			externalContext.redirect(request.getContextPath());
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -95,14 +109,18 @@ public class SignInBean {
 		return null;
 	}
 
+	/**
+	 * JSF action to sign a user out
+	 * @return
+	 */
 	public String signOut() {
-		getUserBean().setUser(null);
+		getUserBean().setUser(null); // unset the user
 		
 		FacesContext context = FacesContext.getCurrentInstance();
 		ExternalContext externalContext = context.getExternalContext();
 		HttpServletRequest request = (HttpServletRequest)externalContext.getRequest();
 		
-		try {
+		try { // reload the page to ensure data is up to date
 			externalContext.redirect(request.getContextPath());
 		} catch(IOException e) {
 			e.printStackTrace();

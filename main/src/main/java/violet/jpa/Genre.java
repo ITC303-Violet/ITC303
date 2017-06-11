@@ -7,6 +7,10 @@ import java.util.List;
 
 import javax.persistence.*;
 
+/**
+ * Stores the genres that games are assigned
+ * @author somer
+ */
 @Entity
 public class Genre {
 	@Id
@@ -67,6 +71,12 @@ public class Genre {
 		return characteristics;
 	}
 	
+	/**
+	 * @param name
+	 * @param create
+	 * @param em
+	 * @return A Genre object with the given name. If create is true and the genre doesn't already exist, a new Genre object will be created and returned.
+	 */
 	public static Genre getGenre(String name, boolean create, EntityManager em) {
 		try {
 			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g WHERE LOWER(g.identifier)=:identifier", Genre.class);
@@ -78,6 +88,10 @@ public class Genre {
 		}
 	}
 	
+	/**
+	 * @param em
+	 * @return A collection of all Genres saved in the database
+	 */
 	public static Collection<Genre> getGenres(EntityManager em) {
 		try {
 			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g", Genre.class);

@@ -14,6 +14,10 @@ import violet.jpa.Game;
 import violet.jpa.Rating;
 import violet.jpa.User;
 
+/**
+ * Handles game rating
+ * @author somer
+ */
 @ManagedBean
 @RequestScoped
 public class GameBean {
@@ -48,7 +52,11 @@ public class GameBean {
 	public Long getId() {
 		return id;
 	}
-
+	
+	/**
+	 * Sets the game id, and sets the various others pieces of information
+	 * @param id
+	 */
 	public void setId(Long id) {
 		this.id = id;
 		game = getJpaBean().getGame(id);
@@ -56,15 +64,15 @@ public class GameBean {
 		User user = userBean.getUser();
 		
 		EntityManager em = FactoryManager.getEM();
-		if(user != null) {
+		if(user != null) { // User is logged in
 			Rating rating = user.getRating(game, null, em);
-			if(rating != null)
+			if(rating != null) // User has rated the game before
 				overallRating = rating.getRating().intValue();
-		} else if(game.getAverageRating(em) != null)
-			overallRating = game.getAverageRating(em).getRating().intValue();
+		} else if(game.getAverageRating(em) != null) // User is not logged in, check the game has an average rating
+			overallRating = game.getAverageRating(em).getRating().intValue(); // Set the rating component value to the average rating
 			
 		characteristicRatings = new HashMap<Characteristic, Integer>();
-		for(Characteristic characteristic : game.getCharacteristics()) {
+		for(Characteristic characteristic : game.getCharacteristics()) { // Do the same as above for all the components associated with the genres the game is associated with
 			if(user != null) {
 				Rating rating = user.getRating(game, characteristic, em);
 				if(rating != null)
@@ -97,23 +105,26 @@ public class GameBean {
 		return characteristicRatings;
 	}
 	
+	/**
+	 * JSF action called when a user rates a game 
+	 * @return
+	 */
 	public String rateGame() {
-		if(!userBean.isAuthenticated())
+		if(!userBean.isAuthenticated()) // Check a user is signed in
 			return null;
 			
-		
 		User user = userBean.getUser(); 
-		user.rateGame(game, null, overallRating.doubleValue());
+		user.rateGame(game, null, overallRating.doubleValue()); // register the user's rating
 		
 		for(Map.Entry<Characteristic, Integer> rating : characteristicRatings.entrySet()) {
 			Object ratingValue = rating.getValue();
-			if(ratingValue instanceof String) {
-				if(((String)ratingValue).isEmpty())
+			if(ratingValue instanceof String) { // If the value is a string (primefaces seems to offer the value as a string)
+				if(((String)ratingValue).isEmpty()) // If the value is empty - ignore that characteristic
 					continue;
 				
-				ratingValue = Integer.parseInt((String)ratingValue);
+				ratingValue = Integer.parseInt((String)ratingValue); 
 			}
-			user.rateGame(game, rating.getKey(), ((Integer)ratingValue).doubleValue());
+			user.rateGame(game, rating.getKey(), ((Integer)ratingValue).doubleValue()); // save that characteristic rating
 		}
 		
 		return null;

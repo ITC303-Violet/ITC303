@@ -16,6 +16,10 @@ import violet.jpa.Game;
 import violet.jpa.Paginator;
 import violet.jpa.User;
 
+/**
+ * Provides easy access for other beans to the JPA entity manager and some methods to perform queries
+ * @author somer
+ */
 @ManagedBean(name="jpaBean", eager=true)
 @ApplicationScoped
 public class JPABean {
@@ -23,6 +27,13 @@ public class JPABean {
 		return FactoryManager.get();
 	}
 	
+	/**
+	 * Returns a {@link Paginator} object containing the list of games
+	 * @param page the page number
+	 * @param length length of a page (i.e. 25 games)
+	 * @param releasedOnly if true, only returns games that have a release date before the current date
+	 * @return a {@link Paginator} object containing the list of games
+	 */
 	public Paginator<Game> getPaginatedGames(int page, int length, boolean releasedOnly) {
 		EntityManager em = getEMF().createEntityManager();
 		try {
@@ -44,6 +55,11 @@ public class JPABean {
 		}
 	}
 	
+	/**
+	 * Get a game based on the id
+	 * @param id
+	 * @return the game with id or null
+	 */
 	public Game getGame(Long id) {
 		EntityManager em = getEMF().createEntityManager();
 		try {
@@ -57,6 +73,10 @@ public class JPABean {
 		}
 	}
 	
+	/**
+	 * @param username
+	 * @return user with username or null
+	 */
 	public User findUsername(String username) {
 		EntityManager em = getEMF().createEntityManager();
 		try {
@@ -70,6 +90,10 @@ public class JPABean {
 		}
 	}
 	
+	/**
+	 * @param email
+	 * @return user with email or null
+	 */
 	public User findUserEmail(String email) {
 		EntityManager em = getEMF().createEntityManager();
 		try {

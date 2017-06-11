@@ -8,6 +8,10 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.persistence.*;
 
+/**
+ * Stores user information
+ * @author somer
+ */
 @Entity
 @Table(name="VUser")
 @NamedQueries({
@@ -50,6 +54,13 @@ public class User implements Serializable {
 		setPassword(password);
 	}
 	
+	/**
+	 * Get the rating a user game on a particular game and characteristic
+	 * @param game
+	 * @param characteristic
+	 * @param em
+	 * @return
+	 */
 	public Rating getRating(Game game, Characteristic characteristic, EntityManager em) {
 		TypedQuery<Rating> tq;
 		if(characteristic == null)
@@ -68,6 +79,12 @@ public class User implements Serializable {
 		}
 	}
 	
+	/**
+	 * Persist a rating by this user, either updating an existing rating or creating a new one as needed
+	 * @param game
+	 * @param characteristic
+	 * @param rating
+	 */
 	public void rateGame(Game game, Characteristic characteristic, Double rating) {
 		EntityManager em = FactoryManager.getEM();
 		em.getTransaction().begin();

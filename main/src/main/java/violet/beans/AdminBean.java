@@ -19,6 +19,10 @@ import org.quartz.TriggerBuilder;
 
 import violet.gatherers.ScheduledJob;
 
+/**
+ * Handles administration requests such as triggering an update of the games list
+ * @author somer
+ */
 @ManagedBean
 @RequestScoped
 public class AdminBean {
@@ -54,18 +58,24 @@ public class AdminBean {
 		this.quartzBean = quartzBean;
 	}
 	
+	/**
+	 * Triggers an update of the game list
+	 * @return
+	 */
 	public String gather() {
 		if(!userBean.isStaff())
 			return null;
 		
 		FacesContext context = FacesContext.getCurrentInstance();
 		
+		// Build the job to trigger
 		JobDetail job = JobBuilder.newJob(ScheduledJob.class)
-				.withIdentity("manual-gather", "GATHERERS")
-				.usingJobData("insert-only", false)
+				.withIdentity("manual-gather", "GATHERERS") // Set the identity so we don't have multiple instances of the job running
+				.usingJobData("insert-only", false) // Update games rather than only inserting them
 				.usingJobData("max-games", maxGames)
 				.build();
 		
+		// Build the trigger (just trigger immediately)
 		Trigger trigger = TriggerBuilder.newTrigger()
 				.withIdentity("manual-gather", "GATHERERS")
 				.startNow()
@@ -84,6 +94,8 @@ public class AdminBean {
 		HttpServletRequest request = (HttpServletRequest)externalContext.getRequest();
 		
 		try {
+			// Reload the page so it looks like we're doing something
+			// TODO: Possibly add a textbox with the output of the update
 			externalContext.redirect(request.getContextPath());
 		} catch(IOException e) {
 			e.printStackTrace();

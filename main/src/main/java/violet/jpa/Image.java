@@ -25,11 +25,18 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 
+/**
+ * Stores information about images used throughout the system and their filename
+ * Settings can be found in violet.properties
+ * 
+ * Implements Collection so #{empty image} can be used in xhtml (doesn't work without)
+ * @author somer
+ */
 @Embeddable
 @SuppressWarnings("rawtypes")
 public class Image implements Collection {
-	private static Path staticPath;
-	private static URI staticURI;
+	private static Path staticPath; // the path to save files to
+	private static URI staticURI; // the url to prepend to filenames (e.g. /static/)
 	
 	private String filename;
 	
@@ -56,10 +63,6 @@ public class Image implements Collection {
 			loadProperties();
 	}
 	
-	public boolean isEmpty() {
-		return filename == null || filename.isEmpty();
-	}
-	
 	public String getFilename() {
 		return filename;
 	}
@@ -76,6 +79,11 @@ public class Image implements Collection {
 		return staticURI.resolve(filename);
 	}
 	
+	/**
+	 * Downloads and saves an image
+	 * @param url
+	 * @return Image object representing the downloaded image
+	 */
 	public static Image saveImage(URL url) {
 		Image out = new Image();
 		
@@ -89,20 +97,20 @@ public class Image implements Collection {
 		
 		String contentType = connection.getContentType();
 		
-		String extension;
-		try {
+		String extension; // find the extension of the image (e.g. png, jpg, etc)
+		try { // first based on the provided mimetype
 			MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
 			MimeType mimeType = allTypes.forName(contentType);
 			extension = mimeType.getExtension();
-		} catch(MimeTypeException e) {
+		} catch(MimeTypeException e) { // failing that, try using the filename
 			String urlFilename = url.getFile();
 			extension = urlFilename.substring(urlFilename.indexOf("."));
 		}
 		
-		out.setFilename(UUID.randomUUID().toString() + extension);
+		out.setFilename(UUID.randomUUID().toString() + extension); // generate a random filename with the prior worked out extension
 		
 		FileOutputStream outputStream = null;
-		try {
+		try { // download the write the image to our file
 			File file = out.getPath().toFile();
 			file.createNewFile();
 			outputStream = new FileOutputStream(file);
@@ -114,7 +122,7 @@ public class Image implements Collection {
 			return null;
 		} finally {
 			if(outputStream != null) {
-				try {
+				try { // always close the stream regardless of what happens
 					outputStream.close();
 				} catch(IOException e) {
 					e.printStackTrace();
@@ -124,7 +132,12 @@ public class Image implements Collection {
 		
 		return out;
 	}
+	
+	public boolean isEmpty() { // used in xhtml
+		return filename == null || filename.isEmpty();
+	}
 
+	// None of these are required by us, we only need "isEmpty" from the Collection interface 
 	public int size() {
 		throw new UnsupportedOperationException();
 	}

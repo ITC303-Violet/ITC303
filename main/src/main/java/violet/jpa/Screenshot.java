@@ -10,6 +10,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Column;
 
+/**
+ * Stores data and info on a game's screenshots
+ * @author somer
+ */
 @Entity
 public class Screenshot {
 	@Id

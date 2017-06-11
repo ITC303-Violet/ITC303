@@ -5,6 +5,10 @@ import java.util.List;
 
 import javax.persistence.*;
 
+/**
+ * Used to store characteristics of a genre to be rated on a game
+ * @author somer
+ */
 @Entity
 public class Characteristic {
 	@Id

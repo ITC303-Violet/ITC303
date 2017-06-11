@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 
 import javax.persistence.*;
 
+/**
+ * Stores game data
+ * @author somer
+ */
 @Entity
 @NamedQueries({
 	@NamedQuery(name="Game.findAverageRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user IS NULL AND r.characteristic IS NULL"),
@@ -55,14 +59,9 @@ public class Game {
 		this.name = name;
 	}
 	
-	public Rating getAverageRating() {
-		EntityManager em = FactoryManager.getCommonEM();
-		Rating rating = getAverageRating(em);
-		em.close();
-		
-		return rating;
-	}
-	
+	/**
+	 * @return A map of the average ratings given to a characteristic of the game
+	 */
 	public Map<Characteristic, Rating> getAverageCharacteristicRatings() {
 		HashMap<Characteristic, Rating> ratings = new HashMap<>();
 		
@@ -76,10 +75,29 @@ public class Game {
 		return ratings;
 	}
 	
+	/**
+	 * @return the average overall rating of the game
+	 */
+	public Rating getAverageRating() {
+		EntityManager em = FactoryManager.getCommonEM();
+		Rating rating = getAverageRating(em);
+		em.close();
+		
+		return rating;
+	}
+	
+	/**
+	 * @return the average overall rating of the game
+	 */
 	public Rating getAverageRating(EntityManager em) {
 		return getAverageCharacteristicRating(null, em);
 	}
 	
+	/**
+	 * @param characteristic (can be null for the overall rating)
+	 * @param em
+	 * @return the average rating of the given characteristic of the game
+	 */
 	public Rating getAverageCharacteristicRating(Characteristic characteristic, EntityManager em) {
 		TypedQuery<Rating> tq;
 		if(characteristic == null)
@@ -101,14 +119,18 @@ public class Game {
 	}
 	
 	private static final Pattern[] patterns = {
-		Pattern.compile("(?:^\\W+|\\W+$)"),
-		Pattern.compile("\\W+")
+		Pattern.compile("(?:^\\W+|\\W+$)"), // remove all leading and trailing not letters & numbers
+		Pattern.compile("\\W+") // replace all other non letters & numbers with an underscore (_)
 	};
 	
 	private static final String[] replacements = {
 		"",
 		"_"
 	};
+	
+	/**
+	 * @return returns a URL friendly name
+	 */
 	public String getCleanedName() {
 		String out = name;
 		for(int i=0; i<patterns.length; i++)
@@ -211,6 +233,9 @@ public class Game {
 		return release != null;
 	}
 	
+	/**
+	 * @return true if the game has a release date before the current date
+	 */
 	public boolean getReleased() {
 		if(!getHasRelease())
 			return false;
@@ -234,6 +259,10 @@ public class Game {
 		return screenshots;
 	}
 	
+	/**
+	 * @param remoteId
+	 * @return true if the game has a screenshot with a matching remoteId to the one provided
+	 */
 	public boolean hasScreenshot(String remoteId) {
 		EntityManager em = FactoryManager.get().createEntityManager();
 		try {

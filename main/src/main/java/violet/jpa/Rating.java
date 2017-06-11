@@ -2,6 +2,10 @@ package violet.jpa;
 
 import javax.persistence.*;
 
+/**
+ * Stores ratings our users leave on games
+ * @author somer
+ */
 @Entity
 public class Rating {
 	@Id
@@ -23,10 +27,13 @@ public class Rating {
 		
 	}
 	
+	/**
+	 * Updates the saved average rating of a game after a user updates or creates their vote
+	 */
 	@PostUpdate
 	@PostPersist
 	public void updateAverage() {
-		if(game == null || user == null) // Don't wind up in a loop updating averages
+		if(game == null || user == null) // Don't wind up in a loop updating averages after saving an average
 			return;
 		
 		EntityManager em = FactoryManager.getEM();
@@ -35,13 +42,13 @@ public class Rating {
 		try {
 			String query = "SELECT AVG(r.rating) FROM Rating r WHERE r.user IS NOT NULL AND r.game=:game AND r.characteristic";
 			
-			if(characteristic == null)
+			if(characteristic == null) // if it's an overall rating
 				query += " IS NULL";
-			else
+			else // or not
 				query += "=:characteristic";
 			
-			if(id != null) // Lets us update the provided average from the db with the rating stored in this entity (postupdate doesn't fire after the commit)
-				query += " AND r.id!=:id";
+			if(id != null) // we have to manually add the value of the rating of "this" rating due to the change not being persisted yet when PostUpdate is fired
+				query += " AND r.id!=:id"; // so for the time being ignore any row with the same id as "this"
 			
 			TypedQuery<Double> tq;
 			tq = em.createQuery(query, Double.class).setParameter("game", game);
@@ -54,27 +61,27 @@ public class Rating {
 			
 			average = tq.getSingleResult();
 			
-			if(average == null)
+			if(average == null) // there's no other ratings
 				average = rating;
-			else
+			else // doctor the average with the rating found in "this"
 				average = (average + rating) / 2;
 		} catch(NoResultException e) {
-			average = rating;
+			average = rating; // there's no other ratings
 		} 
 		
 		EntityTransaction et = em.getTransaction();
 		et.begin();
-		if(et.isActive()) {
+		if(et.isActive()) { // save our average
 			Rating averageRating;
 			averageRating = game.getAverageCharacteristicRating(characteristic, em);
 			
-			if(averageRating == null) {
+			if(averageRating == null) { // the average doesnt exist, make it
 				averageRating = new Rating();
 				averageRating.setGame(game);
 				averageRating.setCharacteristic(characteristic);
 				averageRating.setRating(average);
 				em.persist(averageRating);
-			} else {
+			} else { // update the average
 				averageRating.setRating(average);
 			}
 		}
