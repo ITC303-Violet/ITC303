@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
+		<ui:define name="title">
+			Administration - You Might Dig
+		</ui:define>
+		<ui:define name="content">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p>Admin section</p>
+						<p><strong>NOTE:</strong> during development and testing, all new users are set as staff - during production this will obviously not be the case and they will not have access to this page</p>
+						<h:form>
+							<p:messages id="messages" autoUpdate="true" />
+							<div class="form-group">
+								<p:outputLabel for="maxGames" styleClass="form-control-label">Max number of games to gather:</p:outputLabel>
+								<p:inputText id="maxGames" styleClass="form-control" value="#{adminBean.maxGames}" required="true" />
+							</div>
+							
+							<p:commandButton styleClass="btn btn-primary" type="submit" value="Gather" action="#{adminBean.gather}"/>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</ui:define>
+	</ui:composition>
+</html>
