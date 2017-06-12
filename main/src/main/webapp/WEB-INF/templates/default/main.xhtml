@@ -9,7 +9,11 @@
 	xmlns:violet="http://violet.csu.edu.au/facelets">
 	
 	<h:head>
-		<title>Violet Codebase</title>
+		<title>
+			<ui:insert name="title">
+				You Might Dig
+			</ui:insert>
+		</title>
 		<h:outputStylesheet library="css" name="bootstrap.min.css"/>
 		<h:outputStylesheet library="css" name="violet.css"/>
 		<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css"/>
