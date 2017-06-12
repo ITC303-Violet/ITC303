@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Entity
 public class Rating {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	@ManyToOne(optional=true)
@@ -30,13 +30,13 @@ public class Rating {
 	/**
 	 * Updates the saved average rating of a game after a user updates or creates their vote
 	 */
-	@PostUpdate
-	@PostPersist
+	//@PreUpdate
+	//@PrePersist
 	public void updateAverage() {
 		if(game == null || user == null) // Don't wind up in a loop updating averages after saving an average
 			return;
 		
-		EntityManager em = FactoryManager.getEM();
+		EntityManager em = FactoryManager.getCommonEM();
 		
 		Double average = 0.0D;
 		try {
@@ -47,7 +47,7 @@ public class Rating {
 			else // or not
 				query += "=:characteristic";
 			
-			if(id != null) // we have to manually add the value of the rating of "this" rating due to the change not being persisted yet when PostUpdate is fired
+			if(id != null) // we manually add the value of the rating of "this" rating
 				query += " AND r.id!=:id"; // so for the time being ignore any row with the same id as "this"
 			
 			TypedQuery<Double> tq;
@@ -67,33 +67,25 @@ public class Rating {
 				average = (average + rating) / 2;
 		} catch(NoResultException e) {
 			average = rating; // there's no other ratings
-		} 
-		
-		EntityTransaction et = em.getTransaction();
-		et.begin();
-		if(et.isActive()) { // save our average
-			Rating averageRating;
-			averageRating = game.getAverageCharacteristicRating(characteristic, em);
-			
-			if(averageRating == null) { // the average doesnt exist, make it
-				averageRating = new Rating();
-				averageRating.setGame(game);
-				averageRating.setCharacteristic(characteristic);
-				averageRating.setRating(average);
-				em.persist(averageRating);
-			} else { // update the average
-				averageRating.setRating(average);
-			}
 		}
-		et.commit();
+		
+		Rating averageRating = game.getAverageCharacteristicRating(characteristic, em);
+		
+		FactoryManager.pullTransaction();
+		if(averageRating == null) { // the average doesn't exist, make it
+			averageRating = new Rating();
+			averageRating.setGame(game);
+			averageRating.setCharacteristic(characteristic);
+			averageRating.setRating(average);
+			em.persist(averageRating);
+		} else { // update the average
+			averageRating.setRating(average);
+		}
+		FactoryManager.popTransaction();
 	}
 
 	public Long getId() {
 		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public User getUser() {

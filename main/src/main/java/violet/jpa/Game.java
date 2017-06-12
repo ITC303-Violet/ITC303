@@ -20,7 +20,7 @@ import javax.persistence.*;
 })
 public class Game {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private String name;
 	
@@ -33,10 +33,10 @@ public class Game {
 	@ManyToMany(mappedBy="games", cascade=CascadeType.PERSIST)
 	private List<Genre> genres;
 	
-	@OneToMany(mappedBy="game")
+	@OneToMany(mappedBy="game", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;
 	
-	@OneToMany(mappedBy="game")
+	@OneToMany(mappedBy="game", cascade=CascadeType.PERSIST)
 	private List<Screenshot> screenshots;
 	
 	@Embedded
@@ -65,12 +65,12 @@ public class Game {
 	public Map<Characteristic, Rating> getAverageCharacteristicRatings() {
 		HashMap<Characteristic, Rating> ratings = new HashMap<>();
 		
-		EntityManager em = FactoryManager.getEM();
+		EntityManager em = FactoryManager.pullCommonEM();
 		for(Genre genre : genres)
 			for(Characteristic characteristic : genre.getCharacteristics())
 				if(!ratings.containsKey(characteristic))
 					ratings.put(characteristic, getAverageCharacteristicRating(characteristic, em));
-		em.close();
+		FactoryManager.popCommonEM();
 		
 		return ratings;
 	}
@@ -79,9 +79,9 @@ public class Game {
 	 * @return the average overall rating of the game
 	 */
 	public Rating getAverageRating() {
-		EntityManager em = FactoryManager.getCommonEM();
+		EntityManager em = FactoryManager.pullCommonEM();
 		Rating rating = getAverageRating(em);
-		em.close();
+		FactoryManager.popCommonEM();
 		
 		return rating;
 	}
@@ -106,6 +106,7 @@ public class Game {
 			tq = em.createNamedQuery("Game.findAverageCharacteristicRating", Rating.class)
 				.setParameter("characteristic", characteristic);
 		try {
+			tq.setFlushMode(FlushModeType.COMMIT);
 			Rating rating = tq.setParameter("game", this)
 					.getSingleResult();
 			return rating;
@@ -264,7 +265,7 @@ public class Game {
 	 * @return true if the game has a screenshot with a matching remoteId to the one provided
 	 */
 	public boolean hasScreenshot(String remoteId) {
-		EntityManager em = FactoryManager.get().createEntityManager();
+		EntityManager em = FactoryManager.getEM();
 		try {
 			TypedQuery<Long> tq = em.createQuery("SELECT COUNT(s) FROM Game g INNER JOIN g.screenshots s WHERE g.id=:id AND s.remoteIdentifier=:rid", Long.class);
 			Long result = tq.setParameter("id", id)

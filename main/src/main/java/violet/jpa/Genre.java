@@ -21,7 +21,7 @@ public class Genre {
 	@ManyToMany
 	private List<Game> games;
 	
-	@ManyToMany(mappedBy="genres")
+	@ManyToMany(mappedBy="genres", cascade=CascadeType.PERSIST)
 	private List<Characteristic> characteristics;
 	
 	public Genre() {

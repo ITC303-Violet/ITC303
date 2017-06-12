@@ -22,7 +22,7 @@ public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	@Column(unique=true)
@@ -39,7 +39,7 @@ public class User implements Serializable {
 	
 	private boolean is_staff=true; // TODO: SWITCH BACK TO FALSE BEFORE PRODUCTION
 	
-	@OneToMany(mappedBy="user")
+	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;
 	
 	public User() {
@@ -79,16 +79,21 @@ public class User implements Serializable {
 		}
 	}
 	
+	public Rating rateGame(Game game, Characteristic characteristic, Double rating) {
+		FactoryManager.pullTransaction();
+		Rating ratingObj = rateGame(game, characteristic, rating, FactoryManager.getCommonEM());
+		FactoryManager.popTransaction();
+		
+		return ratingObj;
+	}
+	
 	/**
 	 * Persist a rating by this user, either updating an existing rating or creating a new one as needed
 	 * @param game
 	 * @param characteristic
 	 * @param rating
 	 */
-	public void rateGame(Game game, Characteristic characteristic, Double rating) {
-		EntityManager em = FactoryManager.getEM();
-		em.getTransaction().begin();
-		
+	public Rating rateGame(Game game, Characteristic characteristic, Double rating, EntityManager em) {
 		boolean created = false;
 		Rating ratingObj = getRating(game, characteristic, em);
 		if(ratingObj == null) {
@@ -105,8 +110,9 @@ public class User implements Serializable {
 		if(created)
 			em.persist(ratingObj);
 		
-		em.getTransaction().commit();
-		em.close();
+		ratingObj.updateAverage();
+		
+		return ratingObj;
 	}
 	
 	public String getUsername() {

@@ -17,7 +17,7 @@ import javax.persistence.Column;
 @Entity
 public class Screenshot {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	@AttributeOverrides({@AttributeOverride(name="filename", column=@Column(name="thumbnail_filename"))})

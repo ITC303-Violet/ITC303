@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 public class Characteristic {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	private String name;
@@ -20,12 +20,17 @@ public class Characteristic {
 	@ManyToMany
 	private List<Genre> genres;
 	
-	@OneToMany(mappedBy="characteristic")
+	@OneToMany(mappedBy="characteristic", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;
 	
 	public Characteristic() {
 		genres = new ArrayList<Genre>();
 		ratings = new ArrayList<Rating>();
+	}
+	
+	public Characteristic(String name) {
+		this();
+		this.name = name;
 	}
 
 	public String getName() {

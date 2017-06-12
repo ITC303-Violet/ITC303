@@ -37,6 +37,7 @@ import org.apache.tika.mime.MimeTypes;
 public class Image implements Collection {
 	private static Path staticPath; // the path to save files to
 	private static URI staticURI; // the url to prepend to filenames (e.g. /static/)
+	private static boolean testing = false;
 	
 	private String filename;
 	
@@ -51,6 +52,7 @@ public class Image implements Collection {
 			
 			staticPath = Paths.get(properties.getProperty("static-path", "/var/www/static/"));
 			staticURI = new URI(properties.getProperty("static-uri", "/static/"));
+			testing = Boolean.parseBoolean(properties.getProperty("testing"));
 		} catch(IOException e) {
 			Logger.getLogger(Image.class.getName()).log(Level.SEVERE, "Failed to load violet properties", e);
 		} catch (URISyntaxException e) {
@@ -108,6 +110,9 @@ public class Image implements Collection {
 		}
 		
 		out.setFilename(UUID.randomUUID().toString() + extension); // generate a random filename with the prior worked out extension
+		
+		if(testing)
+			return out;
 		
 		FileOutputStream outputStream = null;
 		try { // download the write the image to our file
