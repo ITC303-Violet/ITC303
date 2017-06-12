@@ -99,16 +99,20 @@
 							<div class="modal-body">
 								<p:messages/>
 								<div class="form-group form-group-minor-margin">
-									<p:inputText id="username" styleClass="form-control padded-input" value="#{signUpBean.username}" required="true" label="Username" a:placeholder="Username">
-										<f:validateLength minimum="4"/>
+									<p:inputText id="username" styleClass="form-control padded-input" value="#{signUpBean.username}" required="true" label="Username" a:placeholder="Username" validatorMessage="Invalid Username">
+										<f:validateLength minimum="4" maximum="40"/>
+										<f:validateRegex pattern="^[a-zA-Z0-9_]+$" />
 									</p:inputText>
 								</div>
 								<div class="form-group form-group-minor-margin">
-									<p:inputText id="email" styleClass="form-control padded-input" value="#{signUpBean.email}" required="true" label="Email" a:placeholder="Email" />
+									<p:inputText id="email" styleClass="form-control padded-input" value="#{signUpBean.email}" required="true" label="Email" a:placeholder="Email" validatorMessage="Invalid Email Address">
+										<f:validateLength maximum="250" />
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+									</p:inputText>
 								</div>
 								<div class="form-group form-group-minor-margin">
 									<p:inputText type="password" id="password" styleClass="form-control padded-input" value="#{signUpBean.password}" required="true" label="Password" a:placeholder="Password">
-										<f:validateLength minimum="5"/>
+										<f:validateLength minimum="5" maximum="250"/>
 									</p:inputText>
 								</div>
 								<p:commandButton styleClass="btn btn-primary btn-signin padded-input" type="submit" value="Sign up" action="#{signUpBean.signUp}" update="@form">

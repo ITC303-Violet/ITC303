@@ -22,6 +22,9 @@ The system can also be run without using docker at all, however will need to be 
 
 
 ## Running
+### Unit Testing
+Docker is not required to run the JUnit tests and should be able to be done within eclipse after importing the maven project
+
 ### Using Docker
 Start the docker containers by running docker-start-containers.bat in the main directory. This could take a while the first time it is run
 
