@@ -120,7 +120,7 @@ public class SteamGatherer extends Gatherer {
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Query apps " + (insertOnly ? "insert only" : "update"));
 		
 		JSONArray apps = jsonFromURL(URL_APPLIST).getJSONObject("applist").getJSONObject("apps").getJSONArray("app");
-		for(int i=0; i<apps.length(); i++) {
+		for(int i=apps.length()-1; i>=0; i--) {
 			Integer appid = apps.getJSONObject(i).getInt("appid");
 			
 			if(!insertOnly || !existing_ids.contains(appid) && !ids.contains(appid)) { // if we're inserting only, ignore apps that already exist
