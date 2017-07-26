@@ -24,9 +24,13 @@ public class Genre {
 	@ManyToMany(mappedBy="genres", cascade=CascadeType.PERSIST)
 	private List<Characteristic> characteristics;
 	
+	@ManyToMany
+	private List<User> users;
+	
 	public Genre() {
 		games = new ArrayList<Game>();
 		characteristics = new ArrayList<Characteristic>();
+		users = new ArrayList<User>();
 	}
 	
 	public Genre(String name) {
@@ -35,7 +39,7 @@ public class Genre {
 		this.name = name;
 	}
 	
-	public String getIndentifier() {
+	public String getIdentifier() {
 		return identifier;
 	}
 	
@@ -45,6 +49,18 @@ public class Genre {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public void addUser(User user) {
+		if(users.contains(user))
+			return;
+		
+		users.add(user);
+		user.addFavouredGenre(this);
+	}
+	
+	public List<User> getUsers() {
+		return users;
 	}
 	
 	public void addGame(Game game) {

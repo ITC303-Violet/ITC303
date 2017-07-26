@@ -42,8 +42,13 @@ public class User implements Serializable {
 	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;
 	
+	@ManyToMany(mappedBy="users", cascade=CascadeType.PERSIST)
+	private List<Genre> favouredGenres;
+	
+	
 	public User() {
 		ratings = new ArrayList<Rating>();
+		favouredGenres = new ArrayList<Genre>();
 		is_staff = true;
 	}
 	
@@ -178,6 +183,22 @@ public class User implements Serializable {
 	
 	public List<Rating> getRatings() {
 		return ratings;
+	}
+	
+	public void addFavouredGenre(Genre genre) {
+		if(favouredGenres.contains(genre))
+			return;
+		
+		favouredGenres.add(genre);
+		genre.addUser(this);
+	}
+	
+	public List<Genre> getFavouredGenres() {
+		return favouredGenres;
+	}
+	
+	public boolean hasFavouredGenre(Genre genre) {
+		return favouredGenres.contains(genre);
 	}
 	
 	/**
