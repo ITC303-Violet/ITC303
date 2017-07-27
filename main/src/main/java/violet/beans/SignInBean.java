@@ -118,10 +118,9 @@ public class SignInBean {
 		
 		FacesContext context = FacesContext.getCurrentInstance();
 		ExternalContext externalContext = context.getExternalContext();
-		HttpServletRequest request = (HttpServletRequest)externalContext.getRequest();
 		
-		try { // reload the page to ensure data is up to date
-			externalContext.redirect(request.getContextPath());
+		try { // redirect to the index
+			externalContext.redirect("/index.xhtml");
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
