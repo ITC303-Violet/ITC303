@@ -59,6 +59,14 @@ public class Genre {
 		user.addFavouredGenre(this);
 	}
 	
+	public void removeUser(User user) {
+		if(!users.contains(user))
+			return;
+		
+		users.remove(user);
+		user.removeFavouredGenre(this);
+	}
+	
 	public List<User> getUsers() {
 		return users;
 	}
@@ -110,7 +118,7 @@ public class Genre {
 	 */
 	public static Collection<Genre> getGenres(EntityManager em) {
 		try {
-			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g", Genre.class);
+			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g ORDER BY g.name", Genre.class);
 			return tq.getResultList();
 		} catch(NoResultException e) {
 			return Collections.emptyList();

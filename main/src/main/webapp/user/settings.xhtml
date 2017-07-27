@@ -36,14 +36,9 @@
 								<input type="text" class="form-control search" placeholder="Search"></input>
 								<c:set var="genres" value="#{userSettingsBean.genres}" scope="request" />
 								<div class="m2m-list">
-									<ui:repeat var="genre" value="#{genres}">
-										<div class="form-check">
-											<label class="form-check-label">
-												<input class="form-check-input" type="checkbox" value="#{genre.identifier}" data-filter="#{genre.identifier}"/>
-												&nbsp;<h:outputText value="#{genre.name}" />
-											</label>
-										</div>
-									</ui:repeat>
+									<h:selectManyCheckbox value="#{userSettingsBean.genres}" layout="pageDirection" columns="1">
+										<f:selectItems value="#{userSettingsBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+									</h:selectManyCheckbox>
 								</div>
 							</div>
 							
@@ -62,12 +57,12 @@
 						var filter = $(this).val().toLowerCase();
 						var container = $(this).siblings('.m2m-list')
 						if(filter != '') {
-							var filtered = container.find('input[data-filter*="' + filter + '"]');
-							var checkboxes = filtered.closest('.form-check');
+							var filtered = container.find('input[value*="' + filter + '"]');
+							var checkboxes = filtered.closest('tr');
 							checkboxes.show();
-							container.find('.form-check').not(checkboxes).hide();
+							container.find('tr').not(checkboxes).hide();
 						} else {
-							container.find('.form-check').show();
+							container.find('tr').show();
 						}
 					});
 				});

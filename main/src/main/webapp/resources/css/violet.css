@@ -245,6 +245,10 @@ button.padded-input {
 	padding-bottom: 0;
 }
 
+.m2m-list label {
+	margin-left: 0.25rem;
+}
+
 @media (max-width: 576px) {
 	.game-rating {
 		font-size: 35px;

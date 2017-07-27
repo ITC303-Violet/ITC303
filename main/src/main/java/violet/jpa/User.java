@@ -3,6 +3,7 @@ package violet.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -193,8 +194,29 @@ public class User implements Serializable {
 		genre.addUser(this);
 	}
 	
+	public void removeFavouredGenre(Genre genre) {
+		if(!favouredGenres.contains(genre))
+			return;
+		
+		favouredGenres.remove(genre);
+		genre.removeUser(this);
+	}
+	
 	public List<Genre> getFavouredGenres() {
 		return favouredGenres;
+	}
+	
+	public void setFavouredGenresList(List<Genre> genres) {
+		Stack<Genre> toRemove = new Stack<Genre>();
+		for(Genre genre: favouredGenres)
+			if(!genres.contains(genre))
+				toRemove.push(genre);
+			
+		while(!toRemove.isEmpty())
+			removeFavouredGenre(toRemove.pop());
+		
+		for(Genre genre: genres)
+			addFavouredGenre(genre);
 	}
 	
 	public boolean hasFavouredGenre(Genre genre) {
