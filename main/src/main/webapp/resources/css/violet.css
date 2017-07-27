@@ -189,6 +189,7 @@ button.padded-input {
 
 .game-carousel {
 	background-color: #161819;
+	min-height: 91px;
 }
 
 .game-title-bar {

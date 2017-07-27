@@ -9,6 +9,10 @@
 		<pattern value="/game/#{gameid : gameBean.id}/#{gamename}" />
 		<view-id value="/game.xhtml" />
 	</url-mapping>
+	<url-mapping id="view-game">
+		<pattern value="/game/#{gameid : gameBean.id}" />
+		<view-id value="/game.xhtml" />
+	</url-mapping>
 	
 	<url-mapping id="browse-games">
 		<pattern value="/browse" />
