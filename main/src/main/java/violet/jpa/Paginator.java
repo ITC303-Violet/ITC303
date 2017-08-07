@@ -28,11 +28,11 @@ public class Paginator<T> {
 	}
 	
 	public boolean isNearStart() {
-		return getPage() < (PAGES_TO_SIDE + 1);
+		return getPage() < PAGES_TO_SIDE + 2;
 	}
 	
 	public boolean isNearEnd() {
-		return getPage() > (getPages() - PAGES_TO_SIDE - 1);
+		return getPage() > getPages() - PAGES_TO_SIDE - 1;
 	}
 	
 	public int getStartPage() {

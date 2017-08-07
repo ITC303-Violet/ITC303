@@ -17,11 +17,13 @@
 	
 	<url-mapping id="browse-games">
 		<pattern value="/browse" />
+		<query-param name="q">#{gameListBean.searchQuery}</query-param>
 		<view-id value="/browse.xhtml" />
 	</url-mapping>
 	
 	<url-mapping id="browse-games-paged">
 		<pattern value="/browse/#{page : gameListBean.page}" />
+		<query-param name="q">#{gameListBean.searchQuery}</query-param>
 		<view-id value="/browse.xhtml" />
 	</url-mapping>
 

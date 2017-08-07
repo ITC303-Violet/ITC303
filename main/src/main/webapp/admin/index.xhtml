@@ -18,15 +18,26 @@
 					<div class="col-3">
 						<div class="card text-center">
 							<div class="card-header">
-								<h4 class="card-title"><h:outputText value="#{adminBean.gamesCount}" /></h4>
+								<h4 class="card-title"><h:outputText value="#{adminBean.gameCount}" /></h4>
 							</div>
 							<div class="card-block">
-								<h4 class="card-title">games stored</h4>
+								<h4 class="card-title">games</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-3">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.userCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">users</h4>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row mt-3">
 					<div class="col">
 						<h:form>
 							<p:messages id="messages" autoUpdate="true" />

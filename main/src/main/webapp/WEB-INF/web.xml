@@ -4,7 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-Instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0">
-	<display-name>ITC303 Team Violet Project</display-name>
+	<display-name>ITC303 and 309 Team Violet Project</display-name>
 	<description>A web application to rate and gather information from users about their preferred games and game styles</description>
 	
 	<welcome-file-list>

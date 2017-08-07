@@ -17,7 +17,8 @@ import javax.persistence.*;
 @Table(name="VUser")
 @NamedQueries({
 	@NamedQuery(name="User.getOverallRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic IS NULL"),
-	@NamedQuery(name="User.getCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic=:characteristic")
+	@NamedQuery(name="User.getCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic=:characteristic"),
+	@NamedQuery(name="User.count", query="SELECT COUNT(u) FROM User u")
 })
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -221,6 +222,16 @@ public class User implements Serializable {
 	
 	public boolean hasFavouredGenre(Genre genre) {
 		return favouredGenres.contains(genre);
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createNamedQuery("User.count", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		}
 	}
 	
 	/**

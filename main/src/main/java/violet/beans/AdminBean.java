@@ -24,6 +24,7 @@ import org.quartz.TriggerBuilder;
 
 import violet.gatherers.ScheduledJob;
 import violet.jpa.FactoryManager;
+import violet.jpa.User;
 import violet.jpa.Game;
 import violet.jpa.Genre;
 
@@ -35,7 +36,8 @@ import violet.jpa.Genre;
 @RequestScoped
 public class AdminBean extends JPABean.JPAEquippedBean {
 	private int maxGamesGather;
-	private Long gamesCount;
+	private Long gameCount;
+	private Long userCount;
 	
 	@ManagedProperty(value = "#{userBean}")
 	private UserBean userBean;
@@ -51,11 +53,18 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 		this.maxGamesGather = maxGamesGather;
 	}
 	
-	public Long getGamesCount() {
-		if(gamesCount == null)
-			gamesCount = Game.count();
+	public Long getGameCount() {
+		if(gameCount == null)
+			gameCount = Game.count();
 		
-		return gamesCount;
+		return gameCount;
+	}
+	
+	public Long getUserCount() {
+		if(userCount == null)
+			userCount = User.count();
+		
+		return userCount;
 	}
 	
 	public UserBean getUserBean() {
