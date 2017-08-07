@@ -20,8 +20,9 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
+						<p:inputText id="searchQuery" styleClass="form-control" placeholder="Search" required="true" />
 						<c:set var="pagination" value="#{gameListBean.paginatedGames}" scope="request" />
-						<div class="row mt-sm-3">
+						<div class="mt-sm-3">
 							<ui:repeat var="game" value="#{pagination.items}">
 								<violet:gameRow game="#{game}"/>
 							</ui:repeat>
@@ -38,7 +39,16 @@
 										<span>&laquo;</span>
 									</pretty:link>
 								</li>
-								<c:forEach begin="1" end="#{pagination.pages}" var="i">
+								<c:if test="#{!pagination.nearStart}">
+									<li class="page-item">
+										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
+											<f:param value="1" />
+											<h:outputText value="1" />
+										</pretty:link>
+									</li>
+									<li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+								</c:if>
+								<c:forEach begin="#{pagination.startPage}" end="#{pagination.endPage}" var="i">
 									<li class="page-item#{pagination.page == i ? ' disabled' : ''}">
 										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 											<f:param value="#{i}" />
@@ -46,6 +56,15 @@
 										</pretty:link>
 									</li>
 								</c:forEach>
+								<c:if test="#{!pagination.nearEnd}">
+									<li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+									<li class="page-item">
+										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
+											<f:param value="#{pagination.pages}" />
+											<h:outputText value="#{pagination.pages}" />
+										</pretty:link>
+									</li>
+								</c:if>
 								<li class="page-item#{pagination.page ge pagination.pages ? ' disabled' : ''}">
 									<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 										<f:param value="#{pagination.page+1}" />

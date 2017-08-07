@@ -126,6 +126,8 @@ button.padded-input {
 	height: 70px;
 	overflow: hidden;
 	white-space: nowrap;
+	
+	display: block;
 }
 
 .game-inline:first-child {

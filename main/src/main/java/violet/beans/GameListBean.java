@@ -17,7 +17,7 @@ import violet.jpa.Paginator;
 @RequestScoped
 public class GameListBean {
 	private static final int FRONT_PAGE_SIZE = 24;
-	private static final int PAGE_SIZE = 20;
+	private static final int PAGE_SIZE = 15;
 	
 	@ManagedProperty(value="#{jpaBean}")
 	private JPABean jpaBean;
