@@ -25,20 +25,20 @@
 		<listener-class>org.quartz.ee.servlet.QuartzInitializerListener</listener-class>
 	</listener>
 	
-	<filter>
+	<!-- <filter>
 		<filter-name>StaffOnlyFilter</filter-name>
 		<filter-class>violet.filters.StaffOnlyFilter</filter-class>
-	</filter>
-	
-	<filter>
-		<filter-name>AuthenticatedFilter</filter-name>
-		<filter-class>violet.filters.AuthenticatedFilter</filter-class>
 	</filter>
 	
 	<filter-mapping>
 		<filter-name>StaffOnlyFilter</filter-name>
 		<url-pattern>/admin/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping> -->
+	
+	<filter>
+		<filter-name>AuthenticatedFilter</filter-name>
+		<filter-class>violet.filters.AuthenticatedFilter</filter-class>
+	</filter>
 	
 	<filter-mapping>
 		<filter-name>AuthenticatedFilter</filter-name>

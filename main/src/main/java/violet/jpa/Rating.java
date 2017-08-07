@@ -30,8 +30,6 @@ public class Rating {
 	/**
 	 * Updates the saved average rating of a game after a user updates or creates their vote
 	 */
-	//@PreUpdate
-	//@PrePersist
 	public void updateAverage() {
 		if(game == null || user == null) // Don't wind up in a loop updating averages after saving an average
 			return;

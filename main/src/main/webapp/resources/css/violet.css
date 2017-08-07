@@ -275,3 +275,39 @@ button.padded-input {
 		margin-bottom: 1rem;
 	}
 }
+
+.sidebar {
+  width: 12rem; }
+  
+  .sidebar .sidebar-label {
+    color: #464a4c;
+    font-size: 0.8rem;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase; }
+    
+    .sidebar .sidebar-label:not(:last-child) {
+      margin-bottom: 1rem; }
+      
+    .sidebar .sidebar-label:not(:first-child) {
+      margin-top: 1rem; }
+      
+  .sidebar .sidebar-list {
+    line-height: 1.25;
+    list-style: none;
+    margin: 0;
+    padding: 0; }
+    
+    .sidebar .sidebar-list a {
+      color: #292b2c;
+      display: block;
+      border-radius: 2px;
+      padding: 0.5rem 0.75rem;
+      text-decoration: none; }
+      
+      .sidebar .sidebar-list a:hover {
+        color: #bc082c;
+        background-color: #f7f7f9; }
+        
+      .sidebar .sidebar-list a.active {
+        color: white;
+        background-color: #bc082c; }

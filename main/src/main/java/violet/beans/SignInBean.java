@@ -11,6 +11,7 @@ import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 
+import violet.jpa.FactoryManager;
 import violet.jpa.User;
 
 /**
@@ -67,15 +68,14 @@ public class SignInBean {
 	 * @return true if the user is persisted successfully
 	 */
 	protected boolean createUser(User user) {
-		EntityManager em = getJpaBean().getEMF().createEntityManager();
+		EntityManager em = FactoryManager.getCommonEM();
 		try {
-			em.getTransaction().begin();
+			FactoryManager.pullTransaction();
 			em.persist(user);
-			em.getTransaction().commit();
 		} catch(Exception e) {
 			return false;
 		} finally {
-			em.close();
+			FactoryManager.popTransaction();
 		}
 
 		return true;

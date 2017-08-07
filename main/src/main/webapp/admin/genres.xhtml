@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/admin/main.xhtml">
+		<ui:define name="title">
+			Administration - Genres - You Might Dig
+		</ui:define>
+		<ui:define name="admin-content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col">
+						<h:form>
+							<p:messages id="messages" autoUpdate="true" />
+							
+							<p:outputLabel for="blacklistedGenres" styleClass="form-control-label">Blacklisted Genres:</p:outputLabel>
+							<div class="form-group m2m-search">
+								<input type="text" class="form-control search" placeholder="Search"></input>
+								<c:set var="genres" value="#{adminBean.blacklistedGenres}" scope="request" />
+								<div class="m2m-list">
+									<h:selectManyCheckbox id="blacklistedGenres" value="#{adminBean.blacklistedGenres}" layout="pageDirection" columns="1">
+										<f:selectItems value="#{adminBean.blacklistedGenreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+									</h:selectManyCheckbox>
+								</div>
+							</div>
+							
+							<p:commandButton styleClass="btn btn-primary" type="submit" value="Save" action="#{adminBean.saveGenres}"/>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</ui:define>
+	</ui:composition>
+</html>

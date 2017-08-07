@@ -18,6 +18,8 @@ public class Genre {
 	
 	private String name;
 	
+	private boolean blacklisted = false;
+	
 	@ManyToMany
 	private List<Game> games;
 	
@@ -51,6 +53,34 @@ public class Genre {
 		this.name = name;
 	}
 	
+	public boolean getBlacklisted() {
+		return blacklisted;
+	}
+	
+	private void updateBlacklisted(boolean blacklisted) {
+		FactoryManager.pullTransaction();
+		try {
+			for(Game game : games) {
+				if(blacklisted)
+					game.setBlacklisted(blacklisted);
+				else {
+					for(Genre genre : game.getGenres()) // only if no other genres the game belongs to are blacklisted
+						if(genre != this && genre.getBlacklisted())
+							return;
+					
+					game.setBlacklisted(blacklisted);
+				}
+			}
+		} finally {
+			FactoryManager.popTransaction();
+		}
+	}
+	
+	public void setBlacklisted(boolean blacklisted) {
+		this.blacklisted = blacklisted;
+		updateBlacklisted(blacklisted);
+	}
+	
 	public void addUser(User user) {
 		if(users.contains(user))
 			return;
@@ -77,6 +107,18 @@ public class Genre {
 		
 		games.add(game);
 		game.addGenre(this);
+		
+		updateBlacklisted(blacklisted);
+	}
+	
+	public void removeGame(Game game) {
+		if(!games.contains(game))
+			return;
+		
+		updateBlacklisted(false);
+		
+		games.remove(game);
+		game.removeGenre(this);	
 	}
 	
 	public List<Game> getGames() {
@@ -112,13 +154,21 @@ public class Genre {
 		}
 	}
 	
+	public static Collection<Genre> getGenres(EntityManager em) {
+		return getGenres(em, false);
+	}
+	
 	/**
 	 * @param em
 	 * @return A collection of all Genres saved in the database
 	 */
-	public static Collection<Genre> getGenres(EntityManager em) {
+	public static Collection<Genre> getGenres(EntityManager em, boolean blacklisted) {
 		try {
-			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g ORDER BY g.name", Genre.class);
+			String query = "SELECT g FROM Genre g";
+			if(!blacklisted)
+				query += " WHERE g.blacklisted=FALSE";
+			query += " ORDER BY g.name";
+			TypedQuery<Genre> tq = em.createQuery(query, Genre.class);
 			return tq.getResultList();
 		} catch(NoResultException e) {
 			return Collections.emptyList();
