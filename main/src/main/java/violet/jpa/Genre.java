@@ -19,6 +19,7 @@ public class Genre {
 	private String name;
 	
 	private boolean blacklisted = false;
+	private boolean hidden = false;
 	
 	@ManyToMany
 	private List<Game> games;
@@ -79,6 +80,14 @@ public class Genre {
 	public void setBlacklisted(boolean blacklisted) {
 		this.blacklisted = blacklisted;
 		updateBlacklisted(blacklisted);
+	}
+	
+	public boolean getHidden() {
+		return hidden;
+	}
+	
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 	
 	public void addUser(User user) {
@@ -166,7 +175,7 @@ public class Genre {
 		try {
 			String query = "SELECT g FROM Genre g";
 			if(!blacklisted)
-				query += " WHERE g.blacklisted=FALSE";
+				query += " WHERE g.blacklisted=FALSE AND g.hidden=FALSE";
 			query += " ORDER BY g.name";
 			TypedQuery<Genre> tq = em.createQuery(query, Genre.class);
 			return tq.getResultList();

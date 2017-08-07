@@ -209,6 +209,15 @@ public class Game {
 		return genres;
 	}
 	
+	public List<Genre> getDisplayGenres() {
+		List<Genre> displayGenres = new ArrayList<Genre>();
+		for(Genre genre : genres)
+			if(!genre.getHidden())
+				displayGenres.add(genre);
+		
+		return displayGenres;
+	}
+	
 	public boolean hasGenre(Genre genre) {
 		return genres.contains(genre);
 	}

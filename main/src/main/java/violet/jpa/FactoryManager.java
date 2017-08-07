@@ -80,6 +80,15 @@ public class FactoryManager {
 
 		entityManagerDepth.set(0);
 	}
+	
+	public static EntityTransaction rollbackTransaction() {
+		EntityTransaction et = getCommonEM().getTransaction();
+		if (et.isActive()) {
+			et.rollback();
+		}
+		
+		return et;
+	}
 
 	public static EntityTransaction reopenTransaction() {
 		EntityTransaction et = getCommonEM().getTransaction();
@@ -89,6 +98,16 @@ public class FactoryManager {
 		}
 
 		return et;
+	}
+	
+	public static EntityManager flushCommonEM() {
+		EntityManager em = getCommonEM();
+		if (em.isOpen()) {
+			em.flush();
+			em.clear();
+		}
+
+		return em;
 	}
 
 	public static EntityTransaction pullTransaction() {

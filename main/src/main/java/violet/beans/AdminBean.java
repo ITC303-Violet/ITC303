@@ -121,40 +121,40 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 	}
 	
 	
-	public List<Genre> getBlacklistedGenreChoices() {
+	public List<Genre> getGenreChoices() {
 		return new ArrayList<Genre>(Genre.getGenres(FactoryManager.getCommonEM(), true));
 	}
 	
-	String[] selectedGenres;
+	String[] blacklistedGenres;
 	
 	public String[] getBlacklistedGenres() {
 		EntityManager em = FactoryManager.getCommonEM();
-		if(selectedGenres == null) {
+		if(blacklistedGenres == null) {
 			List<Genre> genres = em.createQuery("SELECT g FROM Genre g WHERE g.blacklisted=TRUE", Genre.class).getResultList();
-			selectedGenres = new String[genres.size()];
+			blacklistedGenres = new String[genres.size()];
 			for(int i=0; i<genres.size(); i++)
-				selectedGenres[i] = genres.get(i).getIdentifier();
+				blacklistedGenres[i] = genres.get(i).getIdentifier();
 		}
 		
-		return selectedGenres;
+		return blacklistedGenres;
 	}
 	
 	public void setBlacklistedGenres(String[] genres) {
-		selectedGenres = genres;
+		blacklistedGenres = genres;
 	}
 	
 	private void updateBlacklistedGenres() {
-		List<Genre> validGenres = getBlacklistedGenreChoices();
+		List<Genre> validGenres = getGenreChoices();
 		Map<String, Genre> genreMap = new HashMap<>();
 		for(Genre genre : validGenres)
 			genreMap.put(genre.getIdentifier(), genre);
 		
 		FactoryManager.pullTransaction();
 		try {
-			for(int i=0; i<selectedGenres.length; i++)
-				if(genreMap.containsKey(selectedGenres[i])) {
-					genreMap.get(selectedGenres[i]).setBlacklisted(true);
-					genreMap.remove(selectedGenres[i]);
+			for(int i=0; i<blacklistedGenres.length; i++)
+				if(genreMap.containsKey(blacklistedGenres[i])) {
+					genreMap.get(blacklistedGenres[i]).setBlacklisted(true);
+					genreMap.remove(blacklistedGenres[i]);
 				}
 			
 			for(Genre genre : genreMap.values())
@@ -164,10 +164,50 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 		}
 	}
 	
+	String[] hiddenGenres;
+	
+	public String[] getHiddenGenres() {
+		EntityManager em = FactoryManager.getCommonEM();
+		if(hiddenGenres == null) {
+			List<Genre> genres = em.createQuery("SELECT g FROM Genre g WHERE g.hidden=TRUE", Genre.class).getResultList();
+			hiddenGenres = new String[genres.size()];
+			for(int i=0; i<genres.size(); i++)
+				hiddenGenres[i] = genres.get(i).getIdentifier();
+		}
+		
+		return hiddenGenres;
+	}
+	
+	public void setHiddenGenres(String[] genres) {
+		hiddenGenres = genres;
+	}
+	
+	private void updateHiddenGenres() {
+		List<Genre> validGenres = getGenreChoices();
+		Map<String, Genre> genreMap = new HashMap<>();
+		for(Genre genre : validGenres)
+			genreMap.put(genre.getIdentifier(), genre);
+		
+		FactoryManager.pullTransaction();
+		try {
+			for(int i=0; i<hiddenGenres.length; i++)
+				if(genreMap.containsKey(hiddenGenres[i])) {
+					genreMap.get(hiddenGenres[i]).setHidden(true);
+					genreMap.remove(hiddenGenres[i]);
+				}
+			
+			for(Genre genre : genreMap.values())
+				genre.setHidden(false);
+		} finally {
+			FactoryManager.popTransaction();
+		}
+	}
+	
 	public String saveGenres() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		
 		updateBlacklistedGenres();
+		updateHiddenGenres();
 		
 		context.addMessage(null, new FacesMessage("Blacklisted genres have been updated"));
 		

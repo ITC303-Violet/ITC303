@@ -25,7 +25,18 @@
 								<c:set var="genres" value="#{adminBean.blacklistedGenres}" scope="request" />
 								<div class="m2m-list">
 									<h:selectManyCheckbox id="blacklistedGenres" value="#{adminBean.blacklistedGenres}" layout="pageDirection" columns="1">
-										<f:selectItems value="#{adminBean.blacklistedGenreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+										<f:selectItems value="#{adminBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+									</h:selectManyCheckbox>
+								</div>
+							</div>
+							
+							<p:outputLabel for="hiddenGenres" styleClass="form-control-label">Hidden Genres:</p:outputLabel>
+							<div class="form-group m2m-search">
+								<input type="text" class="form-control search" placeholder="Search"></input>
+								<c:set var="genres" value="#{adminBean.blacklistedGenres}" scope="request" />
+								<div class="m2m-list">
+									<h:selectManyCheckbox id="hiddenGenres" value="#{adminBean.hiddenGenres}" layout="pageDirection" columns="1">
+										<f:selectItems value="#{adminBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
 									</h:selectManyCheckbox>
 								</div>
 							</div>
