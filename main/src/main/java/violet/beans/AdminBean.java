@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -23,10 +24,12 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 
 import violet.gatherers.ScheduledJob;
+import violet.jpa.Characteristic;
 import violet.jpa.FactoryManager;
 import violet.jpa.User;
 import violet.jpa.Game;
 import violet.jpa.Genre;
+import violet.jpa.Rating;
 
 /**
  * Handles administration requests such as triggering an update of the games list
@@ -36,8 +39,6 @@ import violet.jpa.Genre;
 @RequestScoped
 public class AdminBean extends JPABean.JPAEquippedBean {
 	private int maxGamesGather;
-	private Long gameCount;
-	private Long userCount;
 	
 	@ManagedProperty(value = "#{userBean}")
 	private UserBean userBean;
@@ -53,6 +54,7 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 		this.maxGamesGather = maxGamesGather;
 	}
 	
+	private Long gameCount;
 	public Long getGameCount() {
 		if(gameCount == null)
 			gameCount = Game.count();
@@ -60,11 +62,36 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 		return gameCount;
 	}
 	
+	private Long userCount;
 	public Long getUserCount() {
 		if(userCount == null)
 			userCount = User.count();
 		
 		return userCount;
+	}
+	
+	private Long genreCount;
+	public Long getGenreCount() {
+		if(genreCount == null)
+			genreCount = Genre.count();
+		
+		return genreCount;
+	}
+	
+	private Long characteristicCount;
+	public Long getCharacteristicCount() {
+		if(characteristicCount == null)
+			characteristicCount = Characteristic.count();
+		
+		return characteristicCount;
+	}
+	
+	private Long ratingCount;
+	public Long getRatingCount() {
+		if(ratingCount == null)
+			ratingCount = Rating.count();
+		
+		return ratingCount;
 	}
 	
 	public UserBean getUserBean() {
@@ -127,6 +154,67 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 		}
 		
 		return null;
+	}
+	
+	
+	public String saveCharacteristics() {
+		FacesContext context = FacesContext.getCurrentInstance();
+		
+		EntityManager em = FactoryManager.pullCommonEM();
+		FactoryManager.pullTransaction();
+		try {
+			for(Map.Entry<Genre, List<String>> entry : genreCharacteristics.entrySet()) {
+				List<Characteristic> setChars = new ArrayList<Characteristic>();
+				
+				List<String> characteristics = entry.getValue();
+				if(characteristics != null)
+					for(String characteristicName : characteristics) {
+						Characteristic characteristic = Characteristic.getCharacteristic(characteristicName, true, em);
+						setChars.add(characteristic);
+					}
+				
+				List<Characteristic> removeChars = new ArrayList<Characteristic>();
+				Genre genre = entry.getKey();
+				for(Characteristic characteristic : genre.getCharacteristics())
+					if(!setChars.contains(characteristic))
+						removeChars.add(characteristic);
+				
+				for(Characteristic characteristic : removeChars)
+					genre.removeCharacteristic(characteristic);
+				for(Characteristic characteristic : setChars)
+					genre.addCharacteristic(characteristic);
+			}
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			FactoryManager.popTransaction();
+			FactoryManager.popCommonEM();
+		}
+		
+		context.addMessage(null, new FacesMessage("Saved characteristics"));
+		
+		return null;
+	}
+	
+	
+	Map<Genre, List<String>> genreCharacteristics;
+	
+	@PostConstruct
+	public void generateGenreCharacteristics() {
+		genreCharacteristics = new HashMap<Genre, List<String>>();
+		
+		for(Genre genre : getGenreChoices()) {
+			List<String> characteristics = new ArrayList<String>();
+			for(Characteristic characteristic : genre.getCharacteristics())
+				characteristics.add(characteristic.getName());
+			
+			genreCharacteristics.put(genre, characteristics);
+		}
+	}
+	
+	
+	public Map<Genre, List<String>> getGenreCharacteristics() {
+		return genreCharacteristics;
 	}
 	
 	

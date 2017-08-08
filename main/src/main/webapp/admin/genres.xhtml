@@ -46,6 +46,26 @@
 					</div>
 				</div>
 			</div>
+			
+			<script type="text/javascript">
+				$(function() {
+					$('.m2m-search .search').on('keyup', function(e) {
+						if(e.keyCode==13)
+							return false;
+	
+						var filter = $(this).val().toLowerCase();
+						var container = $(this).siblings('.m2m-list')
+						if(filter != '') {
+							var filtered = container.find('input[value*="' + filter + '"]');
+							var checkboxes = filtered.closest('tr');
+							checkboxes.show();
+							container.find('tr').not(checkboxes).hide();
+						} else {
+							container.find('tr').show();
+						}
+					});
+				});
+			</script>
 		</ui:define>
 	</ui:composition>
 </html>

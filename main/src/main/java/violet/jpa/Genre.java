@@ -142,6 +142,14 @@ public class Genre {
 		characteristic.addGenre(this);
 	}
 	
+	public void removeCharacteristic(Characteristic characteristic) {
+		if(!characteristics.contains(characteristic))
+			return;
+		
+		characteristics.remove(characteristic);
+		characteristic.removeGenre(this);
+	}
+	
 	public List<Characteristic> getCharacteristics() {
 		return characteristics;
 	}
@@ -181,6 +189,16 @@ public class Genre {
 			return tq.getResultList();
 		} catch(NoResultException e) {
 			return Collections.emptyList();
+		}
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createQuery("SELECT COUNT(g) FROM Genre g", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
 		}
 	}
 }

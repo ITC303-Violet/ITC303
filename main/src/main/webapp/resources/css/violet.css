@@ -52,6 +52,10 @@ button.padded-input {
 	border-color: #3d7fea;
 }
 
+.width-100 {
+	width: 100%;
+}
+
 .ui-messages-info,.ui-messages-warn,.ui-messages-error {
 	position: relative;
 }
@@ -84,6 +88,55 @@ button.padded-input {
 
 .ui-messages-warning-icon {
 	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%23f0ad4e' d='M4.4 5.324h-.8v-2.46h.8zm0 1.42h-.8V5.89h.8zM3.76.63L.04 7.075c-.115.2.016.425.26.426h7.397c.242 0 .372-.226.258-.426C6.726 4.924 5.47 2.79 4.253.63c-.113-.174-.39-.174-.494 0z'/%3E%3C/svg%3E") !important;
+}
+
+.ui-chips-container {
+	border: 1px solid rgba(0,0,0,0.15);
+	color: #464a4c;
+	border-radius: 2px;
+}
+
+.ui-chips-token.ui-state-active {
+	background: #186ba0;
+	color: white;
+	border: 1px solid rgba(0,0,0,0.15);
+	border-radius: 2px;
+}
+
+.ui-chips-container .ui-chips-input-token {
+	width: 20%;
+}
+
+.ui-chips-container .ui-chips-input-token input {
+	width: 100%;
+}
+
+.ui-chips-container .ui-chips-token .ui-chips-token-label {
+	padding-right: 1.5em;
+}
+
+.ui-chips-token-icon.ui-icon-close {
+	text-indent: 0;
+	line-height: 1;
+}
+.ui-chips-token-icon.ui-icon-close:before {
+	content: "\00D7";
+}
+
+.characteristic-input .ui-chips {
+	width: 100%;
+}
+
+.characteristic-input .ui-chips .ui-chips-container {
+	width: 100%;
+}
+
+.characteristic-labels {
+	width: 15%;
+}
+
+.characteristic-input {
+	width: 100%;
 }
 
 .brand-Y {

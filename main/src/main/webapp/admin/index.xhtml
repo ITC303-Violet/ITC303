@@ -15,7 +15,7 @@
 		<ui:define name="admin-content">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-3">
+					<div class="col col-md-2 offset-md-1">
 						<div class="card text-center">
 							<div class="card-header">
 								<h4 class="card-title"><h:outputText value="#{adminBean.gameCount}" /></h4>
@@ -26,13 +26,46 @@
 						</div>
 					</div>
 					
-					<div class="col-3">
+					<div class="col col-md-2">
 						<div class="card text-center">
 							<div class="card-header">
 								<h4 class="card-title"><h:outputText value="#{adminBean.userCount}" /></h4>
 							</div>
 							<div class="card-block">
 								<h4 class="card-title">users</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.genreCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">genres</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.characteristicCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">characteristics</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.ratingCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">ratings</h4>
 							</div>
 						</div>
 					</div>

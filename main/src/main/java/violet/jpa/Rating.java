@@ -135,4 +135,14 @@ public class Rating {
 	public void setRating(Double rating) {
 		this.rating = rating;
 	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createQuery("SELECT COUNT(r) FROM Rating r", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		}
+	}
 }

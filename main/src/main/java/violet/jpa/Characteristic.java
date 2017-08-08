@@ -45,6 +45,14 @@ public class Characteristic {
 		genre.addCharacteristic(this);
 	}
 	
+	public void removeGenre(Genre genre) {
+		if(!genres.contains(genre))
+			return;
+		
+		genres.remove(genre);
+		genre.removeCharacteristic(this);
+	}
+	
 	public List<Genre> getGenres() {
 		return genres;
 	}
@@ -64,5 +72,32 @@ public class Characteristic {
 	
 	public List<Rating> getRatings() {
 		return ratings;
+	}
+	
+	/**
+	 * @param name
+	 * @param create
+	 * @param em
+	 * @return A Characteristic object with the given name. If create is true and the characteristic doesn't already exist, a new Characteristic object will be created and returned.
+	 */
+	public static Characteristic getCharacteristic(String name, boolean create, EntityManager em) {
+		try {
+			TypedQuery<Characteristic> tq = em.createQuery("SELECT c FROM Characteristic c WHERE LOWER(c.name)=:name", Characteristic.class);
+			return tq.setParameter("name", name.toLowerCase()).getSingleResult();
+		} catch(NoResultException e) {
+			if(create)
+				return new Characteristic(name);
+			return null;
+		}
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createQuery("SELECT COUNT(c) FROM Characteristic c", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		}
 	}
 }

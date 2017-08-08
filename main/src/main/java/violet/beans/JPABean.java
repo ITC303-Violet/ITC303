@@ -1,8 +1,5 @@
 package violet.beans;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -14,7 +11,6 @@ import javax.persistence.TypedQuery;
 
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
-import violet.jpa.Paginator;
 import violet.jpa.User;
 
 /**
