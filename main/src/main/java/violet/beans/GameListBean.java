@@ -75,7 +75,7 @@ public class GameListBean {
 		EntityManager em = FactoryManager.pullCommonEM();
 		try {
 			search = search != null ? search.toLowerCase() : "";
-			search = "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
+			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
 			String queryStart = "SELECT g FROM Game g ";
 			String queryFilter = " WHERE g.blacklisted=FALSE";
