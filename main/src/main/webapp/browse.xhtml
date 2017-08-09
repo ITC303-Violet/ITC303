@@ -62,7 +62,7 @@
 									</li>
 									<li class="page-item disabled"><a class="page-link" href="#">...</a></li>
 								</c:if>
-								<c:forEach begin="#{pagination.startPage}" end="#{pagination.endPage}" var="i">
+								<ui:repeat var="i" value="#{pagination.nearbyPages}">
 									<li class="page-item#{pagination.page == i ? ' disabled' : ''}">
 										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 											<f:param value="#{i}" />
@@ -70,7 +70,7 @@
 											<h:outputText value="#{i}" />
 										</pretty:link>
 									</li>
-								</c:forEach>
+								</ui:repeat>
 								<c:if test="#{!pagination.nearEnd}">
 									<li class="page-item disabled"><a class="page-link" href="#">...</a></li>
 									<li class="page-item">

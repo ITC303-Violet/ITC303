@@ -1,5 +1,6 @@
 package violet.jpa;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public class Paginator<T> {
 	private int pages;
 	private List<T> items;
 	
-	private int PAGES_TO_SIDE = 4;
+	private static final int PAGES_TO_SIDE = 4;
 	
 	public Paginator(int page, int pageSize, int pages, List<T> items) {
 		this.page = page;
@@ -28,19 +29,27 @@ public class Paginator<T> {
 	}
 	
 	public boolean isNearStart() {
-		return getPage() < PAGES_TO_SIDE + 2;
+		return page < PAGES_TO_SIDE + 2;
 	}
 	
 	public boolean isNearEnd() {
-		return getPage() > getPages() - PAGES_TO_SIDE - 1;
+		return page > pages - PAGES_TO_SIDE - 1;
 	}
 	
-	public int getStartPage() {
-		return Math.max(getPage() - PAGES_TO_SIDE, 1);
+	public int getLeftPage() {
+		return Math.max(page - PAGES_TO_SIDE, 1);
 	}
 	
-	public int getEndPage() {
-		return Math.min(getPage() + PAGES_TO_SIDE, getPages());
+	public int getRightPage() {
+		return Math.min(page + PAGES_TO_SIDE, pages);
+	}
+	
+	public List<Integer> getNearbyPages() {
+		List<Integer> out = new ArrayList<>();
+		for(int i=getLeftPage(); i<=getRightPage(); i++)
+			out.add(i);
+		
+		return out;
 	}
 	
 	public int getPageSize() {
