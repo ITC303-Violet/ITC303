@@ -71,7 +71,7 @@ public class GameListBean {
 	 * @param releasedOnly if true, only returns games that have a release date before the current date
 	 * @return a {@link Paginator} object containing the list of games
 	 */
-	public Paginator<Game> getPaginatedGames(int page, int length, boolean releasedOnly, String search) {
+	public Paginator<Game> getPaginatedGames(int page, Integer length, boolean releasedOnly, String search) {
 		EntityManager em = FactoryManager.pullCommonEM();
 		try {
 			search = search != null ? search.toLowerCase() : "";
@@ -100,7 +100,9 @@ public class GameListBean {
 			
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Count " + count);
 			
-			return new Paginator<Game>(page, length, (int)(count/length+1), list); // We need to grab it first, or the finally below will close the em before we get the row
+			Long pages = count/Long.valueOf(length.longValue());
+			
+			return new Paginator<Game>(page, length, pages.intValue() + 1, list); // We need to grab it first, or the finally below will close the em before we get the row
 		} catch(NoResultException e) {
 			List<Game> list = Collections.<Game>emptyList();
 			return new Paginator<Game>(page, length, 0, list);
