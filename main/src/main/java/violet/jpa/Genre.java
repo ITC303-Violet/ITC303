@@ -30,6 +30,7 @@ public class Genre {
 	@ManyToMany
 	private List<User> users;
 	
+	
 	public Genre() {
 		games = new ArrayList<Game>();
 		characteristics = new ArrayList<Characteristic>();

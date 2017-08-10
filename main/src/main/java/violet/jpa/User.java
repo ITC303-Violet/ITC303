@@ -47,10 +47,14 @@ public class User implements Serializable {
 	@ManyToMany(mappedBy="users", cascade=CascadeType.PERSIST)
 	private List<Genre> favouredGenres;
 	
+	@ManyToMany(mappedBy="users", cascade=CascadeType.PERSIST)
+	private List<Characteristic> favouredCharacteristics;
+	
 	
 	public User() {
 		ratings = new ArrayList<Rating>();
 		favouredGenres = new ArrayList<Genre>();
+		favouredCharacteristics = new ArrayList<Characteristic>();
 		is_staff = true;
 	}
 	
@@ -222,6 +226,43 @@ public class User implements Serializable {
 	
 	public boolean hasFavouredGenre(Genre genre) {
 		return favouredGenres.contains(genre);
+	}
+	
+	public void addFavouredCharacteristic(Characteristic characteristic) {
+		if(favouredCharacteristics.contains(characteristic))
+			return;
+		
+		favouredCharacteristics.add(characteristic);
+		characteristic.addUser(this);
+	}
+	
+	public void removeFavouredCharacteristic(Characteristic characteristic) {
+		if(!favouredCharacteristics.contains(characteristic))
+			return;
+		
+		favouredCharacteristics.remove(characteristic);
+		characteristic.removeUser(this);
+	}
+	
+	public List<Characteristic> getFavouredCharacteristics() {
+		return favouredCharacteristics;
+	}
+	
+	public void setFavouredCharacteristicsList(List<Characteristic> characteristics) {
+		Stack<Characteristic> toRemove = new Stack<Characteristic>();
+		for(Characteristic characteristic: favouredCharacteristics)
+			if(!characteristics.contains(characteristic))
+				toRemove.push(characteristic);
+			
+		while(!toRemove.isEmpty())
+			removeFavouredCharacteristic(toRemove.pop());
+		
+		for(Characteristic characteristic : characteristics)
+			addFavouredCharacteristic(characteristic);
+	}
+	
+	public boolean hasFavouredCharacteristic(Characteristic characteristic) {
+		return favouredCharacteristics.contains(characteristic);
 	}
 	
 	public static Long count() {

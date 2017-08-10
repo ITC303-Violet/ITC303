@@ -1,6 +1,8 @@
 package violet.jpa;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.*;
@@ -23,14 +25,23 @@ public class Characteristic {
 	@OneToMany(mappedBy="characteristic", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;
 	
+	@ManyToMany
+	private List<User> users;
+	
+	
 	public Characteristic() {
 		genres = new ArrayList<Genre>();
 		ratings = new ArrayList<Rating>();
+		users = new ArrayList<User>();
 	}
 	
 	public Characteristic(String name) {
 		this();
 		this.name = name;
+	}
+	
+	public Long getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -74,6 +85,43 @@ public class Characteristic {
 		return ratings;
 	}
 	
+	public void addUser(User user) {
+		if(users.contains(user))
+			return;
+		
+		users.add(user);
+		user.addFavouredCharacteristic(this);
+	}
+	
+	public void removeUser(User user) {
+		if(!users.contains(user))
+			return;
+		
+		users.remove(user);
+		user.removeFavouredCharacteristic(this);
+	}
+	
+	public List<User> getUsers() {
+		return users;
+	}
+	
+	
+	/**
+	 * @param em
+	 * @return A collection of all Genres saved in the database
+	 */
+	public static Collection<Characteristic> getCharacteristics(EntityManager em, boolean orphaned) {
+		try {
+			String query = "SELECT c FROM Characteristic c";
+			if(!orphaned)
+				query += " WHERE c.genres IS NOT EMPTY";
+			query += " ORDER BY c.name";
+			return em.createQuery(query, Characteristic.class).getResultList();
+		} catch(NoResultException e) {
+			return Collections.emptyList();
+		}
+	}
+		
 	/**
 	 * @param name
 	 * @param create

@@ -31,13 +31,23 @@
 									<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
 								</p:inputText>
 							</div>
-							<label class="form-control-label">Favourite Genres</label>
+							
+							<p:outputLabel for="favouriteGenres" styleClass="form-control-label">Favourite Genres</p:outputLabel>
 							<div class="form-group m2m-search">
 								<input type="text" class="form-control search" placeholder="Search"></input>
-								<c:set var="genres" value="#{userSettingsBean.genres}" scope="request" />
 								<div class="m2m-list">
-									<h:selectManyCheckbox value="#{userSettingsBean.genres}" layout="pageDirection" columns="1">
+									<h:selectManyCheckbox id="favouriteGenres" value="#{userSettingsBean.genres}" layout="pageDirection" columns="1">
 										<f:selectItems value="#{userSettingsBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+									</h:selectManyCheckbox>
+								</div>
+							</div>
+							
+							<p:outputLabel for="favouriteCharacteristics" styleClass="form-control-label">Favourite Characteristics</p:outputLabel>
+							<div class="form-group m2m-search">
+								<input type="text" class="form-control search" placeholder="Search"></input>
+								<div class="m2m-list">
+									<h:selectManyCheckbox id="favouriteCharacteristics" value="#{userSettingsBean.characteristics}" layout="pageDirection" columns="1">
+										<f:selectItems value="#{userSettingsBean.characteristicChoices}" var="characteristic" itemLabel="#{characteristic.name}" itemValue="#{characteristic.id}"/>
 									</h:selectManyCheckbox>
 								</div>
 							</div>
@@ -54,10 +64,10 @@
 						if(e.keyCode==13)
 							return false;
 	
-						var filter = $(this).val().toLowerCase();
+						var filter = $(this).val();
 						var container = $(this).siblings('.m2m-list')
 						if(filter != '') {
-							var filtered = container.find('input[value*="' + filter + '"]');
+							var filtered = container.find('label:icontains("' + filter + '")');
 							var checkboxes = filtered.closest('tr');
 							checkboxes.show();
 							container.find('tr').not(checkboxes).hide();
