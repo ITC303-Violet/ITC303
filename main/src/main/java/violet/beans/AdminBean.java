@@ -303,8 +303,13 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 	public String saveGenres() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		
-		updateBlacklistedGenres();
-		updateHiddenGenres();
+		FactoryManager.pullCommonEM();
+		try {			
+			updateBlacklistedGenres();
+			updateHiddenGenres();
+		} finally {
+			FactoryManager.popCommonEM();
+		}
 		
 		context.addMessage(null, new FacesMessage("Blacklisted genres have been updated"));
 		
