@@ -31,7 +31,6 @@ public class GameListBean {
 	
 	private int page = 1;
 	
-	//@ManagedProperty(value="#{param.q}")
 	private String searchQuery = "";
 	
 	public UserBean getUserBean() {
@@ -69,6 +68,7 @@ public class GameListBean {
 	 * @param page the page number
 	 * @param length length of a page (i.e. 25 games)
 	 * @param releasedOnly if true, only returns games that have a release date before the current date
+	 * @param search filters for a substring in a game's name
 	 * @return a {@link Paginator} object containing the list of games
 	 */
 	public Paginator<Game> getPaginatedGames(int page, Integer length, boolean releasedOnly, String search) {
@@ -84,7 +84,9 @@ public class GameListBean {
 			if(!search.isEmpty())
 				queryFilter += " AND LOWER(g.name) LIKE :searchQuery";
 			
-			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + " ORDER BY g.release DESC NULLS LAST, g.id ASC", Game.class);
+			String queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
+			
+			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())
 				tq.setParameter("searchQuery", search);
 			
