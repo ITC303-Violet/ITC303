@@ -104,13 +104,9 @@ public class Gatherer {
 	 * @return
 	 */
 	protected <T> List<T> getExistingGameIds(String column, Class<T> type) {
-		EntityManager em = FactoryManager.getEM();
-		try {
-			List<T> result = getExistingGameIds(em, column, type);
-			return result;
-		} finally {
-			em.close();
-		}
+		EntityManager em = FactoryManager.getCommonEM();
+		List<T> result = getExistingGameIds(em, column, type);
+		return result;
 	}
 	
 	/**

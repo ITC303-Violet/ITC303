@@ -31,8 +31,8 @@
 								<img class="game-heroimage" src="#{gameBean.game.heroImage.URL}" />
 							</ui:fragment>
 							<h1 class="d-lg-inline"><h:outputText value="#{gameBean.game.name}" /></h1>
-							<div class="game-rating#{gameBean.game.averageRating == null ? ' rating-muted' : ''}">
-								<h:outputText id="averageRating" value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}">
+							<div class="game-rating">
+								<h:outputText id="averageRating" value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}" styleClass="#{gameBean.game.averageRating == null ? ' rating-muted' : ''}">
 									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
 								</h:outputText>
 							</div>
@@ -43,8 +43,8 @@
 				<div class="row">
 					<div class="col-12 col-lg-9">
 						<ul class="list-inline">
-							<ui:repeat var="genre" value="#{gameBean.game.genres}">
-								<li class="list-inline-item"><h:outputText value="#{genre.name}" /></li>
+							<ui:repeat var="genre" value="#{gameBean.game.displayGenres}">
+								<li class="list-inline-item"><span class="badge badge-primary"><h:outputText value="#{genre.name}" /></span></li>
 							</ui:repeat>
 						</ul>
 						<h:outputText value="#{gameBean.game.description}" escape="false" />
@@ -60,7 +60,7 @@
 								Overall Rating: 
 								<h:outputText 
 									value="#{gameBean.overallRating == null ? 0 : gameBean.overallRating}"
-									styleClass="font-weight-bold#{gameBean.overallRating == null ? ' text-muted' : ''}"
+									styleClass="font-weight-bold#{gameBean.overallRating == null ? ' rating-muted' : ''}"
 								>
 									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
 								</h:outputText>
@@ -72,7 +72,7 @@
 									<h:outputText value="#{characteristic.name}" />: 
 									<h:outputText
 										value="#{averageRatings[characteristic] == null ? 0 : averageRatings[characteristic].rating}"
-										styleClass="font-weight-bold#{averageRatings[characteristic] == null ? ' text-muted' : ''}"
+										styleClass="font-weight-bold#{averageRatings[characteristic] == null ? ' rating-muted' : ''}"
 									>
 										<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
 									</h:outputText>
@@ -80,7 +80,7 @@
 								<p:rating value="#{gameBean.characteristicRatings[characteristic]}" stars="10" cancel="false" disabled="#{empty userBean.user}" />	
 							</ui:repeat>
 							
-							<p:commandButton styleClass="btn btn-primary" type="submit" value="#{empty userBean.user ? 'Sign in to rate' : 'Rate'}" action="#{gameBean.rateGame}" update="@form averageRating" disabled="#{empty userBean.user}" />
+							<p:commandButton styleClass="btn btn-primary mt-2" type="submit" value="#{empty userBean.user ? 'Sign in to rate' : 'Rate'}" action="#{gameBean.rateGame}" update="@form averageRating" disabled="#{empty userBean.user}" />
 						</h:form>
 					</div>
 				</div>

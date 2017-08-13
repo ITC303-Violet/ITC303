@@ -18,15 +18,23 @@ public class Genre {
 	
 	private String name;
 	
+	private boolean blacklisted = false;
+	private boolean hidden = false;
+	
 	@ManyToMany
 	private List<Game> games;
 	
 	@ManyToMany(mappedBy="genres", cascade=CascadeType.PERSIST)
 	private List<Characteristic> characteristics;
 	
+	@ManyToMany
+	private List<User> users;
+	
+	
 	public Genre() {
 		games = new ArrayList<Game>();
 		characteristics = new ArrayList<Characteristic>();
+		users = new ArrayList<User>();
 	}
 	
 	public Genre(String name) {
@@ -35,7 +43,7 @@ public class Genre {
 		this.name = name;
 	}
 	
-	public String getIndentifier() {
+	public String getIdentifier() {
 		return identifier;
 	}
 	
@@ -47,12 +55,80 @@ public class Genre {
 		this.name = name;
 	}
 	
+	public boolean getBlacklisted() {
+		return blacklisted;
+	}
+	
+	private void updateBlacklisted(boolean blacklisted) {
+		FactoryManager.pullTransaction();
+		try {
+			for(Game game : games) {
+				if(blacklisted)
+					game.setBlacklisted(blacklisted);
+				else {
+					for(Genre genre : game.getGenres()) // only if no other genres the game belongs to are blacklisted
+						if(genre != this && genre.getBlacklisted())
+							return;
+					
+					game.setBlacklisted(blacklisted);
+				}
+			}
+		} finally {
+			FactoryManager.popTransaction();
+		}
+	}
+	
+	public void setBlacklisted(boolean blacklisted) {
+		this.blacklisted = blacklisted;
+		updateBlacklisted(blacklisted);
+	}
+	
+	public boolean getHidden() {
+		return hidden;
+	}
+	
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
+	
+	public void addUser(User user) {
+		if(users.contains(user))
+			return;
+		
+		users.add(user);
+		user.addFavouredGenre(this);
+	}
+	
+	public void removeUser(User user) {
+		if(!users.contains(user))
+			return;
+		
+		users.remove(user);
+		user.removeFavouredGenre(this);
+	}
+	
+	public List<User> getUsers() {
+		return users;
+	}
+	
 	public void addGame(Game game) {
 		if(games.contains(game))
 			return;
 		
 		games.add(game);
 		game.addGenre(this);
+		
+		updateBlacklisted(blacklisted);
+	}
+	
+	public void removeGame(Game game) {
+		if(!games.contains(game))
+			return;
+		
+		updateBlacklisted(false);
+		
+		games.remove(game);
+		game.removeGenre(this);	
 	}
 	
 	public List<Game> getGames() {
@@ -65,6 +141,14 @@ public class Genre {
 		
 		characteristics.add(characteristic);
 		characteristic.addGenre(this);
+	}
+	
+	public void removeCharacteristic(Characteristic characteristic) {
+		if(!characteristics.contains(characteristic))
+			return;
+		
+		characteristics.remove(characteristic);
+		characteristic.removeGenre(this);
 	}
 	
 	public List<Characteristic> getCharacteristics() {
@@ -88,16 +172,34 @@ public class Genre {
 		}
 	}
 	
+	public static Collection<Genre> getGenres(EntityManager em) {
+		return getGenres(em, false);
+	}
+	
 	/**
 	 * @param em
 	 * @return A collection of all Genres saved in the database
 	 */
-	public static Collection<Genre> getGenres(EntityManager em) {
+	public static Collection<Genre> getGenres(EntityManager em, boolean blacklisted) {
 		try {
-			TypedQuery<Genre> tq = em.createQuery("SELECT g FROM Genre g", Genre.class);
+			String query = "SELECT g FROM Genre g";
+			if(!blacklisted)
+				query += " WHERE g.blacklisted=FALSE AND g.hidden=FALSE";
+			query += " ORDER BY g.name";
+			TypedQuery<Genre> tq = em.createQuery(query, Genre.class);
 			return tq.getResultList();
 		} catch(NoResultException e) {
 			return Collections.emptyList();
+		}
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createQuery("SELECT COUNT(g) FROM Genre g", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
 		}
 	}
 }

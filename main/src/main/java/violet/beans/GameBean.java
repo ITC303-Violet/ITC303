@@ -6,10 +6,12 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletResponse;
 
 import violet.jpa.Characteristic;
-import violet.jpa.FactoryManager;
 import violet.jpa.Game;
 import violet.jpa.Rating;
 import violet.jpa.User;
@@ -60,10 +62,18 @@ public class GameBean {
 	public void setId(Long id) {
 		this.id = id;
 		game = getJpaBean().getGame(id);
+		if(game == null) {
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+	        ExternalContext externalContext = facesContext.getExternalContext();                
+	        externalContext.setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+	        facesContext.responseComplete();
+	        
+	        return;
+		}
 		
 		User user = userBean.getUser();
 		
-		EntityManager em = FactoryManager.getEM();
+		EntityManager em = jpaBean.getEM();
 		if(user != null) { // User is logged in
 			Rating rating = user.getRating(game, null, em);
 			if(rating != null) // User has rated the game before
@@ -82,7 +92,6 @@ public class GameBean {
 				characteristicRatings.put(characteristic, averageRating == null ? 0 : averageRating.getRating().intValue());
 			}
 		}
-		em.close();
 	}
 	
 	public Game getGame() {
