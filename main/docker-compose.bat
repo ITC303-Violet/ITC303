@@ -13,7 +13,7 @@ IF NOT DEFINED DOCKER_TOOLBOX_INSTALL_PATH (
 	SET "FINAL_TARGET_PATH=/!FINAL_TARGET_DRIVE!!TARGET_PATH:\=/!"
 
 	CD /D "%DOCKER_TOOLBOX_INSTALL_PATH%"
-	"%PROGRAMFILES%\Git\bin\bash.exe" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" cd "!FINAL_TARGET_PATH!" ^&^& docker-compose.exe %*
+	"%PROGRAMFILES(X86)%\Git\bin\bash.exe" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" cd "!FINAL_TARGET_PATH!" ^&^& docker-compose.exe %*
 	CD /D "%~dp0"
 )
 

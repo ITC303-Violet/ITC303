@@ -32,7 +32,7 @@ To build and test the project within eclipse:
 
 * Ensure you have [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) installed
 * Click run and choose "Maven build"
-* If asked to enter some goals enter `clean tomcat7:redeploy`
+* If asked to enter some goals enter `tomcat7:redeploy`
 * This should build and then deploy the application to the docker container running tomcat
 
 If the build fails for anything besides source errors please let Somer know.
