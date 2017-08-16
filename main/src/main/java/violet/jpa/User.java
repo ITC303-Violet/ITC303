@@ -50,6 +50,9 @@ public class User implements Serializable {
 	@ManyToMany(mappedBy="users", cascade=CascadeType.PERSIST)
 	private List<Characteristic> favouredCharacteristics;
 	
+	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
+	private List<Recommendation> recommendations;
+	
 	
 	public User() {
 		ratings = new ArrayList<Rating>();
@@ -222,6 +225,14 @@ public class User implements Serializable {
 		
 		for(Genre genre: genres)
 			addFavouredGenre(genre);
+	}
+	
+	public void addRecommendation(Recommendation recommendation) {
+		if(recommendations.contains(recommendation))
+			return;
+		
+		recommendations.add(recommendation);
+		recommendation.setUser(this);
 	}
 	
 	public boolean hasFavouredGenre(Genre genre) {
