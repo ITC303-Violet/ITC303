@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/admin/main.xhtml">
+		<ui:define name="title">
+			Administration - Characteristics - You Might Dig
+		</ui:define>
+		<ui:define name="admin-content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col">
+						<h:form>
+							<p:messages id="messages" autoUpdate="true" />
+							
+							<span>Characteristics:</span>
+							<div class="form-group m2m-search">
+								<input type="text" class="form-control search" placeholder="Search"></input>
+								<c:set var="genres" value="#{adminBean.blacklistedGenres}" scope="request" />
+								<div class="m2m-list" style="max-height:40rem;">
+									<table class="width-100">
+										<ui:repeat var="genre" value="#{adminBean.genreChoices}">
+											<tr data-filter="#{genre.identifier}">
+												<td class="characteristic-labels #{genre.hidden or genre.blacklisted ? 'rating-muted' : ''}"><label><h:outputText value="#{genre.name}" /></label></td>
+												<td class="characteristic-input"><p:chips value="#{adminBean.genreCharacteristics[genre]}" rows="1" /></td>
+											</tr>	
+										</ui:repeat>
+									</table>
+								</div>
+							</div>
+							
+							<p:commandButton styleClass="btn btn-primary" type="submit" value="Save" action="#{adminBean.saveCharacteristics}"/>
+						</h:form>
+					</div>
+				</div>
+			</div>
+			
+			<script type="text/javascript">
+				$(function() {
+					$('.m2m-search .search').on('keyup', function(e) {
+						if(e.keyCode==13)
+							return false;
+	
+						var filter = $(this).val().toLowerCase();
+						var container = $(this).siblings('.m2m-list')
+						if(filter != '') {
+							var filtered = container.find('[data-filter*="' + filter + '"]');
+							filtered.show();
+							container.find('tr').not(filtered).hide();
+						} else {
+							container.find('tr').show();
+						}
+					});
+				});
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

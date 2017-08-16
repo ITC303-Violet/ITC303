@@ -11,6 +11,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
 
+import violet.jpa.FactoryManager;
+
 /**
  * Runs all gatherers to update all games
  * @author somer
@@ -35,10 +37,13 @@ public class ScheduledJob implements InterruptableJob {
 		while(!gatherers.isEmpty()) { // loop through all our gatherers
 			currentGatherer = gatherers.pop();
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Executing " + currentGatherer.getClass().getName());
+			FactoryManager.pullCommonEM();
 			try { // run gather on all gatherers
 				currentGatherer.gather(insertOnly, maxGames);
 			} catch(Exception e) {
 				Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Failed executing", e);
+			} finally {
+				FactoryManager.popCommonEM();
 			}
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Done");
 		}

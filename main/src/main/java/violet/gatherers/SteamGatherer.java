@@ -120,7 +120,7 @@ public class SteamGatherer extends Gatherer {
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Query apps " + (insertOnly ? "insert only" : "update"));
 		
 		JSONArray apps = jsonFromURL(URL_APPLIST).getJSONObject("applist").getJSONObject("apps").getJSONArray("app");
-		for(int i=0; i<apps.length(); i++) {
+		for(int i=apps.length()-1; i>=0; i--) {
 			Integer appid = apps.getJSONObject(i).getInt("appid");
 			
 			if(!insertOnly || !existing_ids.contains(appid) && !ids.contains(appid)) { // if we're inserting only, ignore apps that already exist
@@ -139,17 +139,13 @@ public class SteamGatherer extends Gatherer {
 	 */
 	private class SteamGathererRunnable implements Runnable {
 		private EntityManager em;
-		private EntityTransaction transaction;
 		
 		public void run() {
-			em = FactoryManager.getEM();
-			transaction = null;
+			em = FactoryManager.pullCommonEM();
+			FactoryManager.pullTransaction();
 			try {
-				transaction = em.getTransaction();
-				transaction.begin();
-				
 				Integer id;
-				while((id = ids.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) { // grab an idea from the list to check
+				while((id = ids.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) { // grab an id from the list to check
 					Integer i = null;
 					if(retryQuerySingleApp(id, em)) { // if we successfully grab a game, increment gamesGrabbed
 						i = gamesGrabbed.incrementAndGet();
@@ -157,26 +153,24 @@ public class SteamGatherer extends Gatherer {
 					}
 					
 					if(i != null && i > 0 && i % BATCH_SIZE == 0) { // flush the transaction if it's overdue to keep the transaction from becoming too large
-						em.flush();
-						em.clear();
+						FactoryManager.flushCommonEM();
 						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Flushed cache");
 					}
 					
 					if(maxGames > 0 && gamesGrabbed.get() >= maxGames) // if we've grabbed as many games as we need to, break the loop
 						break;
 				}
-				
-				transaction.commit();
 			} catch(InterruptedException e) {
-				if(transaction != null)
-					transaction.commit();
+				FactoryManager.reopenTransaction();
 				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Gathering interrupted");
 			} catch(Exception e) { // if a more substantial exception was raised
-				if(transaction != null && transaction.isActive())
-					transaction.rollback();
+				FactoryManager.rollbackTransaction();
 				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Exception thrown during gathering", e);
 				
 				executor.shutdownNow(); // cancel all other runners too 
+			} finally {
+				FactoryManager.popTransaction();
+				FactoryManager.popCommonEM();
 			}
 		}
 		
@@ -302,8 +296,27 @@ public class SteamGatherer extends Gatherer {
 				game = em.merge(game); // if the game already exists, merge it to ensure it is up to date
 			
 			synchronized(this.getClass()) { // make sure only one runner enters this block at a time to stop duplicate genres in the database
+				boolean commit = false;
 				JSONArray genres;
 				if(data.has("genres") && (genres = data.getJSONArray("genres")) != null) {
+					commit = commit || genres.length() > 0;
+					
+					for(int i=0; i<genres.length(); i++) {
+						JSONObject genreData = genres.getJSONObject(i);
+						
+						Genre genre;
+						String name = genreData.getString("description");
+						
+						genre = Genre.getGenre(name, true, em);
+						//Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
+						
+						game.addGenre(genre);
+					}
+				}
+				
+				if(data.has("categories") && (genres = data.getJSONArray("categories")) != null) {
+					commit = commit || genres.length() > 0;
+					
 					for(int i=0; i<genres.length(); i++) {
 						JSONObject genreData = genres.getJSONObject(i);
 						
@@ -315,16 +328,15 @@ public class SteamGatherer extends Gatherer {
 						
 						game.addGenre(genre);
 					}
-					
-					/*
-					 * oddly we can't use em.flush, it seems to cause a deadlock whereas committing the transaction
-					 * and starting a new one will work to ensure the genres of another thread are up to date
-					 * and we don't have duplicate INSERT statements
-					 */
-					if(genres.length() > 0) {
-						transaction.commit();
-						transaction.begin();
-					}
+				}
+				
+				/*
+				 * oddly we can't use em.flush, it seems to cause a deadlock whereas committing the transaction
+				 * and starting a new one will work to ensure the genres of another thread are up to date
+				 * and we don't have duplicate INSERT statements
+				 */
+				if(commit) {
+					FactoryManager.reopenTransaction();
 				}
 			}
 			

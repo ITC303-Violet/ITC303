@@ -8,21 +8,75 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:violet="http://violet.csu.edu.au/facelets">
 
-	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
+	<ui:composition template="/WEB-INF/templates/admin/main.xhtml">
 		<ui:define name="title">
-			Administration - You Might Dig
+			Administration - Overview - You Might Dig
 		</ui:define>
-		<ui:define name="content">
-			<div class="container">
+		<ui:define name="admin-content">
+			<div class="container-fluid">
 				<div class="row">
+					<div class="col col-md-2 offset-md-1">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.gameCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">games</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.userCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">users</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.genreCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">genres</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.characteristicCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">characteristics</h4>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col col-md-2">
+						<div class="card text-center">
+							<div class="card-header">
+								<h4 class="card-title"><h:outputText value="#{adminBean.ratingCount}" /></h4>
+							</div>
+							<div class="card-block">
+								<h4 class="card-title">ratings</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-3">
 					<div class="col">
-						<p>Admin section</p>
-						<p><strong>NOTE:</strong> during development and testing, all new users are set as staff - during production this will obviously not be the case and they will not have access to this page</p>
 						<h:form>
 							<p:messages id="messages" autoUpdate="true" />
 							<div class="form-group">
-								<p:outputLabel for="maxGames" styleClass="form-control-label">Max number of games to gather:</p:outputLabel>
-								<p:inputText id="maxGames" styleClass="form-control" value="#{adminBean.maxGames}" required="true" />
+								<p:outputLabel for="maxGamesGather" styleClass="form-control-label">Max number of games to gather:</p:outputLabel>
+								<p:inputText id="maxGamesGather" styleClass="form-control" value="#{adminBean.maxGamesGather}" required="true" />
 							</div>
 							
 							<p:commandButton styleClass="btn btn-primary" type="submit" value="Gather" action="#{adminBean.gather}"/>

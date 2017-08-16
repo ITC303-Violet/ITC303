@@ -16,13 +16,15 @@ import javax.persistence.*;
 @Entity
 @NamedQueries({
 	@NamedQuery(name="Game.findAverageRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user IS NULL AND r.characteristic IS NULL"),
-	@NamedQuery(name="Game.findAverageCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.characteristic=:characteristic AND r.user IS NULL")
+	@NamedQuery(name="Game.findAverageCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.characteristic=:characteristic AND r.user IS NULL"),
+	@NamedQuery(name="Game.count", query="SELECT COUNT(g) FROM Game g")
 })
 public class Game {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private String name;
+	private boolean blacklisted = false;
 	
 	@Lob
 	private String description;
@@ -147,6 +149,14 @@ public class Game {
 		this.name = name;
 	}
 	
+	public boolean getBlacklisted() {
+		return blacklisted;
+	}
+	
+	public void setBlacklisted(boolean blacklisted) {
+		this.blacklisted = blacklisted;
+	}
+	
 	public String getDescription() {
 		return description;
 	}
@@ -187,8 +197,25 @@ public class Game {
 		genre.addGame(this);
 	}
 	
+	public void removeGenre(Genre genre) {
+		if(!genres.contains(genre))
+			return;
+		
+		genres.remove(genre);
+		genre.removeGame(this);
+	}
+	
 	public List<Genre> getGenres() {
 		return genres;
+	}
+	
+	public List<Genre> getDisplayGenres() {
+		List<Genre> displayGenres = new ArrayList<Genre>();
+		for(Genre genre : genres)
+			if(!genre.getHidden())
+				displayGenres.add(genre);
+		
+		return displayGenres;
 	}
 	
 	public boolean hasGenre(Genre genre) {
@@ -265,7 +292,7 @@ public class Game {
 	 * @return true if the game has a screenshot with a matching remoteId to the one provided
 	 */
 	public boolean hasScreenshot(String remoteId) {
-		EntityManager em = FactoryManager.getEM();
+		EntityManager em = FactoryManager.getCommonEM();
 		try {
 			TypedQuery<Long> tq = em.createQuery("SELECT COUNT(s) FROM Game g INNER JOIN g.screenshots s WHERE g.id=:id AND s.remoteIdentifier=:rid", Long.class);
 			Long result = tq.setParameter("id", id)
@@ -274,8 +301,16 @@ public class Game {
 			return result > 0;
 		} catch(NoResultException e) {
 			return false;
-		} finally {
-			em.close();
 		} 
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createNamedQuery("Game.count", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		}
 	}
 }

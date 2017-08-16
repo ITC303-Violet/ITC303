@@ -3,6 +3,7 @@ package violet.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -16,7 +17,8 @@ import javax.persistence.*;
 @Table(name="VUser")
 @NamedQueries({
 	@NamedQuery(name="User.getOverallRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic IS NULL"),
-	@NamedQuery(name="User.getCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic=:characteristic")
+	@NamedQuery(name="User.getCharacteristicRating", query="SELECT r FROM Rating r WHERE r.game=:game AND r.user=:user AND r.characteristic=:characteristic"),
+	@NamedQuery(name="User.count", query="SELECT COUNT(u) FROM User u")
 })
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -42,8 +44,20 @@ public class User implements Serializable {
 	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;
 	
+	@ManyToMany(mappedBy="users", cascade=CascadeType.PERSIST)
+	private List<Genre> favouredGenres;
+	
+	@ManyToMany(mappedBy="users", cascade=CascadeType.PERSIST)
+	private List<Characteristic> favouredCharacteristics;
+	
+	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
+	private List<Recommendation> recommendations;
+	
+	
 	public User() {
 		ratings = new ArrayList<Rating>();
+		favouredGenres = new ArrayList<Genre>();
+		favouredCharacteristics = new ArrayList<Characteristic>();
 		is_staff = true;
 	}
 	
@@ -178,6 +192,98 @@ public class User implements Serializable {
 	
 	public List<Rating> getRatings() {
 		return ratings;
+	}
+	
+	public void addFavouredGenre(Genre genre) {
+		if(favouredGenres.contains(genre))
+			return;
+		
+		favouredGenres.add(genre);
+		genre.addUser(this);
+	}
+	
+	public void removeFavouredGenre(Genre genre) {
+		if(!favouredGenres.contains(genre))
+			return;
+		
+		favouredGenres.remove(genre);
+		genre.removeUser(this);
+	}
+	
+	public List<Genre> getFavouredGenres() {
+		return favouredGenres;
+	}
+	
+	public void setFavouredGenresList(List<Genre> genres) {
+		Stack<Genre> toRemove = new Stack<Genre>();
+		for(Genre genre: favouredGenres)
+			if(!genres.contains(genre))
+				toRemove.push(genre);
+			
+		while(!toRemove.isEmpty())
+			removeFavouredGenre(toRemove.pop());
+		
+		for(Genre genre: genres)
+			addFavouredGenre(genre);
+	}
+	
+	public void addRecommendation(Recommendation recommendation) {
+		if(recommendations.contains(recommendation))
+			return;
+		
+		recommendations.add(recommendation);
+		recommendation.setUser(this);
+	}
+	
+	public boolean hasFavouredGenre(Genre genre) {
+		return favouredGenres.contains(genre);
+	}
+	
+	public void addFavouredCharacteristic(Characteristic characteristic) {
+		if(favouredCharacteristics.contains(characteristic))
+			return;
+		
+		favouredCharacteristics.add(characteristic);
+		characteristic.addUser(this);
+	}
+	
+	public void removeFavouredCharacteristic(Characteristic characteristic) {
+		if(!favouredCharacteristics.contains(characteristic))
+			return;
+		
+		favouredCharacteristics.remove(characteristic);
+		characteristic.removeUser(this);
+	}
+	
+	public List<Characteristic> getFavouredCharacteristics() {
+		return favouredCharacteristics;
+	}
+	
+	public void setFavouredCharacteristicsList(List<Characteristic> characteristics) {
+		Stack<Characteristic> toRemove = new Stack<Characteristic>();
+		for(Characteristic characteristic: favouredCharacteristics)
+			if(!characteristics.contains(characteristic))
+				toRemove.push(characteristic);
+			
+		while(!toRemove.isEmpty())
+			removeFavouredCharacteristic(toRemove.pop());
+		
+		for(Characteristic characteristic : characteristics)
+			addFavouredCharacteristic(characteristic);
+	}
+	
+	public boolean hasFavouredCharacteristic(Characteristic characteristic) {
+		return favouredCharacteristics.contains(characteristic);
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createNamedQuery("User.count", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		}
 	}
 	
 	/**

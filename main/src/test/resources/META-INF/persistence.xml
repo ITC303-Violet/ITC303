@@ -11,6 +11,7 @@
 		<class>violet.jpa.Screenshot</class>
 		<class>violet.jpa.User</class>
 		<class>violet.jpa.Rating</class>
+		<class>violet.jpa.Recommendation</class>
 		
 		<properties>
 			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;"/>

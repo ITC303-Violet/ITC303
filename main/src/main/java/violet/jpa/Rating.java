@@ -30,8 +30,6 @@ public class Rating {
 	/**
 	 * Updates the saved average rating of a game after a user updates or creates their vote
 	 */
-	//@PreUpdate
-	//@PrePersist
 	public void updateAverage() {
 		if(game == null || user == null) // Don't wind up in a loop updating averages after saving an average
 			return;
@@ -136,5 +134,15 @@ public class Rating {
 
 	public void setRating(Double rating) {
 		this.rating = rating;
+	}
+	
+	public static Long count() {
+		EntityManager em = FactoryManager.getCommonEM();
+		try {
+			return em.createQuery("SELECT COUNT(r) FROM Rating r", Long.class)
+					.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		}
 	}
 }

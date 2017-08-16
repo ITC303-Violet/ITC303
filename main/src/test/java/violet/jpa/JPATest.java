@@ -102,7 +102,8 @@ public class JPATest {
 	
 	@AfterClass
 	public static void tearDown() {
-		em.clear();
+		if(em != null)
+			em.clear();
 		FactoryManager.popCommonEM();
 	}
 }

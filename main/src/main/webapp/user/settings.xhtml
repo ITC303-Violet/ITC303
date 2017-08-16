@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html [
+	<!ENTITY nbsp "&#160;">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
+		<ui:define name="title">
+			Settings - You Might Dig
+		</ui:define>
+		<ui:define name="content">
+			<div class="container">
+				<div class="row">
+					<div class="col mt-2">
+						<h:form>
+							<p:messages id="messages" autoUpdate="true" />
+							<div class="form-group">
+								<p:outputLabel for="username" styleClass="form-control-label">Username</p:outputLabel>
+								<p:inputText id="username" styleClass="form-control" value="#{userBean.user.username}" readonly="true"/>
+							</div>
+							<div class="form-group">
+								<p:outputLabel for="email" styleClass="form-control-label">Email</p:outputLabel>
+								<p:inputText id="email" styleClass="form-control" value="#{userSettingsBean.email}" required="true" validatorMessage="Invalid Email Address">
+									<f:validateLength maximum="250" />
+									<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+								</p:inputText>
+							</div>
+							
+							<p:outputLabel for="favouriteGenres" styleClass="form-control-label">Favourite Genres</p:outputLabel>
+							<div class="form-group m2m-search">
+								<input type="text" class="form-control search" placeholder="Search"></input>
+								<div class="m2m-list">
+									<h:selectManyCheckbox id="favouriteGenres" value="#{userSettingsBean.genres}" layout="pageDirection" columns="1">
+										<f:selectItems value="#{userSettingsBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+									</h:selectManyCheckbox>
+								</div>
+							</div>
+							
+							<p:outputLabel for="favouriteCharacteristics" styleClass="form-control-label">Favourite Characteristics</p:outputLabel>
+							<div class="form-group m2m-search">
+								<input type="text" class="form-control search" placeholder="Search"></input>
+								<div class="m2m-list">
+									<h:selectManyCheckbox id="favouriteCharacteristics" value="#{userSettingsBean.characteristics}" layout="pageDirection" columns="1">
+										<f:selectItems value="#{userSettingsBean.characteristicChoices}" var="characteristic" itemLabel="#{characteristic.name}" itemValue="#{characteristic.id}"/>
+									</h:selectManyCheckbox>
+								</div>
+							</div>
+							
+							<p:commandButton styleClass="btn btn-primary" type="submit" value="Save Preferences" action="#{userSettingsBean.save}"/>
+						</h:form>
+					</div>
+				</div>
+			</div>
+			
+			<script type="text/javascript">
+				$(function() {
+					$('.m2m-search .search').on('keyup', function(e) {
+						if(e.keyCode==13)
+							return false;
+	
+						var filter = $(this).val();
+						var container = $(this).siblings('.m2m-list')
+						if(filter != '') {
+							var filtered = container.find('label:icontains("' + filter + '")');
+							var checkboxes = filtered.closest('tr');
+							checkboxes.show();
+							container.find('tr').not(checkboxes).hide();
+						} else {
+							container.find('tr').show();
+						}
+					});
+				});
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>
