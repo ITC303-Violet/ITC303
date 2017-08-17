@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
+		<ui:define name="title">
+			<h:outputText value="#{gameBean.game.name}" /> - You Might Dig
+		</ui:define>
+		<ui:define name="content">
+			<c:set var="screenshots" value="#{gameBean.game.screenshots}" scope="request" />
+						
+			<div class="game-carousel slick-carousel">
+				<ui:repeat var="screenshot" value="#{screenshots}">
+					<div>
+						<img class="d-block img-fluid mx-auto game-screenshot" src="#{screenshot.thumbnail.URL}" />
+					</div>
+				</ui:repeat>
+			</div>
+			
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<div class="game-title-bar">
+							<ui:fragment rendered="#{not empty gameBean.game.heroImage}">
+								<img class="game-heroimage" src="#{gameBean.game.heroImage.URL}" />
+							</ui:fragment>
+							<h1 class="d-lg-inline"><h:outputText value="#{gameBean.game.name}" /></h1>
+							<div class="game-rating">
+								<h:outputText id="averageRating" value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}" styleClass="#{gameBean.game.averageRating == null ? ' rating-muted' : ''}">
+									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+								</h:outputText>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-12 col-lg-9">
+						<ul class="list-inline">
+							<ui:repeat var="genre" value="#{gameBean.game.displayGenres}">
+								<li class="list-inline-item"><span class="badge badge-primary"><h:outputText value="#{genre.name}" /></span></li>
+							</ui:repeat>
+						</ul>
+						<h:outputText value="#{gameBean.game.description}" escape="false" />
+					</div>
+					
+					<div class="col-12 col-lg-3 flex-first flex-lg-unordered mb-3 mb-lg-0">
+						<h:form>
+							<p:messages/>
+							
+							<c:set var="averageRatings" value="#{gameBean.game.averageCharacteristicRatings}" scope="request" />
+							
+							<label>
+								Overall Rating: 
+								<h:outputText 
+									value="#{gameBean.overallRating == null ? 0 : gameBean.overallRating}"
+									styleClass="font-weight-bold#{gameBean.overallRating == null ? ' rating-muted' : ''}"
+								>
+									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+								</h:outputText>
+							</label>
+							<p:rating value="#{gameBean.overallRating}" stars="10" cancel="false" disabled="#{empty userBean.user}" required="true" />
+							
+							<ui:repeat var="characteristic" value="#{gameBean.game.characteristics}">
+								<label>
+									<h:outputText value="#{characteristic.name}" />: 
+									<h:outputText
+										value="#{averageRatings[characteristic] == null ? 0 : averageRatings[characteristic].rating}"
+										styleClass="font-weight-bold#{averageRatings[characteristic] == null ? ' rating-muted' : ''}"
+									>
+										<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+									</h:outputText>
+								</label>
+								<p:rating value="#{gameBean.characteristicRatings[characteristic]}" stars="10" cancel="false" disabled="#{empty userBean.user}" />	
+							</ui:repeat>
+							
+							<p:commandButton styleClass="btn btn-primary mt-2" type="submit" value="#{empty userBean.user ? 'Sign in to rate' : 'Rate'}" action="#{gameBean.rateGame}" update="@form averageRating" disabled="#{empty userBean.user}" />
+						</h:form>
+					</div>
+				</div>
+			</div>
+				
+			<script type="text/javascript">
+				$(function() {
+					$(".slick-carousel").slick({
+				        infinite: true,
+				        autoplay: true,
+				        speed: 500,
+				        slidesToShow: 10,
+				        centerMode: true,
+				        variableWidth: true,
+				        draggable: false
+				    });
+
+				    function recalculateSingleSlidesToShow(container) {
+				    	var containerWidth = $(container).width();
+			    		var totalSlideWidth = 0;
+
+			    		var slides = $(container).find(".slick-slide");
+			    		slides.each(function() {
+			    			totalSlideWidth += $(this).outerWidth();
+				    	});
+
+				    	var averageSlideWidth = totalSlideWidth / slides.length;
+			    		$(container).slick("slickSetOption", "slidesToShow", Math.ceil(containerWidth / averageSlideWidth), true);
+					}
+
+				    function recalculateSlidesToShow() {
+				    	$(".slick-carousel").each(function() {
+				    		recalculateSingleSlidesToShow(this);
+					  	});
+					}
+
+				    $(window).resize(function() {
+				    	recalculateSlidesToShow();
+					});
+
+					$(recalculateSlidesToShow);
+				});
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>
