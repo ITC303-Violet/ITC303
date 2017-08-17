@@ -1,9 +1,0 @@
-Things users can do
-
--View list of top rated games
--Search for a game and see its rating
--Log in
-The following they can only do if logged in:
--View list of their games
--Search for a game, and rate it
--View list of recommendations
