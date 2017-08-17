@@ -1,0 +1,36 @@
+Homepage:
+	List of games:
+		for unauthenticated/under elaborated users: generic list of recent games
+		for authenticated users: list of recommended games (for the time being will just be the same as above)
+		Somewhere near the list of games is a "Browse" button that will take users to the "Browse" page
+
+	User info:
+		for unauthenticated:
+			A "Sign in" button that either takes them to a separate page or a dropdown login box
+			Also a "Sign up" button that takes users to the "Sign up" page
+		for authenticated: A "Settings" button that takes them to the "User Settings" page
+
+User Settings:
+	Displays a list of settings the user can input such as age, gender, location (location can also be gathered without input via geoip services)
+	A submit button that saves the settings
+
+Browse:
+	Displays a list of ~25 games with basic info like thumbnail, name, a brief description(?)
+	Can also be used to browse recommendations
+	The sorting and filter criteria can be set by the user (maybe on a sidebar?)
+	Clicking a game opens the "View Game" page
+
+View Game:
+	Displays the basic info we keep of the game - name, description, photo, etc
+	Under the info is the space to rate a game:
+		A mandatory (if rating) "overall rating" bar/stars
+		Once the overall rating is filled out, a set of sub-ratings expands that are based on the genre of the game, etc:
+			e.g. "Story", "Graphics", etc (some may be common to many genres)
+
+Login:
+	Input for email and password
+	"Sign in" button, takes you to homepage on success, or back to login page on failure
+
+Sign up:
+	Input for email and password and any of the settings we have in "User Settings" (e.g. age, etc)
+	"Sign up" button, takes you to homepage, logged in on success or back to sign up page if any info is invalid
