@@ -47,6 +47,13 @@ public class Game {
 	@Column(unique=true)
 	private int steam_id;
 	
+	@Column(unique=true)
+	private String ps_store_id;
+	
+	@Column(unique=true)
+	private String xbox_store_id;
+	
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date release;
 	
@@ -180,6 +187,21 @@ public class Game {
 	public void setHeroImage(Image heroImage) {
 		this.heroImage = heroImage;
 	}
+	public String getPSStoreId() {
+		return ps_store_id;
+	}
+	
+	public void setPSStoreId(String ps_store_id) {
+		this.ps_store_id = ps_store_id;
+	}
+	public String getXBoxStoreId() {
+		return xbox_store_id;
+	}
+	
+	public void setXBoxStoreId(String xbox_store_id) {
+		this.xbox_store_id = xbox_store_id;
+	}
+	
 	
 	public int getSteamId() {
 		return steam_id;

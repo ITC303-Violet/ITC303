@@ -27,6 +27,8 @@ public class ScheduledJob implements InterruptableJob {
 		
 		Stack<Gatherer> gatherers = new Stack<Gatherer>();
 		gatherers.push(new SteamGatherer());
+		gatherers.push(new PlaystationGatherer());
+		gatherers.push(new XBoxGatherer());
 		
 		processGatherers(insertOnly, maxGames, gatherers);
 	}
@@ -41,6 +43,7 @@ public class ScheduledJob implements InterruptableJob {
 			try { // run gather on all gatherers
 				currentGatherer.gather(insertOnly, maxGames);
 			} catch(Exception e) {
+				
 				Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Failed executing", e);
 			} finally {
 				FactoryManager.popCommonEM();
