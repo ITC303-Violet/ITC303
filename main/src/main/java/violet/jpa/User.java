@@ -53,6 +53,8 @@ public class User implements Serializable {
 	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
 	private List<Recommendation> recommendations;
 	
+	private Recommendation currentRecommendation;
+	
 	
 	public User() {
 		ratings = new ArrayList<Rating>();
@@ -60,7 +62,7 @@ public class User implements Serializable {
 		favouredCharacteristics = new ArrayList<Characteristic>();
 		is_staff = true;
 	}
-	
+
 	public User(String username, String email, String password) {
 		this();
 		this.username = username;
@@ -175,6 +177,14 @@ public class User implements Serializable {
 	
 	public void setLocation(String location) {
 		this.location = location;
+	}
+	
+	public Recommendation getCurrentRecommendation() {
+		return currentRecommendation;
+	}
+
+	public void setCurrentRecommendation(Recommendation currentRecommendation) {
+		this.currentRecommendation = currentRecommendation;
 	}
 	
 	public void addRating(Rating rating) {
