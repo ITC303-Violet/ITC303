@@ -61,17 +61,17 @@ public class Recommendation {
 			  r.game_id,
 			  AVG(r.rating) AS average_rating,
 			  (
-			    SUM(r.rating * (perc * 1.5 +
+			    SUM(r.rating * (perc *
 			      CASE WHEN r.characteristic_id IS NOT NULL THEN
-			          CASE WHEN r.characteristic_id IN (6301) THEN 1 ELSE 0.2 END
+			          CASE WHEN r.characteristic_id IN (6301) THEN 0.8 ELSE 0.15 END
 			      ELSE
 			        CASE WHEN g.games_id IS NOT NULL THEN 1 ELSE 0.6 END
 			      END
 			    ))
 			    /
-			    SUM(perc * 1.5 +
+			    SUM(perc *
 			      CASE WHEN r.characteristic_id IS NOT NULL THEN
-			        CASE WHEN r.characteristic_id IN (6301) THEN 1 ELSE 0.2 END
+			        CASE WHEN r.characteristic_id IN (6301) THEN 0.8 ELSE 0.15 END
 			      ELSE
 			        CASE WHEN g.games_id IS NOT NULL THEN 1 ELSE 0.6 END
 			      END
@@ -108,41 +108,7 @@ public class Recommendation {
 			WHERE target.game_id IS NULL AND perc > 0.55
 			GROUP BY r.game_id
 			ORDER BY weighted_rating DESC;
-			 */
-			
-			// A basic recommendation engine if we don't have enough users or ratings.
-			// Simply finds and sorts games based on ratings of games with genres or characteristics
-			// that the user has marked as their favourites
-			
-			/*List<Characteristic> favCharacteristics = userBean.getUser().getFavouredCharacteristics();
-			
-			List<String> favGenreIdentifiers = new ArrayList<>();
-			for(Genre genre : userBean.getUser().getFavouredGenres())
-				favGenreIdentifiers.add(genre.getIdentifier());
-			
-			TypedQuery<Game> tq = em.createQuery("SELECT g " +
-					"FROM Game g " +
-					"LEFT JOIN Rating r " +
-					" ON " +
-					"  r.game=g AND ( " +
-					"   r.characteristic IS NULL " +
-					(favCharacteristics.size() > 0 ? "   OR r.characteristic IN :characteristics " : "") +
-					"  ) " +
-					" WHERE " +
-					"  (NOT g.blacklisted OR g.blacklisted IS NULL) " +
-					(favGenreIdentifiers.size() > 0 ? 
-						"  AND EXISTS ( " +
-						"   SELECT ge FROM Genre ge WHERE ge.identifier IN :genres AND g MEMBER OF ge.games" +
-						"  ) "
-						: ""
-					) +
-					"GROUP BY g " +
-					"ORDER BY AVG(r.rating) DESC NULLS LAST", Game.class);
-			
-			if(favCharacteristics.size() > 0)
-				tq.setParameter("characteristics", favCharacteristics);
-			if(favGenreIdentifiers.size() > 0)
-				tq.setParameter("genres", favGenreIdentifiers);*/
+			*/
 			
 			return true;
 		} catch(NoResultException e) {
