@@ -20,6 +20,18 @@
 	margin-bottom: 25px;
 }
 
+.game-card .card-text h2 {
+	font-size: 1rem;
+	margin-top: 0.2rem;
+}
+
+.game-card .card-title {
+	white-space: nowrap;
+	word-wrap: break-word;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 img {
 	max-width: 100%;
 }

@@ -35,6 +35,10 @@ public class GameBean {
 	private Integer overallRating = null;
 	private Map<Characteristic, Integer> characteristicRatings;
 	
+	// Annoyingly this seems the best way to use primeface's star rating component while still having decimals on the rating we give it
+	// If we just used characteristicRatings on the outputText, then we'd have no decimal
+	private Map<Characteristic, Double> doubleCharacteristics;
+	
 	public JPABean getJpaBean() {
 		return jpaBean;
 	}
@@ -82,11 +86,14 @@ public class GameBean {
 			overallRating = game.getAverageRating(em).getRating().intValue(); // Set the rating component value to the average rating
 			
 		characteristicRatings = new HashMap<Characteristic, Integer>();
+		doubleCharacteristics = new HashMap<Characteristic, Double>();
 		for(Characteristic characteristic : game.getCharacteristics()) { // Do the same as above for all the components associated with the genres the game is associated with
 			if(user != null) {
 				Rating rating = user.getRating(game, characteristic, em);
-				if(rating != null)
+				if(rating != null) {
 					characteristicRatings.put(characteristic, rating.getRating().intValue());
+					doubleCharacteristics.put(characteristic, rating.getRating());
+				}
 			} else {
 				Rating averageRating = game.getAverageCharacteristicRating(characteristic, em);
 				characteristicRatings.put(characteristic, averageRating == null ? 0 : averageRating.getRating().intValue());
@@ -114,6 +121,10 @@ public class GameBean {
 		return characteristicRatings;
 	}
 	
+	public Map<Characteristic, Double> getDoubleCharacteristics() {
+		return doubleCharacteristics;
+	}
+	
 	/**
 	 * JSF action called when a user rates a game 
 	 * @return
@@ -134,6 +145,7 @@ public class GameBean {
 				ratingValue = Integer.parseInt((String)ratingValue); 
 			}
 			user.rateGame(game, rating.getKey(), ((Integer)ratingValue).doubleValue()); // save that characteristic rating
+			doubleCharacteristics.put(rating.getKey(), ((Integer)ratingValue).doubleValue());
 		}
 		
 		return null;
