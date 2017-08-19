@@ -54,6 +54,9 @@
 						<version>2.2</version>
 						<configuration>
 							<path>/</path>
+
+<!--							<url>http://localhost:8080/manager/text</url>-->
+
 							<url>http://192.168.99.100:8080/manager/text</url>
 						</configuration>
 					</plugin>

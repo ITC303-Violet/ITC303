@@ -44,13 +44,13 @@ public class Game {
 	@Embedded
 	private Image heroImage;
 	
-	@Column(unique=true)
+	@Column(unique=false)
 	private int steam_id;
 	
-	@Column(unique=true)
+	@Column(unique=false)
 	private String ps_store_id;
 	
-	@Column(unique=true)
+	@Column(unique=false)
 	private String xbox_store_id;
 	
 	

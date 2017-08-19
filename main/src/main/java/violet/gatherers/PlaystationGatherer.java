@@ -228,7 +228,7 @@ public class PlaystationGatherer extends Gatherer {
 			
 			// set the description
 		
-			value = cleanDescription(data.getString("long_description"));
+			value = cleanDescription(data.getString("long_desc"));
 			if(game.getDescription() != value)
 				game.setDescription(value);
 			
@@ -257,7 +257,13 @@ public class PlaystationGatherer extends Gatherer {
 							game.setRelease(release);
 							success = true;
 							break; // the first time we succeed, break
-						} catch(ParseException e) {}
+						} catch(ParseException e) {
+							
+							
+						}
+						catch(NumberFormatException ex) {
+							
+						}
 					}
 					
 					if(!success)
