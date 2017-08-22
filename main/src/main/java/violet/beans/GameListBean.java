@@ -15,6 +15,7 @@ import javax.persistence.TypedQuery;
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
 import violet.jpa.Paginator;
+import violet.filters.SearchFilter;
 
 /**
  * Provides the list of games for the front page and browse page
@@ -25,6 +26,7 @@ import violet.jpa.Paginator;
 public class GameListBean {
 	private static final int FRONT_PAGE_SIZE = 24;
 	private static final int PAGE_SIZE = 15;
+	private SearchFilter filter;
 
 	@ManagedProperty(value="#{userBean}")
 	private UserBean userBean;
@@ -77,14 +79,11 @@ public class GameListBean {
 			search = search != null ? search.toLowerCase() : "";
 			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
-			String queryStart = "SELECT g FROM Game g ";
-			String queryFilter = " WHERE g.blacklisted=FALSE";
-			if(releasedOnly)
-				queryFilter += " AND g.release < CURRENT_TIMESTAMP";
-			if(!search.isEmpty())
-				queryFilter += " AND LOWER(g.name) LIKE :searchQuery";
+			filter = new SearchFilter(releasedOnly, search);
 			
-			String queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
+			String queryStart = filter.queryS();
+			String queryFilter = filter.queryF();
+			String queryOrder = filter.queryO();
 			
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())
