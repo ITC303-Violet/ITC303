@@ -50,13 +50,13 @@ public class SteamGatherer extends Gatherer {
 	
 	private ExecutorService executor = null;
 	
-	private BlockingQueue<Integer> ids; // ids to grab
-	private BlockingQueue<Integer> savedIds; // ids already saved
+	private BlockingQueue<String> ids; // ids to grab
+	private BlockingQueue<String> savedIds; // ids already saved
 	
 	public SteamGatherer() {
 		gamesGrabbed = new AtomicInteger();
-		ids = new LinkedBlockingDeque<Integer>();
-		savedIds = new LinkedBlockingDeque<Integer>();
+		ids = new LinkedBlockingDeque<String>();
+		savedIds = new LinkedBlockingDeque<String>();
 	}
 	
 	private static final Pattern[] patterns = {
@@ -125,7 +125,7 @@ public class SteamGatherer extends Gatherer {
 			
 			if(!insertOnly || !existing_ids.contains(appid) && !ids.contains(appid)) { // if we're inserting only, ignore apps that already exist
 				try {
-					ids.put(appid);
+					ids.put(String.valueOf(appid));
 				} catch(InterruptedException e) {
 					return;
 				}
@@ -144,7 +144,7 @@ public class SteamGatherer extends Gatherer {
 			em = FactoryManager.pullCommonEM();
 			FactoryManager.pullTransaction();
 			try {
-				Integer id;
+				String id;
 				while((id = ids.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) { // grab an id from the list to check
 					Integer i = null;
 					if(retryQuerySingleApp(id, em)) { // if we successfully grab a game, increment gamesGrabbed
@@ -181,7 +181,7 @@ public class SteamGatherer extends Gatherer {
 		 * @return true if the app is persisted
 		 * @throws InterruptedException
 		 */
-		private boolean retryQuerySingleApp(int appId, EntityManager em) throws InterruptedException {
+		private boolean retryQuerySingleApp(String appId, EntityManager em) throws InterruptedException {
 			int wait = 1;
 			int retries = 0;
 			while(true) {
@@ -210,8 +210,8 @@ public class SteamGatherer extends Gatherer {
 		 * @throws IOException
 		 * @throws InterruptedException
 		 */
-		private boolean querySingleApp(int appId, EntityManager em) throws JSONException, IOException, InterruptedException {
-			String stringId = Integer.toString(appId);
+		private boolean querySingleApp(String appId, EntityManager em) throws JSONException, IOException, InterruptedException {
+			String stringId = appId;
 			
 			JSONObject data = jsonFromURL(URL_APPDETAILS + appId).getJSONObject(stringId);
 			if(data == null || !data.getBoolean("success")) // the app doesn't exist
@@ -230,11 +230,11 @@ public class SteamGatherer extends Gatherer {
 		 * @throws IOException
 		 * @throws InterruptedException
 		 */
-		private boolean processAppData(int appId, JSONObject data, EntityManager em) throws JSONException, IOException, InterruptedException {
+		private boolean processAppData(String appId, JSONObject data, EntityManager em) throws JSONException, IOException, InterruptedException {
 			data = data.getJSONObject("data");
 			if(!data.getString("type").equals("game")) return false;
 			
-			appId = data.getInt("steam_appid");
+			appId = String.valueOf(data.getInt("steam_appid"));
 			if(savedIds.contains(appId))
 				return false;
 			else // ensure no other runners attempt to process this same app. It's worth noting that this shouldn't be necessary and I'm unsure why I've got it - somer

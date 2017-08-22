@@ -44,13 +44,13 @@ public class Game {
 	@Embedded
 	private Image heroImage;
 	
-	@Column(unique=false)
-	private int steam_id;
+	@Column
+	private String steam_id;
 	
-	@Column(unique=false)
+	@Column
 	private String ps_store_id;
 	
-	@Column(unique=false)
+	@Column
 	private String xbox_store_id;
 	
 	
@@ -203,11 +203,11 @@ public class Game {
 	}
 	
 	
-	public int getSteamId() {
+	public String getSteamId() {
 		return steam_id;
 	}
 	
-	public void setSteamId(int steam_id) {
+	public void setSteamId(String steam_id) {
 		this.steam_id = steam_id;
 	}
 	

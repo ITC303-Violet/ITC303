@@ -52,13 +52,14 @@ public class XBoxGatherer extends Gatherer {
 			new SimpleDateFormat("d MMM, yyyy"),
 			new SimpleDateFormat("MMM d, yyyy"),
 			//Added a pattern for dates with style similar to 2018-12-31T00:00:00Z
-			new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+			new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+			new SimpleDateFormat("yyy-MM-dd'T'HH:mm:ss")
 	};
 	
 	EntityManager em;
 	EntityTransaction transaction;
 	//API_KEY for the unnoficial XBOX API.
-	private static final String API_KEY="78c698c9305599a46230fda0efa52085294ada61";
+	private static final String API_KEY="3728619a15a6e772ea3b7a33ba1746cf5766ca29";
 	private static final String COLUMN_NAME = "xbox_store_id";
 	
 	private AtomicInteger gamesGrabbed; // keeps track of the number of games grabbed
@@ -107,7 +108,7 @@ public class XBoxGatherer extends Gatherer {
 		
 		executor = Executors.newFixedThreadPool(THREAD_COUNT);
 		for(int i=0; i<THREAD_COUNT; i++) // run our requests in multiple threads to reduce time waiting on connections
-			executor.execute(new PlaystationGathererRunnable());
+			executor.execute(new XBOXGathererRunnable());
 		executor.shutdown();
 		
 		try {
@@ -191,7 +192,7 @@ public class XBoxGatherer extends Gatherer {
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
 		con.setRequestMethod("GET");
-		con.setRequestProperty("X-Auth", API_KEY);
+		con.setRequestProperty("X-AUTH", API_KEY);
 
 		int responseCode = con.getResponseCode();
 		System.out.println("Response Code : " + responseCode);
@@ -222,7 +223,7 @@ public class XBoxGatherer extends Gatherer {
 	 * Queries XBOXAPI.com for titles
 	 * @author Erin and implemented Gatherer by somer
 	 */
-	private class PlaystationGathererRunnable implements Runnable {
+	private class XBOXGathererRunnable implements Runnable {
 		private EntityManager em;
 		
 		public void run() {
@@ -311,16 +312,25 @@ public class XBoxGatherer extends Gatherer {
 			
 			String releaseDate;
 			if(data.has("ReleaseDate") && (releaseDate = data.getString("ReleaseDate")) != null) {
-					
-					value = releaseDate;
+					/*
+					 * Since the ReleaseDate in the XBOX API results
+					 * has a format of "yyyy-mm-dd hh:mm:ss", with a space
+					 * between, we must replace the space between date and
+					 * time with a T, so that we can use a valid dateformat for it.
+					 * */
+					value = releaseDate.replace(" ", "T");
 					boolean success = false;
 					for(int i=0; i<dateFormatters.length; i++) { // try to process the release date with each formatter we have entered
+						if(!releaseDate.trim().equals(""))
 						try {
 							Date release = dateFormatters[i].parse(value);
 							game.setRelease(release);
 							success = true;
 							break; // the first time we succeed, break
 						} catch(ParseException e) {}
+						catch(NumberFormatException ex){
+							
+						}
 					}
 					
 					if(!success)
@@ -340,15 +350,9 @@ public class XBoxGatherer extends Gatherer {
 					for(int i=0; i<genres.length(); i++) {
 						
 						Genre genre;
-						String name = genres.getString(i);
-						/*
-						 * Genres are gotten as all uppercase letters, so
-						 * we make the first letter uppercase, and all the others,
-						 * lowercase.
-						 * 
-						 * */
-						name=name.substring(0,1).toUpperCase()+
-								name.substring(1,name.length()).toLowerCase();
+						JSONObject object = genres.getJSONObject(i);
+						
+						String name=object.getString("Name");
 						genre = Genre.getGenre(name, true, em);
 						//Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
 						
@@ -372,5 +376,7 @@ public class XBoxGatherer extends Gatherer {
 			
 			return true;
 		}
+	
+	
 	}
 }
