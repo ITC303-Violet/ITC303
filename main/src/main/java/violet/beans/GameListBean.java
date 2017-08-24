@@ -34,6 +34,9 @@ public class GameListBean {
 	private int page = 1;
 	
 	private String searchQuery = "";
+	private String sortQuery = "";
+	private String searchFilter = "";
+	private String sortBy = "";
 	
 	public UserBean getUserBean() {
 		return userBean;
@@ -59,6 +62,31 @@ public class GameListBean {
 		this.searchQuery = searchQuery;
 	}
 	
+	public String getSortQuery() {
+		return sortQuery;
+	}
+	
+	public void setSort(String sortQuery) {
+		this.sortQuery = sortQuery;
+	}
+	
+	public String getFilterQuery() {
+		return searchFilter;
+	}
+	
+	public void setFilterQuery(String Filter) {
+		this.searchFilter = searchFilter;
+	}
+	
+	
+	public String getsortBy() {
+        return sortBy;
+    }
+	
+	public void sortQuery() {
+        
+    }
+	
 	public String search() {
 		setPage(1);
 		
@@ -79,11 +107,14 @@ public class GameListBean {
 			search = search != null ? search.toLowerCase() : "";
 			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
-			filter = new SearchFilter(releasedOnly, search);
 			
+			
+			//filter
+			//browse.getSortValue();
+			filter = new SearchFilter(releasedOnly, search);
 			String queryStart = filter.queryS();
 			String queryFilter = filter.queryF();
-			String queryOrder = filter.queryO();
+			String queryOrder = filter.queryO(sortQuery);
 			
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())

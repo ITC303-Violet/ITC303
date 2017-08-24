@@ -16,6 +16,10 @@
 	<f:metadata>
 	    <f:viewParam name="q" value="#{gameListBean.searchQuery}" />
 	</f:metadata>
+	
+	<f:metadata>
+	    <f:viewParam name="s" value="#{gameListBean.sortQuery}" />
+	</f:metadata>
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
 		<ui:define name="title">
@@ -32,36 +36,29 @@
 								
 									<span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
 									<p:inputText id="searchQuery" value="#{gameListBean.searchQuery}" styleClass="form-control" />
-									<span class="input-group-addon" id="basic-addon3">
-										Sort By
-									</span>
-									
-									<span class="input-group-btn">
-										<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	         								 Release date 
-	        							</button>
-									        <div class="dropdown-menu">
-									          <a class="dropdown-item" href="#">Highest Rating</a>
-									          <a class="dropdown-item" href="#">Lowest Rating</a>
-									          <a class="dropdown-item" href="#">Alphabet</a>
-									          <a class="dropdown-item" href="#">Release Date</a>
-									        </div>
-								    </span>   
-									      
-									    
 									
 									
-									<span class="input-group-btn">
-										<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	         								 All
-	        							</button>
-									        <div class="dropdown-menu">
-									          <a class="dropdown-item" href="#">Preferred Genres</a>
-									          <a class="dropdown-item" href="#">Kid Friendly</a>
-									          <a class="dropdown-item" href="#">Free</a>
-									          <a class="dropdown-item" href="#">RPG</a>
-									        </div>
-								    </span>
+									
+							        
+							         <div class="input-group-btn">
+							           <p:selectOneMenu id="sortQuery" value="#{gameListBean.sortQuery}" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Action>
+						                <f:selectItem itemLabel="Release date" itemValue="1" noSelectionOption="true" />
+						                <f:selectItem itemLabel="Title" itemValue="2" noSelectionOption="true" />
+						                <f:selectItem itemLabel="Rating" itemValue="3" noSelectionOption="true" />
+						                
+						            </p:selectOneMenu>
+							 </div>
+							         
+	
+									<select id="sortList">
+							           	<option value="1">Release date</option>
+							           	<option value="2">Title</option>
+							           	<option value="3">Rating</option>
+							           </select>
+							           
+							           
+							           
 								    <span class="input-group-btn">
 									<h:commandButton styleClass="btn btn-secondary" type="submit" value="Search" action="#{gameListBean.search}"/>
 								</span>

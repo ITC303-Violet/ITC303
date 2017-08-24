@@ -24,7 +24,10 @@ public class SearchFilter {
 	String query;
 	String search;
 	String queryOrder;
+	String queryOn;
+	String sortBy;
 	boolean releaseOnly;
+	
 	
 	public SearchFilter(boolean r, String s){
 		this.releaseOnly = r;
@@ -33,9 +36,17 @@ public class SearchFilter {
 	
 	
 	public String queryS (){
-		start = "SELECT g FROM Game g LEFT JOIN Rating r ON r.game=g AND r.user IS NULL AND r.characteristic IS NULL";
+		
+		start = "SELECT g FROM Game g";
 		return start;
 		}
+	
+	//for rating
+	public String queryON(){
+		//queryOn = " LEFT JOIN Rating r ON r.game=g AND r.user IS NULL AND r.characteristic IS NULL";
+		queryOn = "";
+		return queryOn;
+	}
 	
 	public String queryF (){
 		filter = " WHERE g.blacklisted=FALSE";
@@ -47,12 +58,29 @@ public class SearchFilter {
 		return filter;
 	}
 	
-	public String queryO (){
+	public String queryO (String sortBy){
+		this.sortBy = sortBy;
+		
+		if (sortBy == "1"){
+			queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
+		}
+		else if (sortBy == "2"){
+			queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";	
+		}
+		else if (sortBy == "3"){
+				queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";	
+			}
+		else {
+			queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";
+		}
+		System.out.println("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+		System.out.println(sortBy);
+		System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
 		//queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
 		//queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";
 		//queryOrder = " ORDER BY g.name DESC NULLS LAST, g.id ASC";
 		//queryOrder = " ORDER BY g.genre ASC NULLS LAST, g.id ASC";
-		queryOrder = " ORDER BY r.rating DESC NULLS LAST, g.id ASC";
+		//queryOrder = " ORDER BY r.rating DESC NULLS LAST, g.id ASC";
 		
 		//LEFT JOIN Rating r ON r.game=g AND r.user IS NULL AND r.characteristic IS NULL ORDER BY r.rating
 		return queryOrder;
