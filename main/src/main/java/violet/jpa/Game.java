@@ -53,6 +53,9 @@ public class Game {
 	@Column
 	private String xbox_store_id;
 	
+	@Column
+	private String nintendo_id;
+	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date release;
@@ -210,7 +213,13 @@ public class Game {
 	public void setSteamId(String steam_id) {
 		this.steam_id = steam_id;
 	}
+	public String getNintendoId() {
+		return nintendo_id;
+	}
 	
+	public void setNintendoId(String nintendo_id) {
+		this.nintendo_id = nintendo_id;
+	}
 	public void addGenre(Genre genre) {
 		if(genres.contains(genre))
 			return;
