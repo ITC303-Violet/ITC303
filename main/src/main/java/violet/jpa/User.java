@@ -70,6 +70,10 @@ public class User implements Serializable {
 		setPassword(password);
 	}
 	
+	public Long getId() {
+		return id;
+	}
+	
 	/**
 	 * Get the rating a user game on a particular game and characteristic
 	 * @param game
@@ -235,6 +239,62 @@ public class User implements Serializable {
 		
 		for(Genre genre: genres)
 			addFavouredGenre(genre);
+	}
+	
+	public List<Recommendation> getRecommendations() {
+		return recommendations;
+	}
+	
+	public Recommendation getNextRecommendation() {
+		EntityManager em = FactoryManager.getCommonEM();
+		
+		try {
+			String currentRecommendationFilter = currentRecommendation == null ?
+					"" : "AND r.id > :currentRecommendationId";
+						
+			TypedQuery<Recommendation> tq = em.createQuery(""
+					+ "SELECT r\n"
+					+ "FROM Recommendation r\n"
+					+ "WHERE\n"
+					+ "  r.user=:user\n"
+					+ "  " + currentRecommendationFilter + "\n"
+					+ "ORDER BY r.id ASC",
+					Recommendation.class);
+			
+			tq.setParameter("user", this);
+			if(currentRecommendation != null)
+				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
+			tq.setMaxResults(1);
+			
+			return tq.getSingleResult();
+		} catch(NoResultException e) {
+			return null;
+		} 
+	}
+	
+	public Long getRemainingRecommendations() {
+		EntityManager em = FactoryManager.getCommonEM();
+		
+		try {
+			String currentRecommendationFilter = currentRecommendation == null ?
+					"" : "AND r.id > :currentRecommendationId";
+						
+			TypedQuery<Long> tq = em.createQuery(""
+					+ "SELECT COUNT(r)\n"
+					+ "FROM Recommendation r\n"
+					+ "WHERE\n"
+					+ "  r.user=:user\n"
+					+ "  " + currentRecommendationFilter,
+					Long.class);
+			
+			tq.setParameter("user", this);
+			if(currentRecommendation != null)
+				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
+			
+			return tq.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		} 
 	}
 	
 	public void addRecommendation(Recommendation recommendation) {
