@@ -5,3 +5,5 @@ RUN cd "$CATALINA_HOME/webapps"\
 	&& find . -maxdepth 1 -mindepth 1 ! -name 'manager' -exec rm -rf {} +
 	
 COPY tomcat-users.xml "$CATALINA_HOME/conf/"
+
+CMD ["catalina.sh", "jpda", "run"]
