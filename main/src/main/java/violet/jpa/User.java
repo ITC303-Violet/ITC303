@@ -2,6 +2,7 @@ package violet.jpa;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
@@ -55,7 +56,8 @@ public class User implements Serializable {
 	
 	private Recommendation currentRecommendation;
 	
-	private boolean recommendationsSpent = false;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastRecommendationGeneration;
 	
 	
 	public User() {
@@ -239,12 +241,12 @@ public class User implements Serializable {
 		return recommendations;
 	}
 	
-	public boolean getRecommendationsSpent() {
-		return recommendationsSpent;
+	public Date getLastRecommendationGeneration() {
+		return lastRecommendationGeneration;
 	}
 	
-	public void setRecommendationsSpent(boolean recommendationsSpent) {
-		this.recommendationsSpent = recommendationsSpent;
+	public void setLastRecommendationGeneration(Date lastRecommendationGeneration) {
+		this.lastRecommendationGeneration = lastRecommendationGeneration;
 	}
 	
 	public Recommendation getCurrentRecommendation() {
@@ -261,12 +263,16 @@ public class User implements Serializable {
 		try {
 			String currentRecommendationFilter = currentRecommendation == null ?
 					"" : "AND r.id > :currentRecommendationId";
+			
+			String lastGeneration = lastRecommendationGeneration == null ?
+					"" : "AND r.date >= :lastGeneration";
 						
 			TypedQuery<Recommendation> tq = em.createQuery(""
 					+ "SELECT r\n"
 					+ "FROM Recommendation r\n"
 					+ "WHERE\n"
 					+ "  r.user=:user\n"
+					+ "  " + lastGeneration + "\n"
 					+ "  " + currentRecommendationFilter + "\n"
 					+ "ORDER BY r.id ASC",
 					Recommendation.class);
@@ -274,6 +280,10 @@ public class User implements Serializable {
 			tq.setParameter("user", this);
 			if(currentRecommendation != null)
 				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
+			
+			if(lastRecommendationGeneration != null)
+				tq.setParameter("lastGeneration", lastRecommendationGeneration);
+			
 			tq.setMaxResults(1);
 			
 			return tq.getSingleResult();
@@ -288,18 +298,25 @@ public class User implements Serializable {
 		try {
 			String currentRecommendationFilter = currentRecommendation == null ?
 					"" : "AND r.id > :currentRecommendationId";
+			
+			String lastGeneration = lastRecommendationGeneration == null ?
+					"" : "AND r.date >= :lastGeneration";
 						
 			TypedQuery<Long> tq = em.createQuery(""
 					+ "SELECT COUNT(r)\n"
 					+ "FROM Recommendation r\n"
 					+ "WHERE\n"
 					+ "  r.user=:user\n"
+					+ "  " + lastGeneration + "\n"
 					+ "  " + currentRecommendationFilter,
 					Long.class);
 			
 			tq.setParameter("user", this);
 			if(currentRecommendation != null)
 				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
+			
+			if(lastRecommendationGeneration != null)
+				tq.setParameter("lastGeneration", lastRecommendationGeneration);
 			
 			return tq.getSingleResult();
 		} catch(NoResultException e) {

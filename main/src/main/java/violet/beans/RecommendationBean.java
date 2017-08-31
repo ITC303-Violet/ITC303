@@ -1,14 +1,12 @@
 package violet.beans;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -83,18 +81,18 @@ public class RecommendationBean {
 		FactoryManager.pullTransaction();
 		try {
 			EntityManager em = FactoryManager.getCommonEM();
-			Recommendation nextRecommendation = null;
-			boolean recommendationsSpent = user.getRecommendationsSpent();
-			if((recommendationsSpent || user.getRemainingRecommendations() == 0) && (nextRecommendation = generateRecommendations(user)) == null)
-				if(recommendationsSpent)
-					return "no-recommendations.xhtml?faces-redirect=true";
-			
 			user = em.merge(user);
+			userBean.setUser(user);
+			
+			Recommendation nextRecommendation = null;
+			if(user.getRemainingRecommendations() == 0 && (nextRecommendation = generateRecommendations(user)) == null) {
+				user.setCurrentRecommendation(null);
+				return "no-recommendations.xhtml?faces-redirect=true";
+			}
+			
 			if(nextRecommendation == null)
 				nextRecommendation = user.getNextRecommendation();
 			user.setCurrentRecommendation(nextRecommendation);
-			user.setRecommendationsSpent(nextRecommendation == null);
-			userBean.setUser(user);
 			
 			if(nextRecommendation == null)
 				return "no-recommendations.xhtml?faces-redirect=true";
@@ -125,6 +123,7 @@ public class RecommendationBean {
 			q.setParameter(i++, recommendation.getGame().getId());
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Recommendation generateRecommendations(User user) {
 		FactoryManager.pullTransaction();
 		EntityManager em = FactoryManager.getCommonEM();
@@ -242,7 +241,6 @@ public class RecommendationBean {
 			
 			setEngineParameters(q, user);
 			
-			@SuppressWarnings("unchecked")
 			List<Object[]> results = (List<Object[]>)q.getResultList();
 			
 			if(results.size() == 0 && (user.getFavouredGenres().size() > 0 || user.getFavouredCharacteristics().size() > 0)) { // fall back to a less complex system that suggests games with genres and characteristics a user likes
@@ -291,6 +289,8 @@ public class RecommendationBean {
 				
 				results = (List<Object[]>)q.getResultList();
 			}
+			
+			user.setLastRecommendationGeneration(new Date());
 			
 			Recommendation firstRecommendation = null;
 			for(Object[] row : results) {
