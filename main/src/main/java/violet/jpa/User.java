@@ -264,8 +264,8 @@ public class User implements Serializable {
 			String currentRecommendationFilter = currentRecommendation == null ?
 					"" : "AND r.id > :currentRecommendationId";
 			
-			String lastGeneration = lastRecommendationGeneration == null ?
-					"" : "AND r.date >= :lastGeneration";
+			String lastGeneration = currentRecommendation == null && lastRecommendationGeneration != null ?
+					"AND r.date >= :lastGeneration" : "";
 						
 			TypedQuery<Recommendation> tq = em.createQuery(""
 					+ "SELECT r\n"
@@ -274,14 +274,14 @@ public class User implements Serializable {
 					+ "  r.user=:user\n"
 					+ "  " + lastGeneration + "\n"
 					+ "  " + currentRecommendationFilter + "\n"
-					+ "ORDER BY r.id ASC",
+					+ "ORDER BY r.date ASC, r.id ASC",
 					Recommendation.class);
 			
 			tq.setParameter("user", this);
 			if(currentRecommendation != null)
 				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
 			
-			if(lastRecommendationGeneration != null)
+			if(currentRecommendation == null && lastRecommendationGeneration != null)
 				tq.setParameter("lastGeneration", lastRecommendationGeneration);
 			
 			tq.setMaxResults(1);
@@ -299,8 +299,8 @@ public class User implements Serializable {
 			String currentRecommendationFilter = currentRecommendation == null ?
 					"" : "AND r.id > :currentRecommendationId";
 			
-			String lastGeneration = lastRecommendationGeneration == null ?
-					"" : "AND r.date >= :lastGeneration";
+			String lastGeneration = currentRecommendation == null && lastRecommendationGeneration != null ?
+					"AND r.date >= :lastGeneration" : "";
 						
 			TypedQuery<Long> tq = em.createQuery(""
 					+ "SELECT COUNT(r)\n"
@@ -315,7 +315,7 @@ public class User implements Serializable {
 			if(currentRecommendation != null)
 				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
 			
-			if(lastRecommendationGeneration != null)
+			if(currentRecommendation == null && lastRecommendationGeneration != null)
 				tq.setParameter("lastGeneration", lastRecommendationGeneration);
 			
 			return tq.getSingleResult();

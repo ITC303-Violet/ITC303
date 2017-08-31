@@ -14,7 +14,7 @@
 				<div class="row">
 					<div class="col">
 						<h2 class="text-center mt-2">Oh No!</h2>
-						<h3 class="text-center">We couldn't find any <h:outputText rendered="#{not empty userBean.user.recommendations}">more </h:outputText> games to recommend to you</h3>
+						<h3 class="text-center">We couldn't find any <ui:fragment rendered="#{not empty userBean.user.recommendations}">more </ui:fragment> games to recommend to you</h3>
 						
 						<ui:fragment rendered="#{empty userBean.user.favouredCharacteristics or empty userBean.user.favouredGenres or (userBean.user.ratings.size() lt recommendationBean.suggestedRatings)}">
 							<p>Here are some things you could try to help us suggest some games you might enjoy:</p>
