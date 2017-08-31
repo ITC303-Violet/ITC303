@@ -10,7 +10,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import violet.jpa.FactoryManager;
-import violet.jpa.Game;
 import violet.jpa.User;
 
 /**
