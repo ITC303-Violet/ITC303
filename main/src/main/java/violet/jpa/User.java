@@ -55,6 +55,8 @@ public class User implements Serializable {
 	
 	private Recommendation currentRecommendation;
 	
+	private boolean recommendationsSpent = false;
+	
 	
 	public User() {
 		ratings = new ArrayList<Rating>();
@@ -183,14 +185,6 @@ public class User implements Serializable {
 		this.location = location;
 	}
 	
-	public Recommendation getCurrentRecommendation() {
-		return currentRecommendation;
-	}
-
-	public void setCurrentRecommendation(Recommendation currentRecommendation) {
-		this.currentRecommendation = currentRecommendation;
-	}
-	
 	public void addRating(Rating rating) {
 		if(ratings.contains(rating))
 			return;
@@ -243,6 +237,22 @@ public class User implements Serializable {
 	
 	public List<Recommendation> getRecommendations() {
 		return recommendations;
+	}
+	
+	public boolean getRecommendationsSpent() {
+		return recommendationsSpent;
+	}
+	
+	public void setRecommendationsSpent(boolean recommendationsSpent) {
+		this.recommendationsSpent = recommendationsSpent;
+	}
+	
+	public Recommendation getCurrentRecommendation() {
+		return currentRecommendation;
+	}
+
+	public void setCurrentRecommendation(Recommendation currentRecommendation) {
+		this.currentRecommendation = currentRecommendation;
 	}
 	
 	public Recommendation getNextRecommendation() {
