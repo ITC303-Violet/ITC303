@@ -1,3 +1,7 @@
+.game-long-description {
+	overflow: hidden;
+}
+
 .game-description {
 	height: 175px;
 	overflow: hidden;
