@@ -150,7 +150,9 @@
 				    	recalculateSlidesToShow();
 					});
 
-					$(recalculateSlidesToShow);
+					$(window).load(function() {
+						recalculateSlidesToShow();
+					})
 				});
 			</script>
 		</ui:define>
