@@ -14,6 +14,7 @@ import javax.faces.bean.ManagedProperty;
 import violet.jpa.Characteristic;
 import violet.jpa.FactoryManager;
 import violet.jpa.Genre;
+import violet.jpa.User;
 
 /**
  * Handles setting user's preferences
@@ -134,6 +135,13 @@ public class UserSettingsBean {
 		
 		FactoryManager.pullTransaction();
 		userBean.setUser(FactoryManager.getCommonEM().merge(userBean.getUser()));
+		
+		User existingUser = getJpaBean().findUserEmail(email);
+		if(existingUser != null && existingUser != userBean.getUser()) { // check a user with the same email address doesn't already exist
+			context.addMessage(null, new FacesMessage("User with that email already exists"));
+			return null;
+		}
+		
 		userBean.getUser().setEmail(email);
 		setUserGenres();
 		setUserCharacteristics();

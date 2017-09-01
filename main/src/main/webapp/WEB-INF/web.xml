@@ -43,5 +43,6 @@
 	<filter-mapping>
 		<filter-name>AuthenticatedFilter</filter-name>
 		<url-pattern>/user/*</url-pattern>
+		<url-pattern>/no-recommendations.xhtml</url-pattern>
 	</filter-mapping>
 </web-app>
