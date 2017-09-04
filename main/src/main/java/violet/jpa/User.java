@@ -34,10 +34,6 @@ public class User implements Serializable {
 	@Column(unique=true)
 	private String email;
 	
-	private Short age;
-	private String gender;
-	private String location;
-	
 	private String passwordHash;
 	
 	private boolean is_staff=true; // TODO: SWITCH BACK TO FALSE BEFORE PRODUCTION
@@ -155,36 +151,12 @@ public class User implements Serializable {
 		this.email = email;
 	}
 	
-	public Short getAge() {
-		return age;
-	}
-	
-	public void setAge(Short age) {
-		this.age = age;
-	}
-	
-	public String getGender() {
-		return gender;
-	}
-	
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
-	
 	public boolean getIsStaff() {
 		return is_staff;
 	}
 	
 	public void setIsStaff(boolean is_staff) {
 		this.is_staff = is_staff;
-	}
-	
-	public String getLocation() {
-		return location;
-	}
-	
-	public void setLocation(String location) {
-		this.location = location;
 	}
 	
 	public void addRating(Rating rating) {
