@@ -15,10 +15,8 @@
 	
 	<f:metadata>
 	    <f:viewParam name="q" value="#{gameListBean.searchQuery}" />
-	</f:metadata>
-	
-	<f:metadata>
 	    <f:viewParam name="s" value="#{gameListBean.sortQuery}" />
+	    <!-- <f:viewParam name="g" value="#{gameListBean.genreFilter}" /> --><!-- Unsure why - but uncommenting this seems to break things -->
 	</f:metadata>
 
 	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
@@ -29,43 +27,28 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
-						
 						<h:form>
-								<div class="input-group mt-6">
-								
-								
-									<span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
-									<p:inputText id="searchQuery" value="#{gameListBean.searchQuery}" styleClass="form-control" />
-									
-									
-									
-							        
-							         <div class="input-group-btn">
-							           <p:selectOneMenu id="sortQuery" value="#{gameListBean.sortQuery}" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Action>
-						                <f:selectItem itemLabel="Release date" itemValue="1" noSelectionOption="true" />
-						                <f:selectItem itemLabel="Title" itemValue="2" noSelectionOption="true" />
-						                <f:selectItem itemLabel="Rating" itemValue="3" noSelectionOption="true" />
-						                
-						            </p:selectOneMenu>
-							 </div>
-							         
-	
-									<select id="sortList">
-							           	<option value="1">Release date</option>
-							           	<option value="2">Title</option>
-							           	<option value="3">Rating</option>
-							           </select>
-							           
-							           
-							           
-								    <span class="input-group-btn">
+							<div class="input-group mt-3">
+								<span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
+								<p:inputText id="searchQuery" value="#{gameListBean.searchQuery}" styleClass="form-control" />
+								<h:selectOneMenu styleClass="natural-flex form-control" id="sortQuery" value="#{gameListBean.sortQuery}">
+					          		<f:selectItems value="#{gameListBean.sortOptions}" />
+					           	</h:selectOneMenu>
+					           	
+					           	<div class="input-group-btn">
+					           		<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">Genres</button>
+					           		<div class="dropdown-menu m2m-list">
+					           			<h:selectManyCheckbox id="genreFilter" value="#{gameListBean.genreFilter}" layout="pageDirection" columns="1">
+											<f:selectItems value="#{gameListBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+										</h:selectManyCheckbox>
+					           		</div>
+					           	</div>
+						 		
+							    <span class="input-group-btn">
 									<h:commandButton styleClass="btn btn-secondary" type="submit" value="Search" action="#{gameListBean.search}"/>
 								</span>
-								</div>
-							</h:form>
-						
-						
+							</div>
+						</h:form>
 						
 						<c:set var="pagination" value="#{gameListBean.paginatedGames}" scope="request" />
 						<div class="mt-3">
@@ -83,6 +66,8 @@
 									<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 										<f:param value="#{pagination.page-1}" />
 										<f:param name="q" value="#{gameListBean.searchQuery}" />
+										<f:param name="s" value="#{gameListBean.sortQuery}" />
+										<f:param name="g" value="#{gameListBean.genreFilter}" />
 										<span>&laquo;</span>
 									</pretty:link>
 								</li>
@@ -91,6 +76,8 @@
 										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 											<f:param value="1" />
 											<f:param name="q" value="#{gameListBean.searchQuery}" />
+											<f:param name="s" value="#{gameListBean.sortQuery}" />
+											<f:param name="g" value="#{gameListBean.genreFilter}" />
 											<h:outputText value="1" />
 										</pretty:link>
 									</li>
@@ -101,6 +88,8 @@
 										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 											<f:param value="#{i}" />
 											<f:param name="q" value="#{gameListBean.searchQuery}" />
+											<f:param name="s" value="#{gameListBean.sortQuery}" />
+											<f:param name="g" value="#{gameListBean.genreFilter}" />
 											<h:outputText value="#{i}" />
 										</pretty:link>
 									</li>
@@ -111,6 +100,8 @@
 										<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 											<f:param value="#{pagination.pages}" />
 											<f:param name="q" value="#{gameListBean.searchQuery}" />
+											<f:param name="s" value="#{gameListBean.sortQuery}" />
+											<f:param name="g" value="#{gameListBean.genreFilter}" />
 											<h:outputText value="#{pagination.pages}" />
 										</pretty:link>
 									</li>
@@ -119,6 +110,8 @@
 									<pretty:link mappingId="browse-games-paged" styleClass="page-link">
 										<f:param value="#{pagination.page+1}" />
 										<f:param name="q" value="#{gameListBean.searchQuery}" />
+										<f:param name="s" value="#{gameListBean.sortQuery}" />
+										<f:param name="g" value="#{gameListBean.genreFilter}" />
 										<span>&raquo;</span>
 									</pretty:link>
 								</li>

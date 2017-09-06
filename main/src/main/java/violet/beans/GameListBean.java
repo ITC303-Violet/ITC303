@@ -1,7 +1,10 @@
 package violet.beans;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +17,7 @@ import javax.persistence.TypedQuery;
 
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
+import violet.jpa.Genre;
 import violet.jpa.Paginator;
 import violet.filters.SearchFilter;
 
@@ -27,6 +31,8 @@ public class GameListBean {
 	private static final int FRONT_PAGE_SIZE = 24;
 	private static final int PAGE_SIZE = 15;
 	private SearchFilter filter;
+	
+	private static Map<String, String> sortOptions;
 
 	@ManagedProperty(value="#{userBean}")
 	private UserBean userBean;
@@ -34,9 +40,8 @@ public class GameListBean {
 	private int page = 1;
 	
 	private String searchQuery = "";
-	private String sortQuery = "";
-	private String searchFilter = "";
-	private String sortBy = "";
+	private String sortQuery = "release";
+	private String[] genreFilter;
 	
 	public UserBean getUserBean() {
 		return userBean;
@@ -66,26 +71,42 @@ public class GameListBean {
 		return sortQuery;
 	}
 	
-	public void setSort(String sortQuery) {
-		this.sortQuery = sortQuery;
+	public void setSortQuery(String sortQuery) {
+		if(getSortOptions().containsValue(sortQuery))
+			this.sortQuery = sortQuery;
+		else
+			this.sortQuery = "release";
 	}
 	
-	public String getFilterQuery() {
-		return searchFilter;
+	public Map<String, String> getSortOptions() {
+		if(sortOptions == null) {
+			sortOptions = new HashMap<>();
+			sortOptions.put("Release Date", "release");
+			sortOptions.put("Average Rating", "rating");
+		}
+		
+		return sortOptions;
 	}
 	
-	public void setFilterQuery(String Filter) {
-		this.searchFilter = searchFilter;
+	public String[] getGenreFilter() {
+		if(genreFilter == null)
+			return new String[0];
+		
+		return genreFilter;
 	}
 	
+	public void setGenreFilter(String[] genreFilter) {
+		this.genreFilter = genreFilter;
+	}
 	
-	public String getsortBy() {
-        return sortBy;
-    }
-	
-	public void sortQuery() {
-        
-    }
+	public List<Genre> getGenreChoices() {
+		FactoryManager.pullCommonEM();
+		try {
+			return new ArrayList<Genre>(Genre.getGenres(FactoryManager.getCommonEM(), false));
+		} finally {
+			FactoryManager.popCommonEM();
+		}
+	}
 	
 	public String search() {
 		setPage(1);
