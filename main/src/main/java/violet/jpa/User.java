@@ -2,6 +2,7 @@ package violet.jpa;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
@@ -33,10 +34,6 @@ public class User implements Serializable {
 	@Column(unique=true)
 	private String email;
 	
-	private Short age;
-	private String gender;
-	private String location;
-	
 	private String passwordHash;
 	
 	private boolean is_staff=true; // TODO: SWITCH BACK TO FALSE BEFORE PRODUCTION
@@ -53,6 +50,11 @@ public class User implements Serializable {
 	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
 	private List<Recommendation> recommendations;
 	
+	private Recommendation currentRecommendation;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastRecommendationGeneration;
+	
 	
 	public User() {
 		ratings = new ArrayList<Rating>();
@@ -60,12 +62,16 @@ public class User implements Serializable {
 		favouredCharacteristics = new ArrayList<Characteristic>();
 		is_staff = true;
 	}
-	
+
 	public User(String username, String email, String password) {
 		this();
 		this.username = username;
 		this.email = email;
 		setPassword(password);
+	}
+	
+	public Long getId() {
+		return id;
 	}
 	
 	/**
@@ -145,36 +151,12 @@ public class User implements Serializable {
 		this.email = email;
 	}
 	
-	public Short getAge() {
-		return age;
-	}
-	
-	public void setAge(Short age) {
-		this.age = age;
-	}
-	
-	public String getGender() {
-		return gender;
-	}
-	
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
-	
 	public boolean getIsStaff() {
 		return is_staff;
 	}
 	
 	public void setIsStaff(boolean is_staff) {
 		this.is_staff = is_staff;
-	}
-	
-	public String getLocation() {
-		return location;
-	}
-	
-	public void setLocation(String location) {
-		this.location = location;
 	}
 	
 	public void addRating(Rating rating) {
@@ -225,6 +207,93 @@ public class User implements Serializable {
 		
 		for(Genre genre: genres)
 			addFavouredGenre(genre);
+	}
+	
+	public List<Recommendation> getRecommendations() {
+		return recommendations;
+	}
+	
+	public Date getLastRecommendationGeneration() {
+		return lastRecommendationGeneration;
+	}
+	
+	public void setLastRecommendationGeneration(Date lastRecommendationGeneration) {
+		this.lastRecommendationGeneration = lastRecommendationGeneration;
+	}
+	
+	public Recommendation getCurrentRecommendation() {
+		return currentRecommendation;
+	}
+
+	public void setCurrentRecommendation(Recommendation currentRecommendation) {
+		this.currentRecommendation = currentRecommendation;
+	}
+	
+	public Recommendation getNextRecommendation() {
+		EntityManager em = FactoryManager.getCommonEM();
+		
+		try {
+			String currentRecommendationFilter = currentRecommendation == null ?
+					"" : "AND r.id > :currentRecommendationId";
+			
+			String lastGeneration = currentRecommendation == null && lastRecommendationGeneration != null ?
+					"AND r.date >= :lastGeneration" : "";
+						
+			TypedQuery<Recommendation> tq = em.createQuery(""
+					+ "SELECT r\n"
+					+ "FROM Recommendation r\n"
+					+ "WHERE\n"
+					+ "  r.user=:user\n"
+					+ "  " + lastGeneration + "\n"
+					+ "  " + currentRecommendationFilter + "\n"
+					+ "ORDER BY r.date ASC, r.id ASC",
+					Recommendation.class);
+			
+			tq.setParameter("user", this);
+			if(currentRecommendation != null)
+				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
+			
+			if(currentRecommendation == null && lastRecommendationGeneration != null)
+				tq.setParameter("lastGeneration", lastRecommendationGeneration);
+			
+			tq.setMaxResults(1);
+			
+			return tq.getSingleResult();
+		} catch(NoResultException e) {
+			return null;
+		} 
+	}
+	
+	public Long getRemainingRecommendations() {
+		EntityManager em = FactoryManager.getCommonEM();
+		
+		try {
+			String currentRecommendationFilter = currentRecommendation == null ?
+					"" : "AND r.id > :currentRecommendationId";
+			
+			String lastGeneration = currentRecommendation == null && lastRecommendationGeneration != null ?
+					"AND r.date >= :lastGeneration" : "";
+						
+			TypedQuery<Long> tq = em.createQuery(""
+					+ "SELECT COUNT(r)\n"
+					+ "FROM Recommendation r\n"
+					+ "WHERE\n"
+					+ "  r.user=:user\n"
+					+ "  " + lastGeneration + "\n"
+					+ "  " + currentRecommendationFilter,
+					Long.class);
+			
+			tq.setParameter("user", this);
+			if(currentRecommendation != null)
+				tq.setParameter("currentRecommendationId", currentRecommendation.getId());
+			
+			if(currentRecommendation == null && lastRecommendationGeneration != null)
+				tq.setParameter("lastGeneration", lastRecommendationGeneration);
+			
+			return tq.getSingleResult();
+		} catch(NoResultException e) {
+			return 0L;
+		} 
 	}
 	
 	public void addRecommendation(Recommendation recommendation) {

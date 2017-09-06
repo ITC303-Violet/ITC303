@@ -50,6 +50,13 @@ public class Game {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date release;
 	
+	public boolean equals(Object obj) {
+		if(obj instanceof Game)
+			return id != null && ((Game) obj).getId() == id || this == obj;
+		
+		return this == obj;
+	}
+	
 	public Game() {
 		genres = new ArrayList<Genre>();
 		ratings = new ArrayList<Rating>();
@@ -302,6 +309,20 @@ public class Game {
 		} catch(NoResultException e) {
 			return false;
 		} 
+	}
+	
+	/**
+	 * Get a game based on the id
+	 * @param id
+	 * @return the game with id or null
+	 */
+	public static Game getGame(Long id, EntityManager em) {
+		try {
+			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g WHERE g.id=:id AND g.blacklisted=FALSE", Game.class);
+			return tq.setParameter("id", id).getSingleResult();
+		} catch(NoResultException e) {
+			return null;
+		}
 	}
 	
 	public static Long count() {

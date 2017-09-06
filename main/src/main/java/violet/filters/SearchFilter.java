@@ -1,8 +1,20 @@
 package violet.filters;
 
 
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class SearchFilter {
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+
+
+public class SearchFilter{
 	String start;
 	String filter;
 	String query;
@@ -13,10 +25,12 @@ public class SearchFilter {
 	boolean releaseOnly;
 	
 	
+	
 	public SearchFilter(boolean r, String s){
 		this.releaseOnly = r;
 		this.search = s;
 	}
+	
 	
 	
 	public String queryS (){
@@ -57,9 +71,7 @@ public class SearchFilter {
 		else {
 			queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";
 		}
-		System.out.println("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
-		System.out.println(sortBy);
-		System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+		
 		//queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
 		//queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";
 		//queryOrder = " ORDER BY g.name DESC NULLS LAST, g.id ASC";

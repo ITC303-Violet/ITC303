@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:violet="http://violet.csu.edu.au/facelets">
+
+	<ui:composition template="/WEB-INF/templates/default/main.xhtml">
+		<ui:define name="content">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<h2 class="text-center mt-2">Oh No!</h2>
+						<h3 class="text-center">We couldn't find any <ui:fragment rendered="#{not empty userBean.user.recommendations}">more </ui:fragment> games to recommend to you</h3>
+						
+						<ui:fragment rendered="#{empty userBean.user.favouredCharacteristics or empty userBean.user.favouredGenres or (userBean.user.ratings.size() lt recommendationBean.suggestedRatings)}">
+							<p>Here are some things you could try to help us suggest some games you might enjoy:</p>
+						</ui:fragment>
+						
+						<ul>
+							<ui:fragment rendered="#{empty userBean.user.favouredGenres}">
+								<li>Letting us know some of your favourite genres in your <h:outputLink value="/user/settings.xhtml">user settings</h:outputLink></li>
+							</ui:fragment>
+							<ui:fragment rendered="#{empty userBean.user.favouredCharacteristics}">
+								<li>Letting us know some game characteristics you think are important in your <h:outputLink value="/user/settings.xhtml">user settings</h:outputLink></li>
+							</ui:fragment>
+							<ui:fragment rendered="#{userBean.user.ratings.size() lt recommendationBean.suggestedRatings}">
+								<li>Rating some more games you've played in the past and enjoyed to help us know what other games you might enjoy</li>
+							</ui:fragment>
+						</ul>
+						
+						<ui:fragment rendered="#{not empty userBean.user.favouredCharacteristics and not empty userBean.user.favouredGenres and (userBean.user.ratings.size() ge recommendationBean.suggestedRatings)}">
+							<p>Unfortunately you might need to wait until some other people rate games or some more games in your favourite genres come out! We're sorry :(</p>
+						</ui:fragment>
+					</div>
+				</div>
+			</div>
+		</ui:define>
+	</ui:composition>
+</html>

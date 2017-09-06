@@ -41,7 +41,7 @@
 				</div>
 				
 				<div class="row">
-					<div class="col-12 col-lg-9">
+					<div class="col-12 col-lg-9 mb-3 game-long-description">
 						<ul class="list-inline">
 							<ui:repeat var="genre" value="#{gameBean.game.displayGenres}">
 								<li class="list-inline-item"><span class="badge badge-primary"><h:outputText value="#{genre.name}" /></span></li>
@@ -51,33 +51,62 @@
 					</div>
 					
 					<div class="col-12 col-lg-3 flex-first flex-lg-unordered mb-3 mb-lg-0">
+						<ui:fragment rendered="#{not empty userBean.user and not empty userBean.user.currentRecommendation and userBean.user.currentRecommendation.game == gameBean.game}">
+							<p:commandButton styleClass="btn btn-primary mb-2" type="submit" value="Next Recommendation" action="#{recommendationBean.gotoNextRecommendation}" />
+						</ui:fragment>
+					
 						<h:form>
 							<p:messages/>
 							
-							<c:set var="averageRatings" value="#{gameBean.game.averageCharacteristicRatings}" scope="request" />
-							
-							<label>
+							<h:outputLabel for="rating_overall">
 								Overall Rating: 
 								<h:outputText 
-									value="#{gameBean.overallRating == null ? 0 : gameBean.overallRating}"
-									styleClass="font-weight-bold#{gameBean.overallRating == null ? ' rating-muted' : ''}"
+									value="#{gameBean.game.averageRating == null ? 0 : gameBean.game.averageRating.rating}"
+									styleClass="font-weight-bold#{gameBean.game.averageRating == null ? ' rating-muted' : ''}"
 								>
 									<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
 								</h:outputText>
-							</label>
-							<p:rating value="#{gameBean.overallRating}" stars="10" cancel="false" disabled="#{empty userBean.user}" required="true" />
+								
+								<ui:fragment rendered="#{not empty userBean.user}">
+									(<h:outputText 
+										value="#{gameBean.overallRating == null ? 0 : gameBean.overallRating}"
+										styleClass="font-weight-bold#{gameBean.overallRating == null ? ' rating-muted' : ''}"
+									>
+										<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+									</h:outputText>)
+								</ui:fragment>
+							</h:outputLabel>
+							<p:rating
+								id="rating_overall"
+								value="#{gameBean.overallRating}"
+								stars="10"
+								cancel="false"
+								disabled="#{empty userBean.user}"
+								required="true"
+								requiredMessage="Overall rating is required"
+								/>
 							
 							<ui:repeat var="characteristic" value="#{gameBean.game.characteristics}">
-								<label>
+								<h:outputLabel for="rating">
 									<h:outputText value="#{characteristic.name}" />: 
 									<h:outputText
-										value="#{averageRatings[characteristic] == null ? 0 : averageRatings[characteristic].rating}"
-										styleClass="font-weight-bold#{averageRatings[characteristic] == null ? ' rating-muted' : ''}"
+										value="#{gameBean.game.averageCharacteristicRatings[characteristic] == null ? 0 : gameBean.game.averageCharacteristicRatings[characteristic].rating}"
+										styleClass="font-weight-bold#{gameBean.game.averageCharacteristicRatings[characteristic] == null ? ' rating-muted' : ''}"
 									>
 										<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
 									</h:outputText>
-								</label>
-								<p:rating value="#{gameBean.characteristicRatings[characteristic]}" stars="10" cancel="false" disabled="#{empty userBean.user}" />	
+									
+									<ui:fragment rendered="#{not empty userBean.user}">
+										(<h:outputText
+											value="#{gameBean.doubleCharacteristics[characteristic] == null ? 0 : gameBean.doubleCharacteristics[characteristic]}"
+											styleClass="font-weight-bold#{gameBean.doubleCharacteristics[characteristic] == null ? ' rating-muted' : ''}"
+										>
+											<f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+										</h:outputText>)
+									</ui:fragment>
+								</h:outputLabel>
+								
+								<p:rating id="rating" value="#{gameBean.characteristicRatings[characteristic]}" stars="10" cancel="false" disabled="#{empty userBean.user}" />	
 							</ui:repeat>
 							
 							<p:commandButton styleClass="btn btn-primary mt-2" type="submit" value="#{empty userBean.user ? 'Sign in to rate' : 'Rate'}" action="#{gameBean.rateGame}" update="@form averageRating" disabled="#{empty userBean.user}" />
@@ -121,7 +150,9 @@
 				    	recalculateSlidesToShow();
 					});
 
-					$(recalculateSlidesToShow);
+					$(window).load(function() {
+						recalculateSlidesToShow();
+					})
 				});
 			</script>
 		</ui:define>

@@ -54,7 +54,7 @@
 				
 				<entry>
 					<key>max-games</key>
-					<value>100</value>
+					<value>1000</value>
 				</entry>
 			</job-data-map>
 		</job>
