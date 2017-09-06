@@ -28,6 +28,11 @@
 						<li class="nav-item">
 							<pretty:link mappingId="browse-games" styleClass="nav-link">Browse</pretty:link>
 						</li>
+						<ui:fragment rendered="#{not empty userBean.user}">
+							<li class="nav-item">
+								<p:commandLink styleClass="nav-link" value="View Recommendation" action="#{recommendationBean.gotoRecommendation}"/>
+							</li>
+						</ui:fragment>
 					</ul>
 					<ul class="nav navbar-nav ml-md-auto">
 						<c:choose>

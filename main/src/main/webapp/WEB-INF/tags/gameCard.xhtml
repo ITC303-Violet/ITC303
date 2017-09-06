@@ -18,7 +18,7 @@
 						<img class="card-img-top game-card-img" src="#{game.heroImage.URL}" />
 					</ui:fragment>
 					<div class="card-block game-description">
-						<h5 class="card-title"><h:outputText value="#{game.name}"/></h5>
+						<h5 class="card-title" title="#{game.name}"><h:outputText value="#{game.name}"/></h5>
 						<ui:fragment rendered="#{game.hasRelease}">
 							<small class="card-subtitle mb-2 text-muted d-block">
 								<h:outputText value="#{game.released ? 'Released' : 'Releases'} "/>

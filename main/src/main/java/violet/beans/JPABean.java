@@ -10,7 +10,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import violet.jpa.FactoryManager;
-import violet.jpa.Game;
 import violet.jpa.User;
 
 /**
@@ -45,22 +44,6 @@ public class JPABean {
 	@PreDestroy
 	public void destroy() {
 		FactoryManager.popCommonEM();
-	}
-	
-	/**
-	 * Get a game based on the id
-	 * @param id
-	 * @return the game with id or null
-	 */
-	public Game getGame(Long id) {
-		EntityManager em = getEM();
-		try {
-			TypedQuery<Game> tq = em.createQuery("SELECT g FROM Game g WHERE g.id=:id AND g.blacklisted=FALSE", Game.class);
-			Game result = tq.setParameter("id", id).getSingleResult(); 
-			return result;
-		} catch(NoResultException e) {
-			return null;
-		}
 	}
 	
 	/**

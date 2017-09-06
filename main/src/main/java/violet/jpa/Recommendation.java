@@ -5,6 +5,11 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
+@Table(
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames={"USER_ID", "GAME_ID"})
+	}
+)
 public class Recommendation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,8 +24,17 @@ public class Recommendation {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 	
+	private Double weightedRating;
+	
 	public Recommendation() {
-		
+		date = new Date();
+	}
+	
+	public Recommendation(User user, Game game, Double weightedRating) {
+		this();
+		setUser(user);
+		setGame(game);
+		setWeightedRating(weightedRating);
 	}
 
 	public Long getId() {
@@ -50,5 +64,13 @@ public class Recommendation {
 	
 	public Date getDate() {
 		return date;
+	}
+	
+	public Double getWeightedRating() {
+		return weightedRating;
+	}
+	
+	public void setWeightedRating(Double weightedRating) {
+		this.weightedRating = weightedRating;
 	}
 }

@@ -33,7 +33,9 @@ public class AuthenticatedFilter implements Filter {
 		}
 		
 		// otherwise return a 403 code
-		((HttpServletResponse)response).sendError(403);
+		//((HttpServletResponse)response).sendError(403);
+		String contextPath = ((HttpServletRequest)request).getContextPath();
+		((HttpServletResponse)response).sendRedirect(contextPath + "/");
 	}
 	
 	public void init(FilterConfig config) throws ServletException {
