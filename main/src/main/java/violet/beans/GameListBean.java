@@ -23,7 +23,7 @@ import violet.filters.SearchFilter;
  */
 @ManagedBean(name="gameListBean")
 @RequestScoped
-public class GameListBean {
+public class GameListBean{
 	private static final int FRONT_PAGE_SIZE = 24;
 	private static final int PAGE_SIZE = 15;
 	private SearchFilter filter;
@@ -36,7 +36,8 @@ public class GameListBean {
 	private String searchQuery = "";
 	private String sortQuery = "";
 	private String searchFilter = "";
-	private String sortBy = "";
+	
+	
 	
 	public UserBean getUserBean() {
 		return userBean;
@@ -68,6 +69,7 @@ public class GameListBean {
 	
 	public void setSort(String sortQuery) {
 		this.sortQuery = sortQuery;
+		
 	}
 	
 	public String getFilterQuery() {
@@ -79,17 +81,9 @@ public class GameListBean {
 	}
 	
 	
-	public String getsortBy() {
-        return sortBy;
-    }
-	
-	public void sortQuery() {
-        
-    }
 	
 	public String search() {
 		setPage(1);
-		
 		return "pretty:browse-games";
 	}
 	
