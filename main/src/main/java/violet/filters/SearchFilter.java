@@ -44,7 +44,7 @@ public class SearchFilter{
 	
 	public String queryF (boolean t){
 		if(t == true){
-			filter += " INNER JOIN Genre gg WHERE gg.action IN :genres AND g.blacklisted=FALSE";
+			filter = " INNER JOIN Genre gg WHERE gg.identifier IN :genres AND g.blacklisted=FALSE";
 		}
 		else{
 			filter = " WHERE g.blacklisted=FALSE";

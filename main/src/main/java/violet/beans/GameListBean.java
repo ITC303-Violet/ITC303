@@ -153,8 +153,8 @@ public class GameListBean {
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())
 				tq.setParameter("searchQuery", search);
-			if(gFil == true){
-				tq.setParameter("genres", Arrays.asList(getGenreFilter()));
+			if(getGenreFilter().length>0) {
+				tq.setParameter("genres", Arrays.asList(genreFilter));
 			}
 			List<Game> list = tq
 					.setFirstResult((page-1) * length)
@@ -164,6 +164,9 @@ public class GameListBean {
 			TypedQuery<Long> ctq = em.createQuery("SELECT COUNT(g) FROM Game g" + queryFilter, Long.class);
 			if(!search.isEmpty())
 				ctq.setParameter("searchQuery", search);
+			if(getGenreFilter().length>0) {
+				ctq.setParameter("genres", Arrays.asList(genreFilter));
+			}
 			Long count = ctq.getSingleResult();
 			
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Count " + count);
