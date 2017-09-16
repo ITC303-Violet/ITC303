@@ -15,40 +15,40 @@ import javax.persistence.TypedQuery;
 
 
 public class SearchFilter{
-	String start;
-	String filter;
-	String query;
-	String search;
-	String queryOrder;
-	String queryOn;
-	String sortBy;
+	private String start;
+	private String filter;
+	private String query;
+	private String search;
+	private String queryOrder;
+	private String queryOn;
+	private String sortBy;
 	boolean releaseOnly;
+	private String[] genreFilter;
 	
 	
 	
-	public SearchFilter(boolean r, String s){
+	public SearchFilter(boolean r){
 		this.releaseOnly = r;
+	}
+	
+	
+	public String queryS (String s, String on){
 		this.search = s;
-	}
-	
-	
-	
-	public String queryS (){
-		
-		start = "SELECT g FROM Game g";
-		return start;
+		start = "SELECT DISTINCT g FROM Game g";
+		if (on.equals("rating")){
+			start += " LEFT JOIN Rating r ON r.game=g AND r.user IS NULL AND r.characteristic IS NULL";
 		}
-	
-	//for rating
-	public String queryON(){
-		//queryOn = " LEFT JOIN Rating r ON r.game=g AND r.user IS NULL AND r.characteristic IS NULL";
-		queryOn = "";
-		return queryOn;
+		return start;
 	}
 	
-	public String queryF (){
-		filter = " WHERE g.blacklisted=FALSE";
-		//filter += " AND g.genre=Action";
+	
+	public String queryF (boolean t){
+		if(t == true){
+			filter += " INNER JOIN Genre gg WHERE gg.action IN :genres AND g.blacklisted=FALSE";
+		}
+		else{
+			filter = " WHERE g.blacklisted=FALSE";
+		}
 		if(this.releaseOnly)
 			filter += " AND g.release < CURRENT_TIMESTAMP";
 		if(!search.isEmpty())
@@ -58,27 +58,23 @@ public class SearchFilter{
 	
 	public String queryO (String sortBy){
 		this.sortBy = sortBy;
-		
-		if (sortBy == "1"){
+		System.out.println("sort = " + sortBy);
+		if (sortBy.equals("release")){
 			queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
 		}
-		else if (sortBy == "2"){
-			queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";	
+		else if (sortBy.equals("rating")){
+			queryOrder = " ORDER BY r.rating DESC NULLS LAST, g.id ASC";	
 		}
-		else if (sortBy == "3"){
-				queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";	
+		else if (sortBy.equals("az")){
+				queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";	
 			}
-		else {
+		else if (sortBy.equals("za")){
+			queryOrder = " ORDER BY g.name DESC NULLS LAST, g.id ASC";	
+		}
+		else{
 			queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";
 		}
 		
-		//queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
-		//queryOrder = " ORDER BY g.name ASC NULLS LAST, g.id ASC";
-		//queryOrder = " ORDER BY g.name DESC NULLS LAST, g.id ASC";
-		//queryOrder = " ORDER BY g.genre ASC NULLS LAST, g.id ASC";
-		//queryOrder = " ORDER BY r.rating DESC NULLS LAST, g.id ASC";
-		
-		//LEFT JOIN Rating r ON r.game=g AND r.user IS NULL AND r.characteristic IS NULL ORDER BY r.rating
 		return queryOrder;
 	}
 	

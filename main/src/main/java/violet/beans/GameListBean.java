@@ -1,6 +1,7 @@
 package violet.beans;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,8 @@ public class GameListBean {
 	private String searchQuery = "";
 	private String sortQuery = "release";
 	private String[] genreFilter;
+	private boolean gFil = false;
+	
 	
 	public UserBean getUserBean() {
 		return userBean;
@@ -71,9 +74,9 @@ public class GameListBean {
 		return sortQuery;
 	}
 	
-	public void setSortQuery(String sortQuery) {
-		if(getSortOptions().containsValue(sortQuery))
-			this.sortQuery = sortQuery;
+	public void setSortQuery(String s) {
+		if(getSortOptions().containsValue(s))
+			this.sortQuery = s;
 		else
 			this.sortQuery = "release";
 	}
@@ -83,6 +86,9 @@ public class GameListBean {
 			sortOptions = new HashMap<>();
 			sortOptions.put("Release Date", "release");
 			sortOptions.put("Average Rating", "rating");
+			sortOptions.put("Title A-Z", "az");
+			sortOptions.put("Title Z-A", "za");
+			
 		}
 		
 		return sortOptions;
@@ -132,15 +138,24 @@ public class GameListBean {
 			
 			//filter
 			//browse.getSortValue();
-			filter = new SearchFilter(releasedOnly, search);
-			String queryStart = filter.queryS();
-			String queryFilter = filter.queryF();
+			if(getGenreFilter().length>0) {
+				gFil = true;
+			}
+			else{
+				gFil = false;
+			}
+			filter = new SearchFilter(releasedOnly);
+			String queryStart = filter.queryS(search, sortQuery);
+			String queryFilter = filter.queryF(gFil);
 			String queryOrder = filter.queryO(sortQuery);
+			
 			
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())
 				tq.setParameter("searchQuery", search);
-			
+			if(gFil == true){
+				tq.setParameter("genres", Arrays.asList(getGenreFilter()));
+			}
 			List<Game> list = tq
 					.setFirstResult((page-1) * length)
 					.setMaxResults(length)
