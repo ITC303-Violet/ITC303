@@ -22,7 +22,10 @@ import javax.persistence.EntityTransaction;
 import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
+import org.wikibooks.ssl.SSLUtilities;
 
+import violet.controllers.xml.XMLReader;
+import violet.controllers.xml.XMLTag;
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
 import violet.jpa.Genre;
@@ -30,21 +33,25 @@ import violet.jpa.Image;
 import violet.jpa.Screenshot;
 
 /**
- * Gathers game data from steam using the store api
+ * Gathers game data from Nintendo using the Samurai API.
+ * This API is the only one so far to return data as XML
+ * instead of JSON.
+ * 
  * @author Erin and implemented Gatherer by somer
  */
-public class SteamGatherer extends Gatherer {
+public class NintendoGatherer extends Gatherer {
 	private static final SimpleDateFormat[] dateFormatters = { // used to process release dates, attempts each one if the one before it fails
 			new SimpleDateFormat("d MMM, yyyy"),
-			new SimpleDateFormat("MMM d, yyyy")
+			new SimpleDateFormat("MMM d, yyyy"),
+			new SimpleDateFormat("yyyy-MM-dd")
 	};
 	
 	EntityManager em;
 	EntityTransaction transaction;
 	
-	private static final String URL_APPLIST = "http://api.steampowered.com/ISteamApps/GetAppList/v0001/";
-	private static final String URL_APPDETAILS = "http://store.steampowered.com/api/appdetails?appids=";
-	private static final String COLUMN_NAME = "steam_id";
+	private static final String URL_APPLIST = "https://samurai.ctr.shop.nintendo.net/samurai/ws/US/titles/?shop_id=2";
+	private static final String URL_APPDETAILS = "https://samurai.ctr.shop.nintendo.net/samurai/ws/US/title/{{contentId}}/?shop_id=2";
+	private static final String COLUMN_NAME = "nintendo_id";
 	
 	private AtomicInteger gamesGrabbed; // keeps track of the number of games grabbed
 	
@@ -53,7 +60,13 @@ public class SteamGatherer extends Gatherer {
 	private BlockingQueue<String> ids; // ids to grab
 	private BlockingQueue<String> savedIds; // ids already saved
 	
-	public SteamGatherer() {
+	public NintendoGatherer() {
+		/*Call to SSLUtilties methods for avoiding the validation Exception:
+		javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+		*/
+		SSLUtilities.trustAllHostnames();
+		SSLUtilities.trustAllHttpsCertificates();
+
 		gamesGrabbed = new AtomicInteger();
 		ids = new LinkedBlockingDeque<String>();
 		savedIds = new LinkedBlockingDeque<String>();
@@ -92,7 +105,7 @@ public class SteamGatherer extends Gatherer {
 		
 		executor = Executors.newFixedThreadPool(THREAD_COUNT);
 		for(int i=0; i<THREAD_COUNT; i++) // run our requests in multiple threads to reduce time waiting on connections
-			executor.execute(new SteamGathererRunnable());
+			executor.execute(new NintendoGathererRunnable());
 		executor.shutdown();
 		
 		try {
@@ -111,21 +124,29 @@ public class SteamGatherer extends Gatherer {
 	}
 	
 	/**
-	 * Grabs the entire list of games (as well as hardware and other unwanted things) from the steam api
+	 * Reads the list of games from the specified URL. It will return
+	 * only a set of 50 items each time. 
+	 *
 	 * @throws JSONException
 	 * @throws IOException
 	 */
 	private void queryApps() throws JSONException, IOException {
 		List<Integer> existing_ids = getExistingGameIds(COLUMN_NAME, Integer.class);
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Query apps " + (insertOnly ? "insert only" : "update"));
-		
-		JSONArray apps = jsonFromURL(URL_APPLIST).getJSONObject("applist").getJSONObject("apps").getJSONArray("app");
-		for(int i=apps.length()-1; i>=0; i--) {
-			Integer appid = apps.getJSONObject(i).getInt("appid");
+		XMLReader<XMLTag> reader=new XMLReader<XMLTag>(URL_APPLIST,"content") {
+
+			@Override
+			public XMLTag parseObject(XMLTag mainTag) {
+				return mainTag;
+			}};
 			
-			if(!insertOnly || !existing_ids.contains(appid) && !ids.contains(appid)) { // if we're inserting only, ignore apps that already exist
+		List<XMLTag> apps = reader.readElementList();
+		for(int i=apps.size()-1; i>=0; i--) {
+			String contentid = apps.get(i).getChild("title").getAttribute("id").getValue();
+			
+			if(!insertOnly || !existing_ids.contains(contentid) && !ids.contains(contentid)) { // if we're inserting only, ignore apps that already exist
 				try {
-					ids.put(String.valueOf(appid));
+					ids.put(contentid);
 				} catch(InterruptedException e) {
 					return;
 				}
@@ -133,11 +154,18 @@ public class SteamGatherer extends Gatherer {
 		}
 	}
 	
+	
+	
+	
+	
+	
+	
+	
 	/**
-	 * Queries steam api for app details
+	 * Queries Nintendo Samurai API for more details on titles.
 	 * @author Erin and implemented Gatherer by somer
 	 */
-	private class SteamGathererRunnable implements Runnable {
+	private class NintendoGathererRunnable implements Runnable {
 		private EntityManager em;
 		
 		public void run() {
@@ -202,7 +230,7 @@ public class SteamGatherer extends Gatherer {
 		}
 		
 		/**
-		 * Queries and attempts to process a steam app
+		 * Queries and attempts to process a Nintendo title.
 		 * @param appId app id to process
 		 * @param em
 		 * @return true if the app is persisted
@@ -212,16 +240,22 @@ public class SteamGatherer extends Gatherer {
 		 */
 		private boolean querySingleApp(String appId, EntityManager em) throws JSONException, IOException, InterruptedException {
 			String stringId = appId;
-			
-			JSONObject data = jsonFromURL(URL_APPDETAILS + appId).getJSONObject(stringId);
-			if(data == null || !data.getBoolean("success")) // the app doesn't exist
+			XMLReader<XMLTag> reader=new XMLReader<XMLTag>(URL_APPDETAILS.replace("{{contentId}}", appId),"title") {
+
+				@Override
+				public XMLTag parseObject(XMLTag mainTag) {
+					return mainTag;
+				}};
+				XMLTag data=reader.readElementList().get(0);
+			if(data == null) // the app doesn't exist
 				return false;
 			
 			return processAppData(appId, data, em); // process the app
 		}
-		
+		private static final String WUP="WUP"; //WUP is the device ID for Nintendo Wii U titles
+		private static final String CTR="CTR"; //CTR is the device ID for Nintendo 3DS titles
 		/**
-		 * Processes JSONData of a steam app
+		 * Processes XML data of a Nintendp title.
 		 * @param appId
 		 * @param data
 		 * @param em
@@ -230,53 +264,59 @@ public class SteamGatherer extends Gatherer {
 		 * @throws IOException
 		 * @throws InterruptedException
 		 */
-		private boolean processAppData(String appId, JSONObject data, EntityManager em) throws JSONException, IOException, InterruptedException {
-			data = data.getJSONObject("data");
-			if(!data.getString("type").equals("game")) return false;
-			
-			appId = String.valueOf(data.getInt("steam_appid"));
-			if(savedIds.contains(appId))
+		private boolean processAppData(String contentId, XMLTag data, EntityManager em) throws JSONException, IOException, InterruptedException {
+
+			if(data.getChild("display_genre").getValue().equalsIgnoreCase("Update")) return false;
+			String platformDevice=data.getChild("platform").getAttribute("device").getValue();
+			String appCode = String.valueOf(data.getChild("product_code").getValue());
+			if(savedIds.contains(contentId))
 				return false;
 			else // ensure no other runners attempt to process this same app. It's worth noting that this shouldn't be necessary and I'm unsure why I've got it - somer
-				savedIds.offer(appId, QUEUE_TIMEOUT, TimeUnit.SECONDS);
+				savedIds.offer(contentId, QUEUE_TIMEOUT, TimeUnit.SECONDS);
 			
 			boolean exists = false; // check if the game exists in our database or we're inserting it
-			Game game = getGame(em, COLUMN_NAME, appId);
+			Game game = getGame(em, COLUMN_NAME, appCode);
 			if(game != null)
 				exists = true;
 			else
 				game = new Game();
 			
-			if(game.getSteamId() != appId) // set the steamid
-				game.setSteamId(appId);
+			if(game.getNintendoId() != appCode) // set the steamid
+				game.setNintendoId(appCode);
 			
-			String value = data.getString("name");
+			String value = data.getChild("name").getValue();
 			if(game.getName() != value) // set the name
 				game.setName(value);
 			
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Processing " + appId + ":" + value);
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Processing " + appCode + ":" + value);
 			
-			// set the descriptions
-			value = cleanDescription(data.getString("short_description"));
-			if(game.getShortDescription() != value)
-				game.setShortDescription(value);
+			// set the description
 			
-			value = cleanDescription(data.getString("about_the_game"));
+			value = cleanDescription(data.getChild("description").getValue());
 			if(game.getDescription() != value)
 				game.setDescription(value);
 			
-			// save the hero image
-			value = data.getString("header_image");
-			if(!value.isEmpty()) {
-				Image heroImage = Image.saveImage(new URL(value));
-				if(heroImage != null)
-					game.setHeroImage(heroImage);
+			// save the banner or icon image
+			if(data.hasChild("banner_url")) {
+				value = data.getChild("banner_url").getValue();
+				if(!value.isEmpty()) {
+					Image heroImage = Image.saveImage(new URL(value));
+					if(heroImage != null)
+						game.setHeroImage(heroImage);
+				}
 			}
-			
-			JSONObject releaseDate;
-			if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
-				if(!releaseDate.getBoolean("coming_soon")) {
-					value = releaseDate.getString("date");
+			else if(data.hasChild("icon_url")) {
+				value = data.getChild("icon_url").getValue();
+				if(!value.isEmpty()) {
+					Image heroImage = Image.saveImage(new URL(value));
+					if(heroImage != null)
+						game.setHeroImage(heroImage);
+				}
+			}
+			XMLTag releaseDate;
+			if(data.hasChild("release_date_on_retail")) {
+				releaseDate=data.getChild("release_date_on_retail");
+					value = releaseDate.getValue();
 					boolean success = false;
 					for(int i=0; i<dateFormatters.length; i++) { // try to process the release date with each formatter we have entered
 						try {
@@ -289,7 +329,7 @@ public class SteamGatherer extends Gatherer {
 					
 					if(!success)
 						Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
-				}
+				
 			}
 			
 			if(!exists)
@@ -297,15 +337,16 @@ public class SteamGatherer extends Gatherer {
 			
 			synchronized(this.getClass()) { // make sure only one runner enters this block at a time to stop duplicate genres in the database
 				boolean commit = false;
-				JSONArray genres;
-				if(data.has("genres") && (genres = data.getJSONArray("genres")) != null) {
-					commit = commit || genres.length() > 0;
+				XMLTag genres;
+				if(data.hasChild("genres")) {
+					genres=data.getChild("genres");
+					commit = commit || genres.getChildren().size() > 0;
 					
-					for(int i=0; i<genres.length(); i++) {
-						JSONObject genreData = genres.getJSONObject(i);
+					for(int i=0; i<genres.getChildren().size(); i++) {
+						XMLTag genreData = genres.getChildren().get(i);
 						
 						Genre genre;
-						String name = genreData.getString("description");
+						String name = genreData.getChild("name").getValue();
 						
 						genre = Genre.getGenre(name, true, em);
 						//Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
@@ -314,21 +355,6 @@ public class SteamGatherer extends Gatherer {
 					}
 				}
 				
-				if(data.has("categories") && (genres = data.getJSONArray("categories")) != null) {
-					commit = commit || genres.length() > 0;
-					
-					for(int i=0; i<genres.length(); i++) {
-						JSONObject genreData = genres.getJSONObject(i);
-						
-						Genre genre;
-						String name = genreData.getString("description");
-						
-						genre = Genre.getGenre(name, true, em);
-						Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
-						
-						game.addGenre(genre);
-					}
-				}
 				
 				/*
 				 * oddly we can't use em.flush, it seems to cause a deadlock whereas committing the transaction
@@ -341,17 +367,29 @@ public class SteamGatherer extends Gatherer {
 			}
 			
 			// save all screenshots
-			JSONArray screenshots;
-			if(data.has("screenshots") && (screenshots = data.getJSONArray("screenshots")) != null) {
-				for(int i=0; i<screenshots.length(); i++) {
-					JSONObject screenshotData = screenshots.getJSONObject(i);
-					String id = Integer.toString(screenshotData.getInt("id"));
+			XMLTag screenshots;
+			if(data.hasChild("screenshots")) {
+				screenshots=data.getChild("screenshots");
+				for(int i=0; i<screenshots.getChildren().size(); i++) {
+					XMLTag screenshotData = screenshots.getChildren().get(i);
+					String id = Integer.toString(i+1);
 					if(!exists || !game.hasScreenshot(id)) {
 						Screenshot screenshot = new Screenshot();
 						screenshot.setRemoteIdentifier(id);
-						Image thumbnail = Image.saveImage(new URL(screenshotData.getString("path_thumbnail")));
-						Image image = Image.saveImage(new URL(screenshotData.getString("path_full")));
 						
+						Image thumbnail;
+						Image image;
+						//If the device is CTR (3DS), we get upper image for image and lower image for thumbnail
+						if(platformDevice.equals(CTR)) {
+						image = Image.saveImage(new URL(screenshotData.getChildWithAttribute("type", "upper").getValue()));
+						thumbnail = Image.saveImage(new URL(screenshotData.getChildWithAttribute("type", "upper").getValue()));
+						}
+
+						else {
+						image = Image.saveImage(new URL(screenshotData.getChild("image_url").getValue()));
+						thumbnail = Image.saveImage(new URL(screenshotData.getChild("thumbnail_url").getValue()));
+								
+						}
 						if(thumbnail != null && image != null) {
 							screenshot.setThumbnail(thumbnail);
 							screenshot.setImage(image);

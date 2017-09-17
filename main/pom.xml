@@ -28,7 +28,6 @@
 				<version>2.2</version>
 				<configuration>
 					<path>/</path>
-					<url>http://localhost:8085/manager/text</url>
 					<server>development</server>
 				</configuration>
 			</plugin>
@@ -55,6 +54,9 @@
 						<version>2.2</version>
 						<configuration>
 							<path>/</path>
+
+<!--							<url>http://localhost:8080/manager/text</url>-->
+
 							<url>http://192.168.99.100:8080/manager/text</url>
 						</configuration>
 					</plugin>
@@ -166,7 +168,7 @@
 			<dependency>
 				<groupId>org.eclipse.persistence</groupId>
 				<artifactId>eclipselink</artifactId>
-				<version>2.6.4</version>
+				<version>2.6.5-RC2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.primefaces</groupId>
