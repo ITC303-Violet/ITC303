@@ -60,7 +60,7 @@ public class User implements Serializable {
 		ratings = new ArrayList<Rating>();
 		favouredGenres = new ArrayList<Genre>();
 		favouredCharacteristics = new ArrayList<Characteristic>();
-		is_staff = true;
+		is_staff = false;
 	}
 
 	public User(String username, String email, String password) {
