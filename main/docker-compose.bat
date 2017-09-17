@@ -33,9 +33,6 @@ IF NOT DEFINED DOCKER_TOOLBOX_INSTALL_PATH (
 	)
 
 	CD /D "%DOCKER_TOOLBOX_INSTALL_PATH%"
-<<<<<<< HEAD
-	"%PROGRAMFILES(X86)%\Git\bin\bash.exe" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" cd "!FINAL_TARGET_PATH!" ^&^& docker-compose.exe %*
-=======
 	"!GITPATH!" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" cd "!UNIX_TARGET_PATH!" ^&^& docker-compose.exe %*
 >>>>>>> refs/remotes/origin/master
 	CD /D "%~dp0"
