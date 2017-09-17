@@ -80,7 +80,7 @@ public class Genre {
 	
 	public void setBlacklisted(boolean blacklisted) {
 		this.blacklisted = blacklisted;
-		updateBlacklisted(blacklisted);
+//		updateBlacklisted(blacklisted);
 	}
 	
 	public boolean getHidden() {

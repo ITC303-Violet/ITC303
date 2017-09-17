@@ -2,6 +2,7 @@ package violet.beans;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 
 import org.quartz.JobBuilder;
@@ -241,23 +243,26 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 	}
 	
 	private void updateBlacklistedGenres() {
-		List<Genre> validGenres = getGenreChoices();
-		Map<String, Genre> genreMap = new HashMap<>();
-		for(Genre genre : validGenres)
-			genreMap.put(genre.getIdentifier(), genre);
+		List<String> blacklistedGenres = Arrays.asList(this.blacklistedGenres);
 		
+		EntityManager em = FactoryManager.pullCommonEM();
 		FactoryManager.pullTransaction();
 		try {
-			for(int i=0; i<blacklistedGenres.length; i++)
-				if(genreMap.containsKey(blacklistedGenres[i])) {
-					genreMap.get(blacklistedGenres[i]).setBlacklisted(true);
-					genreMap.remove(blacklistedGenres[i]);
-				}
+			em.createQuery("UPDATE Genre g SET g.blacklisted=TRUE WHERE g.identifier IN :genres")
+				.setParameter("genres", blacklistedGenres).executeUpdate();
+			em.createQuery("UPDATE Genre g SET g.blacklisted=FALSE WHERE g.identifier NOT IN :genres")
+				.setParameter("genres", blacklistedGenres).executeUpdate();
 			
-			for(Genre genre : genreMap.values())
-				genre.setBlacklisted(false);
+			List<Integer> blacklistedGames = em.createQuery("SELECT g.id FROM Game g INNER JOIN g.genres gg WHERE gg.identifier IN :genres", Integer.class)
+					.setParameter("genres", blacklistedGenres).getResultList();
+			
+			em.createQuery("UPDATE Game g SET g.blacklisted=TRUE WHERE g.id IN :games")
+				.setParameter("games", blacklistedGames).executeUpdate();
+			em.createQuery("UPDATE Game g SET g.blacklisted=FALSE WHERE g.id NOT IN :games")
+				.setParameter("games", blacklistedGames).executeUpdate();
 		} finally {
 			FactoryManager.popTransaction();
+			FactoryManager.popCommonEM();
 		}
 	}
 	
@@ -280,23 +285,18 @@ public class AdminBean extends JPABean.JPAEquippedBean {
 	}
 	
 	private void updateHiddenGenres() {
-		List<Genre> validGenres = getGenreChoices();
-		Map<String, Genre> genreMap = new HashMap<>();
-		for(Genre genre : validGenres)
-			genreMap.put(genre.getIdentifier(), genre);
+		List<String> hiddenGenres = Arrays.asList(this.hiddenGenres);
 		
+		EntityManager em = FactoryManager.pullCommonEM();
 		FactoryManager.pullTransaction();
 		try {
-			for(int i=0; i<hiddenGenres.length; i++)
-				if(genreMap.containsKey(hiddenGenres[i])) {
-					genreMap.get(hiddenGenres[i]).setHidden(true);
-					genreMap.remove(hiddenGenres[i]);
-				}
-			
-			for(Genre genre : genreMap.values())
-				genre.setHidden(false);
+			em.createQuery("UPDATE Genre g SET g.hidden=TRUE WHERE g.identifier IN :genres")
+				.setParameter("genres", hiddenGenres).executeUpdate();
+			em.createQuery("UPDATE Genre g SET g.hidden=FALSE WHERE g.identifier NOT IN :genres")
+				.setParameter("genres", hiddenGenres).executeUpdate();
 		} finally {
 			FactoryManager.popTransaction();
+			FactoryManager.popCommonEM();
 		}
 	}
 	
