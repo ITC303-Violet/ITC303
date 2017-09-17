@@ -276,9 +276,12 @@ public class PlaystationGatherer extends Gatherer {
 			
 			synchronized(this.getClass()) { // make sure only one runner enters this block at a time to stop duplicate genres in the database
 				boolean commit = false;
+				JSONObject metaData;
 				JSONArray genres;
-				if(data.has("game_genre") && data.getJSONObject("game_genre").has("values") 
-						&& (genres = data.getJSONObject("game_genre").getJSONArray("values")) != null) {
+				if(data.has("metadata")
+						&& (metaData = data.getJSONObject("metadata")) != null
+						&& metaData.has("game_genre")
+						&& (genres = metaData.getJSONObject("genre").getJSONArray("values")) != null) {
 					commit = commit || genres.length() > 0;
 					
 					for(int i=0; i<genres.length(); i++) {
@@ -291,8 +294,8 @@ public class PlaystationGatherer extends Gatherer {
 						 * lowercase.
 						 * 
 						 * */
-						name=name.substring(0,1).toUpperCase()+
-								name.substring(1,name.length()).toLowerCase();
+						/*name=name.substring(0,1).toUpperCase()+
+								name.substring(1,name.length()).toLowerCase();*/
 						genre = Genre.getGenre(name, true, em);
 						//Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
 						
