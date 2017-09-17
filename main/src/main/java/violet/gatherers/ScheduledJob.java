@@ -27,10 +27,9 @@ public class ScheduledJob implements InterruptableJob {
 		
 		Stack<Gatherer> gatherers = new Stack<Gatherer>();
 		gatherers.push(new NintendoGatherer());
-	/*	gatherers.push(new SteamGatherer());
+		gatherers.push(new SteamGatherer());
 		gatherers.push(new PlaystationGatherer());
 		gatherers.push(new XBoxGatherer());
-		*/
 		processGatherers(insertOnly, maxGames, gatherers);
 	}
 	

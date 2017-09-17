@@ -19,9 +19,7 @@ import java.util.regex.Pattern;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
-import org.primefaces.json.JSONObject;
 import org.wikibooks.ssl.SSLUtilities;
 
 import violet.controllers.xml.XMLReader;
@@ -239,7 +237,6 @@ public class NintendoGatherer extends Gatherer {
 		 * @throws InterruptedException
 		 */
 		private boolean querySingleApp(String appId, EntityManager em) throws JSONException, IOException, InterruptedException {
-			String stringId = appId;
 			XMLReader<XMLTag> reader=new XMLReader<XMLTag>(URL_APPDETAILS.replace("{{contentId}}", appId),"title") {
 
 				@Override
@@ -252,10 +249,12 @@ public class NintendoGatherer extends Gatherer {
 			
 			return processAppData(appId, data, em); // process the app
 		}
+		
 		private static final String WUP="WUP"; //WUP is the device ID for Nintendo Wii U titles
 		private static final String CTR="CTR"; //CTR is the device ID for Nintendo 3DS titles
+		
 		/**
-		 * Processes XML data of a Nintendp title.
+		 * Processes XML data of a Nintendo title.
 		 * @param appId
 		 * @param data
 		 * @param em
@@ -381,15 +380,13 @@ public class NintendoGatherer extends Gatherer {
 						Image image;
 						//If the device is CTR (3DS), we get upper image for image and lower image for thumbnail
 						if(platformDevice.equals(CTR)) {
-						image = Image.saveImage(new URL(screenshotData.getChildWithAttribute("type", "upper").getValue()));
-						thumbnail = Image.saveImage(new URL(screenshotData.getChildWithAttribute("type", "upper").getValue()));
+							image = Image.saveImage(new URL(screenshotData.getChildWithAttribute("type", "upper").getValue()));
+							thumbnail = Image.saveImage(new URL(screenshotData.getChildWithAttribute("type", "upper").getValue()));
+						} else {
+							image = Image.saveImage(new URL(screenshotData.getChild("image_url").getValue()));
+							thumbnail = Image.saveImage(new URL(screenshotData.getChild("thumbnail_url").getValue()));	
 						}
-
-						else {
-						image = Image.saveImage(new URL(screenshotData.getChild("image_url").getValue()));
-						thumbnail = Image.saveImage(new URL(screenshotData.getChild("thumbnail_url").getValue()));
-								
-						}
+						
 						if(thumbnail != null && image != null) {
 							screenshot.setThumbnail(thumbnail);
 							screenshot.setImage(image);

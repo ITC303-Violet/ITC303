@@ -1,36 +1,16 @@
 package violet.filters;
 
 
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-
-
 public class SearchFilter{
 	private String start;
 	private String filter;
-	private String query;
 	private String search;
 	private String queryOrder;
-	private String queryOn;
-	private String sortBy;
 	boolean releaseOnly;
-	private String[] genreFilter;
-	
-	
 	
 	public SearchFilter(boolean r){
 		this.releaseOnly = r;
 	}
-	
 	
 	public String queryS (String s, String on){
 		this.search = s;
@@ -40,7 +20,6 @@ public class SearchFilter{
 		}
 		return start;
 	}
-	
 	
 	public String queryF (boolean t){
 		if(t == true){
@@ -57,7 +36,6 @@ public class SearchFilter{
 	}
 	
 	public String queryO (String sortBy){
-		this.sortBy = sortBy;
 		System.out.println("sort = " + sortBy);
 		if (sortBy.equals("release")){
 			queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
@@ -77,6 +55,4 @@ public class SearchFilter{
 		
 		return queryOrder;
 	}
-	
-	
 }
