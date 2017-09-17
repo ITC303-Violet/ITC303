@@ -13,6 +13,28 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
+						<h:form>
+							<div class="input-group mt-3">
+								<span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
+								<p:inputText id="searchQuery" value="#{gameListBean.searchQuery}" styleClass="form-control" />
+								<h:selectOneMenu styleClass="natural-flex form-control" id="sortQuery" value="#{gameListBean.sortQuery}">
+					          		<f:selectItems value="#{gameListBean.sortOptions}" />
+					           	</h:selectOneMenu>
+					           	
+					           	<div class="input-group-btn">
+					           		<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">Genres</button>
+					           		<div class="dropdown-menu m2m-list">
+					           			<h:selectManyCheckbox id="genreFilter" value="#{gameListBean.genreFilter}" layout="pageDirection" columns="1">
+											<f:selectItems value="#{gameListBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+										</h:selectManyCheckbox>
+					           		</div>
+					           	</div>
+						 		
+							    <span class="input-group-btn">
+									<h:commandButton styleClass="btn btn-secondary" type="submit" value="Search" action="#{gameListBean.search}"/>
+								</span>
+							</div>
+						</h:form>
 						<c:set var="gameList" value="#{gameListBean.frontPageGames}" scope="request" />
 						<div class="row">
 							<ui:repeat var="game" value="#{gameList}">

@@ -196,7 +196,7 @@ button.padded-input {
 	overflow: hidden;
 	white-space: nowrap;
 	
-	display: block;
+	display: flex;
 }
 
 .game-inline:first-child {
@@ -209,15 +209,27 @@ button.padded-input {
 	border-radius: 0 0 4px 4px;
 }
 
+.game-inline:first-child:last-child {
+	border-radius: 4px;
+}
+
 .game-inline-info {
 	padding: 0.5rem;
 	display: inline-block;
 	height: 70px;
 }
 
-.game-inline-image {
+.game-inline-image-container {
+	width: 150px;
+	display: inline-block;
+	overflow: hidden;
+	text-align: center;
+}
+
+img.game-inline-image {
 	max-height: 70px;
 	vertical-align: top;
+	max-width: inherit;
 }
 
 .game-inline-rating {

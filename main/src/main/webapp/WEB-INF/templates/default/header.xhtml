@@ -50,10 +50,10 @@
 									<div class="dropdown-menu">
 										<h:form><p:commandLink styleClass="dropdown-item" value="Sign out" action="#{signInBean.signOut}"/></h:form>
 										<h:outputLink styleClass="dropdown-item" value="/user/settings.xhtml">Settings</h:outputLink>
-										<c:when test="#{userBean.user.isStaff}">
+										<ui:fragment rendered="#{userBean.user.isStaff}">
 											<div class="dropdown-divider"></div>
 											<h:outputLink styleClass="dropdown-item" rendered="#{userBean.user.isStaff}" value="/admin/">Admin</h:outputLink>
-										</c:when>
+										</ui:fragment>
 									</div>
 								</li>
 							</c:otherwise>

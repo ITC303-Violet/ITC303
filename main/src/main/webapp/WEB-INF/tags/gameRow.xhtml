@@ -13,9 +13,11 @@
 			<pretty:link mappingId="view-game" styleClass="deco-none game-inline">
 				<f:param value="#{game.id}" />
 				<f:param value="#{game.cleanedName}" />
-				<ui:fragment rendered="#{not empty game.heroImage}">
-					<img class="game-inline-image" src="#{game.heroImage.URL}" />
-				</ui:fragment>
+				<div class="game-inline-image-container">
+					<ui:fragment rendered="#{not empty game.heroImage}">
+						<img class="game-inline-image" src="#{game.heroImage.URL}" />
+					</ui:fragment>
+				</div>
 				<div class="game-inline-info">
 					<h6><h:outputText value="#{game.name}"/></h6>
 					<ui:fragment rendered="#{game.hasRelease}">
