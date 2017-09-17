@@ -1,7 +1,11 @@
 package violet.beans;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +18,9 @@ import javax.persistence.TypedQuery;
 
 import violet.jpa.FactoryManager;
 import violet.jpa.Game;
+import violet.jpa.Genre;
 import violet.jpa.Paginator;
+import violet.filters.SearchFilter;
 
 /**
  * Provides the list of games for the front page and browse page
@@ -25,6 +31,9 @@ import violet.jpa.Paginator;
 public class GameListBean {
 	private static final int FRONT_PAGE_SIZE = 24;
 	private static final int PAGE_SIZE = 15;
+	private SearchFilter filter;
+	
+	private static Map<String, String> sortOptions;
 
 	@ManagedProperty(value="#{userBean}")
 	private UserBean userBean;
@@ -32,6 +41,10 @@ public class GameListBean {
 	private int page = 1;
 	
 	private String searchQuery = "";
+	private String sortQuery = "release";
+	private String[] genreFilter;
+	private boolean gFil = false;
+	
 	
 	public UserBean getUserBean() {
 		return userBean;
@@ -57,6 +70,50 @@ public class GameListBean {
 		this.searchQuery = searchQuery;
 	}
 	
+	public String getSortQuery() {
+		return sortQuery;
+	}
+	
+	public void setSortQuery(String s) {
+		if(getSortOptions().containsValue(s))
+			this.sortQuery = s;
+		else
+			this.sortQuery = "release";
+	}
+	
+	public Map<String, String> getSortOptions() {
+		if(sortOptions == null) {
+			sortOptions = new HashMap<>();
+			sortOptions.put("Release Date", "release");
+			sortOptions.put("Average Rating", "rating");
+			sortOptions.put("Title A-Z", "az");
+			sortOptions.put("Title Z-A", "za");
+			
+		}
+		
+		return sortOptions;
+	}
+	
+	public String[] getGenreFilter() {
+		if(genreFilter == null)
+			return new String[0];
+		
+		return genreFilter;
+	}
+	
+	public void setGenreFilter(String[] genreFilter) {
+		this.genreFilter = genreFilter;
+	}
+	
+	public List<Genre> getGenreChoices() {
+		FactoryManager.pullCommonEM();
+		try {
+			return new ArrayList<Genre>(Genre.getGenres(FactoryManager.getCommonEM(), false));
+		} finally {
+			FactoryManager.popCommonEM();
+		}
+	}
+	
 	public String search() {
 		setPage(1);
 		
@@ -77,19 +134,28 @@ public class GameListBean {
 			search = search != null ? search.toLowerCase() : "";
 			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
-			String queryStart = "SELECT g FROM Game g ";
-			String queryFilter = " WHERE g.blacklisted=FALSE";
-			if(releasedOnly)
-				queryFilter += " AND g.release < CURRENT_TIMESTAMP";
-			if(!search.isEmpty())
-				queryFilter += " AND LOWER(g.name) LIKE :searchQuery";
 			
-			String queryOrder = " ORDER BY g.release DESC NULLS LAST, g.id ASC";
+			
+			//filter
+			//browse.getSortValue();
+			if(getGenreFilter().length>0) {
+				gFil = true;
+			}
+			else{
+				gFil = false;
+			}
+			filter = new SearchFilter(releasedOnly);
+			String queryStart = filter.queryS(search, sortQuery);
+			String queryFilter = filter.queryF(gFil);
+			String queryOrder = filter.queryO(sortQuery);
+			
 			
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())
 				tq.setParameter("searchQuery", search);
-			
+			if(getGenreFilter().length>0) {
+				tq.setParameter("genres", Arrays.asList(genreFilter));
+			}
 			List<Game> list = tq
 					.setFirstResult((page-1) * length)
 					.setMaxResults(length)
@@ -98,6 +164,9 @@ public class GameListBean {
 			TypedQuery<Long> ctq = em.createQuery("SELECT COUNT(g) FROM Game g" + queryFilter, Long.class);
 			if(!search.isEmpty())
 				ctq.setParameter("searchQuery", search);
+			if(getGenreFilter().length>0) {
+				ctq.setParameter("genres", Arrays.asList(genreFilter));
+			}
 			Long count = ctq.getSingleResult();
 			
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Count " + count);

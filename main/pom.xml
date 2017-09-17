@@ -28,6 +28,7 @@
 				<version>2.2</version>
 				<configuration>
 					<path>/</path>
+					<url>http://localhost:8085/manager/text</url>
 					<server>development</server>
 				</configuration>
 			</plugin>

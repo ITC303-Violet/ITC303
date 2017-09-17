@@ -168,6 +168,7 @@ public class Genre {
 		} catch(NoResultException e) {
 			if(create)
 				return new Genre(name);
+			System.out.println("hi");
 			return null;
 		}
 	}

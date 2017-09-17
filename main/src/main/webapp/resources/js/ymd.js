@@ -5,6 +5,8 @@ $(function($) {
 		    };
 		});
 		
+		$('.dropdown-menu.m2m-list').click(function(e) { e.stopPropagation(); });
+
 		$('#signin-modal').on('shown.bs.modal', function(e) {
 			$('#signin\\:username').focus();
 		});

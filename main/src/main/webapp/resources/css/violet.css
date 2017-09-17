@@ -347,6 +347,11 @@ button.padded-input {
 	}
 }
 
+.natural-flex {
+	flex: initial !important;
+	width: initial !important;
+}
+
 .sidebar {
   width: 12rem; }
   
