@@ -44,8 +44,18 @@ public class Game {
 	@Embedded
 	private Image heroImage;
 	
-	@Column(unique=true)
-	private int steam_id;
+	@Column
+	private String steam_id;
+	
+	@Column
+	private String ps_store_id;
+	
+	@Column
+	private String xbox_store_id;
+	
+	@Column
+	private String nintendo_id;
+	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date release;
@@ -187,15 +197,36 @@ public class Game {
 	public void setHeroImage(Image heroImage) {
 		this.heroImage = heroImage;
 	}
+	public String getPSStoreId() {
+		return ps_store_id;
+	}
 	
-	public int getSteamId() {
+	public void setPSStoreId(String ps_store_id) {
+		this.ps_store_id = ps_store_id;
+	}
+	public String getXBoxStoreId() {
+		return xbox_store_id;
+	}
+	
+	public void setXBoxStoreId(String xbox_store_id) {
+		this.xbox_store_id = xbox_store_id;
+	}
+	
+	
+	public String getSteamId() {
 		return steam_id;
 	}
 	
-	public void setSteamId(int steam_id) {
+	public void setSteamId(String steam_id) {
 		this.steam_id = steam_id;
 	}
+	public String getNintendoId() {
+		return nintendo_id;
+	}
 	
+	public void setNintendoId(String nintendo_id) {
+		this.nintendo_id = nintendo_id;
+	}
 	public void addGenre(Genre genre) {
 		if(genres.contains(genre))
 			return;

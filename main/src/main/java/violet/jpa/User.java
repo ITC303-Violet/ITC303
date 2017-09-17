@@ -36,7 +36,7 @@ public class User implements Serializable {
 	
 	private String passwordHash;
 	
-	private boolean is_staff=true; // TODO: SWITCH BACK TO FALSE BEFORE PRODUCTION
+	private boolean is_staff=false;
 	
 	@OneToMany(mappedBy="user", cascade=CascadeType.PERSIST)
 	private List<Rating> ratings;

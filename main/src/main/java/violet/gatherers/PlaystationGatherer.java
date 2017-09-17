@@ -30,32 +30,39 @@ import violet.jpa.Image;
 import violet.jpa.Screenshot;
 
 /**
- * Gathers game data from steam using the store api
+ * Gathers game data from  Playsation Store using the Chihiro API
+ * Based heavily on SteamGatherer, since it's mostly the same JSON objects query.
+ * 
+ * Somehow, it's still not working as expected, a bit of debugging is needed.
+ * 
  * @author Erin and implemented Gatherer by somer
  */
-public class SteamGatherer extends Gatherer {
+public class PlaystationGatherer extends Gatherer {
 	private static final SimpleDateFormat[] dateFormatters = { // used to process release dates, attempts each one if the one before it fails
 			new SimpleDateFormat("d MMM, yyyy"),
-			new SimpleDateFormat("MMM d, yyyy")
+			new SimpleDateFormat("MMM d, yyyy"),
+			//Added a pattern for dates with style similar to 2018-12-31T00:00:00Z
+			new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 	};
 	
 	EntityManager em;
 	EntityTransaction transaction;
-	
-	private static final String URL_APPLIST = "http://api.steampowered.com/ISteamApps/GetAppList/v0001/";
-	private static final String URL_APPDETAILS = "http://store.steampowered.com/api/appdetails?appids=";
-	private static final String COLUMN_NAME = "steam_id";
+	//The URL for the Chihiro API receives the number of titles to be retrieved as "size". It gets all the info and will be revised later. (Given that
+	//Steam's URL parsed the full list with only appIds and titles). We'll query only 50 each time for now.
+	private static final String URL_APPLIST = "https://store.playstation.com/chihiro-api/viewfinder/US/en/19/STORE-MSF77008-ALLGAMES?size=50&gkb=1&geoCountry=US";
+
+	private static final String COLUMN_NAME = "ps_store_id";
 	
 	private AtomicInteger gamesGrabbed; // keeps track of the number of games grabbed
 	
 	private ExecutorService executor = null;
 	
-	private BlockingQueue<String> ids; // ids to grab
-	private BlockingQueue<String> savedIds; // ids already saved
+	private BlockingQueue<JSONObject> fullData; // full data already queried, the list contains all the needed data.
+	private BlockingQueue<String> savedIds; // ids from titles already saved
 	
-	public SteamGatherer() {
+	public PlaystationGatherer() {
 		gamesGrabbed = new AtomicInteger();
-		ids = new LinkedBlockingDeque<String>();
+		fullData = new LinkedBlockingDeque<JSONObject>();
 		savedIds = new LinkedBlockingDeque<String>();
 	}
 	
@@ -92,7 +99,7 @@ public class SteamGatherer extends Gatherer {
 		
 		executor = Executors.newFixedThreadPool(THREAD_COUNT);
 		for(int i=0; i<THREAD_COUNT; i++) // run our requests in multiple threads to reduce time waiting on connections
-			executor.execute(new SteamGathererRunnable());
+			executor.execute(new PlaystationGathererRunnable());
 		executor.shutdown();
 		
 		try {
@@ -111,21 +118,25 @@ public class SteamGatherer extends Gatherer {
 	}
 	
 	/**
-	 * Grabs the entire list of games (as well as hardware and other unwanted things) from the steam api
+	 * Grabs the list of games with the indicated size. While the way to manage this
+	 * is resolved, we'll query only the first 50 games. The reasoning for this is the 
+	 * list loads the full data in the list, so there's no need for querying more
+	 * data once the list is loaded loaded.
+	 * 
 	 * @throws JSONException
 	 * @throws IOException
 	 */
 	private void queryApps() throws JSONException, IOException {
-		List<Integer> existing_ids = getExistingGameIds(COLUMN_NAME, Integer.class);
+		List<String> existing_ids = getExistingGameIds(COLUMN_NAME, String.class);
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Query apps " + (insertOnly ? "insert only" : "update"));
 		
-		JSONArray apps = jsonFromURL(URL_APPLIST).getJSONObject("applist").getJSONObject("apps").getJSONArray("app");
+		JSONArray apps = jsonFromURL(URL_APPLIST).getJSONArray("links");
 		for(int i=apps.length()-1; i>=0; i--) {
-			Integer appid = apps.getJSONObject(i).getInt("appid");
+			JSONObject app = apps.getJSONObject(i);
 			
-			if(!insertOnly || !existing_ids.contains(appid) && !ids.contains(appid)) { // if we're inserting only, ignore apps that already exist
+			if(!insertOnly || !existing_ids.contains(app.getString("id")) && !fullData.contains(app)) { // if we're inserting only, ignore apps that already exist
 				try {
-					ids.put(String.valueOf(appid));
+					fullData.put(app);
 				} catch(InterruptedException e) {
 					return;
 				}
@@ -134,20 +145,20 @@ public class SteamGatherer extends Gatherer {
 	}
 	
 	/**
-	 * Queries steam api for app details
+	 * Queries Chihiro api for app details
 	 * @author Erin and implemented Gatherer by somer
 	 */
-	private class SteamGathererRunnable implements Runnable {
+	private class PlaystationGathererRunnable implements Runnable {
 		private EntityManager em;
 		
 		public void run() {
 			em = FactoryManager.pullCommonEM();
 			FactoryManager.pullTransaction();
 			try {
-				String id;
-				while((id = ids.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) { // grab an id from the list to check
+				JSONObject rowData;
+				while((rowData = fullData.poll(QUEUE_TIMEOUT, TimeUnit.SECONDS)) != null) { // grab an id from the list to check
 					Integer i = null;
-					if(retryQuerySingleApp(id, em)) { // if we successfully grab a game, increment gamesGrabbed
+					if(processAppData(rowData, em)) { // if we successfully grab a game, increment gamesGrabbed
 						i = gamesGrabbed.incrementAndGet();
 //						Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Saved " + id);
 					}
@@ -174,54 +185,12 @@ public class SteamGatherer extends Gatherer {
 			}
 		}
 		
-		/**
-		 * Keep trying to load and process an app until the app doesn't exist, is invalid or we reach the max number of retries
-		 * @param appId app id to process
-		 * @param em
-		 * @return true if the app is persisted
-		 * @throws InterruptedException
-		 */
-		private boolean retryQuerySingleApp(String appId, EntityManager em) throws InterruptedException {
-			int wait = 1;
-			int retries = 0;
-			while(true) {
-				try {
-					return querySingleApp(appId, em);
-				} catch(JSONException e) {
-					return false;
-				} catch(IOException e) { // Rate limiting
-					if(retries >= MAX_RETRIES)
-						return false;
-					
-					Logger.getLogger(this.getClass().getName()).log(Level.FINE, "IOException occurred during gathering, halting for " + wait);
-					TimeUnit.SECONDS.sleep(wait);
-					retries++;
-					wait *= 2; // wait longer and longer if we're being rate limited
-				} 
-			}
-		}
+		
+		
+		
 		
 		/**
-		 * Queries and attempts to process a steam app
-		 * @param appId app id to process
-		 * @param em
-		 * @return true if the app is persisted
-		 * @throws JSONException
-		 * @throws IOException
-		 * @throws InterruptedException
-		 */
-		private boolean querySingleApp(String appId, EntityManager em) throws JSONException, IOException, InterruptedException {
-			String stringId = appId;
-			
-			JSONObject data = jsonFromURL(URL_APPDETAILS + appId).getJSONObject(stringId);
-			if(data == null || !data.getBoolean("success")) // the app doesn't exist
-				return false;
-			
-			return processAppData(appId, data, em); // process the app
-		}
-		
-		/**
-		 * Processes JSONData of a steam app
+		 * Processes JSONData of a Playstation app
 		 * @param appId
 		 * @param data
 		 * @param em
@@ -230,11 +199,12 @@ public class SteamGatherer extends Gatherer {
 		 * @throws IOException
 		 * @throws InterruptedException
 		 */
-		private boolean processAppData(String appId, JSONObject data, EntityManager em) throws JSONException, IOException, InterruptedException {
-			data = data.getJSONObject("data");
-			if(!data.getString("type").equals("game")) return false;
+		private boolean processAppData(JSONObject data, EntityManager em) throws JSONException, IOException, InterruptedException {
 			
-			appId = String.valueOf(data.getInt("steam_appid"));
+			
+			if(!data.getString("bucket").equals("games")) return false;
+			
+			String appId = data.getString("id");
 			if(savedIds.contains(appId))
 				return false;
 			else // ensure no other runners attempt to process this same app. It's worth noting that this shouldn't be necessary and I'm unsure why I've got it - somer
@@ -247,8 +217,8 @@ public class SteamGatherer extends Gatherer {
 			else
 				game = new Game();
 			
-			if(game.getSteamId() != appId) // set the steamid
-				game.setSteamId(appId);
+			if(game.getPSStoreId() != appId) // set the PS Store ID
+				game.setPSStoreId(appId);
 			
 			String value = data.getString("name");
 			if(game.getName() != value) // set the name
@@ -256,27 +226,30 @@ public class SteamGatherer extends Gatherer {
 			
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Processing " + appId + ":" + value);
 			
-			// set the descriptions
-			value = cleanDescription(data.getString("short_description"));
-			if(game.getShortDescription() != value)
-				game.setShortDescription(value);
-			
-			value = cleanDescription(data.getString("about_the_game"));
+			// set the description
+		
+			value = cleanDescription(data.getString("long_desc"));
 			if(game.getDescription() != value)
 				game.setDescription(value);
 			
 			// save the hero image
-			value = data.getString("header_image");
+			value = data.getJSONArray("images").getJSONObject(0).getString("url");
 			if(!value.isEmpty()) {
 				Image heroImage = Image.saveImage(new URL(value));
 				if(heroImage != null)
 					game.setHeroImage(heroImage);
 			}
 			
-			JSONObject releaseDate;
-			if(data.has("release_date") && (releaseDate = data.getJSONObject("release_date")) != null) {
-				if(!releaseDate.getBoolean("coming_soon")) {
-					value = releaseDate.getString("date");
+			String releaseDate;
+			if(data.has("release_date") && (releaseDate = data.getString("release_date")) != null) {
+					/*
+					 * Will implement a way to check if the date is after or before
+					 * the current date, since there is no "coming_soon" flag in
+					 * PS Store games.
+					 *
+					 *
+					 * */
+					value = releaseDate;
 					boolean success = false;
 					for(int i=0; i<dateFormatters.length; i++) { // try to process the release date with each formatter we have entered
 						try {
@@ -284,12 +257,18 @@ public class SteamGatherer extends Gatherer {
 							game.setRelease(release);
 							success = true;
 							break; // the first time we succeed, break
-						} catch(ParseException e) {}
+						} catch(ParseException e) {
+							
+							
+						}
+						catch(NumberFormatException ex) {
+							
+						}
 					}
 					
 					if(!success)
 						Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to parse release date " + value);
-				}
+				
 			}
 			
 			if(!exists)
@@ -298,15 +277,22 @@ public class SteamGatherer extends Gatherer {
 			synchronized(this.getClass()) { // make sure only one runner enters this block at a time to stop duplicate genres in the database
 				boolean commit = false;
 				JSONArray genres;
-				if(data.has("genres") && (genres = data.getJSONArray("genres")) != null) {
+				if(data.has("game_genre") && data.getJSONObject("game_genre").has("values") 
+						&& (genres = data.getJSONObject("game_genre").getJSONArray("values")) != null) {
 					commit = commit || genres.length() > 0;
 					
 					for(int i=0; i<genres.length(); i++) {
-						JSONObject genreData = genres.getJSONObject(i);
 						
 						Genre genre;
-						String name = genreData.getString("description");
-						
+						String name = genres.getString(i);
+						/*
+						 * Genres are gotten as all uppercase letters, so
+						 * we make the first letter uppercase, and all the others,
+						 * lowercase.
+						 * 
+						 * */
+						name=name.substring(0,1).toUpperCase()+
+								name.substring(1,name.length()).toLowerCase();
 						genre = Genre.getGenre(name, true, em);
 						//Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
 						
@@ -314,21 +300,7 @@ public class SteamGatherer extends Gatherer {
 					}
 				}
 				
-				if(data.has("categories") && (genres = data.getJSONArray("categories")) != null) {
-					commit = commit || genres.length() > 0;
-					
-					for(int i=0; i<genres.length(); i++) {
-						JSONObject genreData = genres.getJSONObject(i);
-						
-						Genre genre;
-						String name = genreData.getString("description");
-						
-						genre = Genre.getGenre(name, true, em);
-						Logger.getLogger(this.getClass().getName()).log(Level.INFO, game.getName() + " Genre " + genre.getName());
-						
-						game.addGenre(genre);
-					}
-				}
+			
 				
 				/*
 				 * oddly we can't use em.flush, it seems to cause a deadlock whereas committing the transaction
@@ -345,15 +317,15 @@ public class SteamGatherer extends Gatherer {
 			if(data.has("screenshots") && (screenshots = data.getJSONArray("screenshots")) != null) {
 				for(int i=0; i<screenshots.length(); i++) {
 					JSONObject screenshotData = screenshots.getJSONObject(i);
-					String id = Integer.toString(screenshotData.getInt("id"));
+					String id = Integer.toString(screenshotData.getInt("order"));
 					if(!exists || !game.hasScreenshot(id)) {
 						Screenshot screenshot = new Screenshot();
 						screenshot.setRemoteIdentifier(id);
-						Image thumbnail = Image.saveImage(new URL(screenshotData.getString("path_thumbnail")));
-						Image image = Image.saveImage(new URL(screenshotData.getString("path_full")));
+						//Image thumbnail = Image.saveImage(new URL(screenshotData.getString("path_thumbnail")));
+						Image image = Image.saveImage(new URL(screenshotData.getString("url")));
 						
-						if(thumbnail != null && image != null) {
-							screenshot.setThumbnail(thumbnail);
+						if(image != null) {
+							//screenshot.setThumbnail(thumbnail);
 							screenshot.setImage(image);
 							
 							game.addScreenshot(screenshot);
