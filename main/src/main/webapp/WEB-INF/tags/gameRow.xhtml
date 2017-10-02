@@ -29,6 +29,12 @@
 						</small>
 					</ui:fragment>
 				</div>
+				<div class="game-inline-platform">
+					<ui:fragment rendered="#{not empty game.steamId}"><span class="badge badge-default">Steam</span></ui:fragment>
+					<ui:fragment rendered="#{not empty game.XBoxStoreId}"><span class="badge badge-default">Xbox</span></ui:fragment>
+					<ui:fragment rendered="#{not empty game.PSStoreId}"><span class="badge badge-default">Playstation</span></ui:fragment>
+					<ui:fragment rendered="#{not empty game.nintendoId}"><span class="badge badge-default">Nintendo</span></ui:fragment>
+				</div>
 				<div class="game-inline-rating">
 					<span class="#{game.averageRating == null ? 'rating-muted' : ''}">
 						<h:outputText value="#{game.averageRating == null ? 0 : game.averageRating.rating}">
