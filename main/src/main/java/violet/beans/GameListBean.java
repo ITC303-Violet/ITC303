@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -78,17 +79,17 @@ public class GameListBean {
 		if(getSortOptions().containsValue(s))
 			this.sortQuery = s;
 		else
-			this.sortQuery = "release";
+			this.sortQuery = "released";
 	}
 	
 	public Map<String, String> getSortOptions() {
 		if(sortOptions == null) {
-			sortOptions = new HashMap<>();
-			sortOptions.put("Release Date", "release");
+			sortOptions = new LinkedHashMap<>();
+			sortOptions.put("New Releases", "released");
+			sortOptions.put("Upcoming", "upcoming");
 			sortOptions.put("Average Rating", "rating");
 			sortOptions.put("Title A-Z", "az");
 			sortOptions.put("Title Z-A", "za");
-			
 		}
 		
 		return sortOptions;
@@ -134,21 +135,10 @@ public class GameListBean {
 			search = search != null ? search.toLowerCase() : "";
 			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
-			
-			
-			//filter
-			//browse.getSortValue();
-			if(getGenreFilter().length>0) {
-				gFil = true;
-			}
-			else{
-				gFil = false;
-			}
-			filter = new SearchFilter(releasedOnly);
-			String queryStart = filter.queryS(search, sortQuery);
-			String queryFilter = filter.queryF(gFil);
-			String queryOrder = filter.queryO(sortQuery);
-			
+			filter = new SearchFilter(releasedOnly || sortQuery.equals("released"), search, sortQuery, getGenreFilter().length>0);
+			String queryStart = filter.queryStart();
+			String queryFilter = filter.queryWhere();
+			String queryOrder = filter.queryOrder();
 			
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())
