@@ -57,7 +57,7 @@
 					
 					<div class="col-12 col-xl-3 flex-first flex-xl-unordered mb-3 mb-xl-0 rating-column">
 						<ui:fragment rendered="#{not empty userBean.user and not empty userBean.user.currentRecommendation and userBean.user.currentRecommendation.game == gameBean.game}">
-							<p:commandButton styleClass="btn btn-primary mb-2" type="submit" value="Next Recommendation" action="#{recommendationBean.gotoNextRecommendation}" />
+							<div><p:commandButton styleClass="btn btn-primary mb-2" type="submit" value="Next Recommendation" action="#{recommendationBean.gotoNextRecommendation}" /></div>
 						</ui:fragment>
 					
 						<h:form styleClass="rating-form d-inline-block">
