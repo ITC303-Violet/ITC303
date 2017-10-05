@@ -55,12 +55,12 @@
 						<h:outputText value="#{gameBean.game.description}" escape="false" />
 					</div>
 					
-					<div class="col-12 col-lg-3 flex-first flex-lg-unordered mb-3 mb-lg-0">
+					<div class="col-12 col-xl-3 flex-first flex-xl-unordered mb-3 mb-xl-0 rating-column">
 						<ui:fragment rendered="#{not empty userBean.user and not empty userBean.user.currentRecommendation and userBean.user.currentRecommendation.game == gameBean.game}">
 							<p:commandButton styleClass="btn btn-primary mb-2" type="submit" value="Next Recommendation" action="#{recommendationBean.gotoNextRecommendation}" />
 						</ui:fragment>
 					
-						<h:form>
+						<h:form styleClass="rating-form d-inline-block">
 							<p:messages/>
 							
 							<h:outputLabel for="rating_overall">
