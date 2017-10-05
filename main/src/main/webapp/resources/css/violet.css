@@ -1,3 +1,25 @@
+.rating-column {
+	text-align: center;
+}
+
+.rating-form {
+	text-align: left;
+}
+
+/* Resizes rating stars but winds up a bit stretched, could potentially use fontawesome or something in the future */
+
+.ui-rating-star a {
+	background-position: 0 -48px !important;
+	width: 24px !important;
+	height: 23px !important;
+	
+	background-size: 24px 120px !important;
+}
+
+.ui-rating-star-on a {
+	background-position: 0 -72px !important;
+}
+
 .game-long-description {
 	overflow: hidden;
 }
