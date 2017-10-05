@@ -20,6 +20,7 @@
 		<query-param name="q">#{gameListBean.searchQuery}</query-param>
 		<query-param name="s">#{gameListBean.sortQuery}</query-param>
 		<query-param name="g">#{gameListBean.genreFilter}</query-param>
+		<query-param name="p">#{gameListBean.platformFilter}</query-param>
 		<view-id value="/browse.xhtml" />
 	</url-mapping>
 	
@@ -28,6 +29,7 @@
 		<query-param name="q">#{gameListBean.searchQuery}</query-param>
 		<query-param name="s">#{gameListBean.sortQuery}</query-param>
 		<query-param name="g">#{gameListBean.genreFilter}</query-param>
+		<query-param name="p">#{gameListBean.platformFilter}</query-param>
 		<view-id value="/browse.xhtml" />
 	</url-mapping>
 

@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -58,7 +59,7 @@ public class XBoxGatherer extends Gatherer {
 	
 	EntityManager em;
 	EntityTransaction transaction;
-	//API_KEY for the unnoficial XBOX API.
+	//API_KEY for the unofficial XBOX API.
 	private static final String API_KEY="3728619a15a6e772ea3b7a33ba1746cf5766ca29";
 	private static final String COLUMN_NAME = "xbox_store_id";
 	
@@ -79,17 +80,6 @@ public class XBoxGatherer extends Gatherer {
 		Pattern.compile("<a.*?>.*?</a>"),
 		Pattern.compile("<img.*?>")
 	};
-	
-	/**
-	 * Removes links and images from descriptions
-	 * @param description
-	 * @return cleaned description
-	 */
-	private static String cleanDescription(String description) {
-		for(int i=0; i<patterns.length; i++)
-			description = patterns[i].matcher(description).replaceAll("");
-		return description;
-	}
 	
 	public void gather(int maxGames) {
 		super.gather(maxGames);
@@ -321,15 +311,23 @@ public class XBoxGatherer extends Gatherer {
 					value = releaseDate.replace(" ", "T");
 					boolean success = false;
 					for(int i=0; i<dateFormatters.length; i++) { // try to process the release date with each formatter we have entered
-						if(!releaseDate.trim().equals(""))
-						try {
-							Date release = dateFormatters[i].parse(value);
-							game.setRelease(release);
-							success = true;
-							break; // the first time we succeed, break
-						} catch(ParseException e) {}
-						catch(NumberFormatException ex){
+						if(!releaseDate.trim().equals("")) {
+							Calendar currentDate = Calendar.getInstance();
+							int currentYear = currentDate.get(Calendar.YEAR);
 							
+							try {
+								Date release = dateFormatters[i].parse(value);
+								
+								Calendar cal = Calendar.getInstance();
+								cal.setTime(release);
+								if(cal.get(Calendar.YEAR) - currentYear < 100) // Check we're not being told the game releases in 2799
+									game.setRelease(release);
+								success = true; // Still mark it a success even if the release date was insane
+								
+								break; // the first time we succeed, break
+							}
+							catch(ParseException e) {}
+							catch(NumberFormatException ex){}
 						}
 					}
 					
