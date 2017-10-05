@@ -28,9 +28,9 @@
 				<div class="row">
 					<div class="col">
 						<h:form>
-							<div class="input-group mt-3">
+							<div class="input-group mt-3 flex-wrap">
 								<span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
-								<p:inputText id="searchQuery" value="#{gameListBean.searchQuery}" styleClass="form-control" />
+								<p:inputText id="searchQuery" value="#{gameListBean.searchQuery}" styleClass="form-control search-entry" />
 								<h:selectOneMenu styleClass="natural-flex form-control" id="sortQuery" value="#{gameListBean.sortQuery}">
 					          		<f:selectItems value="#{gameListBean.sortOptions}" />
 					           	</h:selectOneMenu>
@@ -40,6 +40,15 @@
 					           		<div class="dropdown-menu m2m-list">
 					           			<h:selectManyCheckbox id="genreFilter" value="#{gameListBean.genreFilter}" layout="pageDirection" columns="1">
 											<f:selectItems value="#{gameListBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+										</h:selectManyCheckbox>
+					           		</div>
+					           	</div>
+					           	
+					           	<div class="input-group-btn">
+					           		<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">Platform</button>
+					           		<div class="dropdown-menu m2m-list">
+					           			<h:selectManyCheckbox id="platformFilter" value="#{gameListBean.platformFilter}" layout="pageDirection" columns="1">
+											<f:selectItems value="#{gameListBean.platformOptions}"/>
 										</h:selectManyCheckbox>
 					           		</div>
 					           	</div>
@@ -68,6 +77,7 @@
 										<f:param name="q" value="#{gameListBean.searchQuery}" />
 										<f:param name="s" value="#{gameListBean.sortQuery}" />
 										<f:param name="g" value="#{gameListBean.genreFilter}" />
+										<f:param name="p" value="#{gameListBean.platformFilter}" />
 										<span>&laquo;</span>
 									</pretty:link>
 								</li>
@@ -78,6 +88,7 @@
 											<f:param name="q" value="#{gameListBean.searchQuery}" />
 											<f:param name="s" value="#{gameListBean.sortQuery}" />
 											<f:param name="g" value="#{gameListBean.genreFilter}" />
+											<f:param name="p" value="#{gameListBean.platformFilter}" />
 											<h:outputText value="1" />
 										</pretty:link>
 									</li>
@@ -90,6 +101,7 @@
 											<f:param name="q" value="#{gameListBean.searchQuery}" />
 											<f:param name="s" value="#{gameListBean.sortQuery}" />
 											<f:param name="g" value="#{gameListBean.genreFilter}" />
+											<f:param name="p" value="#{gameListBean.platformFilter}" />
 											<h:outputText value="#{i}" />
 										</pretty:link>
 									</li>
@@ -102,6 +114,7 @@
 											<f:param name="q" value="#{gameListBean.searchQuery}" />
 											<f:param name="s" value="#{gameListBean.sortQuery}" />
 											<f:param name="g" value="#{gameListBean.genreFilter}" />
+											<f:param name="p" value="#{gameListBean.platformFilter}" />
 											<h:outputText value="#{pagination.pages}" />
 										</pretty:link>
 									</li>
@@ -112,6 +125,7 @@
 										<f:param name="q" value="#{gameListBean.searchQuery}" />
 										<f:param name="s" value="#{gameListBean.sortQuery}" />
 										<f:param name="g" value="#{gameListBean.genreFilter}" />
+										<f:param name="p" value="#{gameListBean.platformFilter}" />
 										<span>&raquo;</span>
 									</pretty:link>
 								</li>

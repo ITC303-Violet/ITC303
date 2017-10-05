@@ -43,6 +43,11 @@
 				<div class="row">
 					<div class="col-12 col-lg-9 mb-3 game-long-description">
 						<ul class="list-inline">
+							<ui:fragment rendered="#{not empty gameBean.game.steamId}"><li class="list-inline-item"><span class="badge badge-default">Steam</span></li></ui:fragment>
+							<ui:fragment rendered="#{not empty gameBean.game.XBoxStoreId}"><li class="list-inline-item"><span class="badge badge-default">Xbox</span></li></ui:fragment>
+							<ui:fragment rendered="#{not empty gameBean.game.PSStoreId}"><li class="list-inline-item"><span class="badge badge-default">Playstation</span></li></ui:fragment>
+							<ui:fragment rendered="#{not empty gameBean.game.nintendoId}"><li class="list-inline-item"><span class="badge badge-default">Nintendo</span></li></ui:fragment>
+							
 							<ui:repeat var="genre" value="#{gameBean.game.displayGenres}">
 								<li class="list-inline-item"><span class="badge badge-primary"><h:outputText value="#{genre.name}" /></span></li>
 							</ui:repeat>
@@ -50,12 +55,12 @@
 						<h:outputText value="#{gameBean.game.description}" escape="false" />
 					</div>
 					
-					<div class="col-12 col-lg-3 flex-first flex-lg-unordered mb-3 mb-lg-0">
+					<div class="col-12 col-xl-3 flex-first flex-xl-unordered mb-3 mb-xl-0 rating-column">
 						<ui:fragment rendered="#{not empty userBean.user and not empty userBean.user.currentRecommendation and userBean.user.currentRecommendation.game == gameBean.game}">
-							<p:commandButton styleClass="btn btn-primary mb-2" type="submit" value="Next Recommendation" action="#{recommendationBean.gotoNextRecommendation}" />
+							<div><p:commandButton styleClass="btn btn-primary mb-2" type="submit" value="Next Recommendation" action="#{recommendationBean.gotoNextRecommendation}" /></div>
 						</ui:fragment>
 					
-						<h:form>
+						<h:form styleClass="rating-form d-inline-block">
 							<p:messages/>
 							
 							<h:outputLabel for="rating_overall">

@@ -3,7 +3,7 @@ package violet.beans;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,6 +34,7 @@ public class GameListBean {
 	private SearchFilter filter;
 	
 	private static Map<String, String> sortOptions;
+	private static Map<String, String> platformOptions;
 
 	@ManagedProperty(value="#{userBean}")
 	private UserBean userBean;
@@ -41,9 +42,10 @@ public class GameListBean {
 	private int page = 1;
 	
 	private String searchQuery = "";
-	private String sortQuery = "release";
+	private String sortQuery = "released";
+	
 	private String[] genreFilter;
-	private boolean gFil = false;
+	private String[] platformFilter;
 	
 	
 	public UserBean getUserBean() {
@@ -78,20 +80,43 @@ public class GameListBean {
 		if(getSortOptions().containsValue(s))
 			this.sortQuery = s;
 		else
-			this.sortQuery = "release";
+			this.sortQuery = "released";
 	}
 	
 	public Map<String, String> getSortOptions() {
 		if(sortOptions == null) {
-			sortOptions = new HashMap<>();
-			sortOptions.put("Release Date", "release");
+			sortOptions = new LinkedHashMap<>();
+			sortOptions.put("New Releases", "released");
+			sortOptions.put("Upcoming", "upcoming");
 			sortOptions.put("Average Rating", "rating");
 			sortOptions.put("Title A-Z", "az");
 			sortOptions.put("Title Z-A", "za");
-			
 		}
 		
 		return sortOptions;
+	}
+	
+	public Map<String, String> getPlatformOptions() {
+		if(platformOptions == null) {
+			platformOptions = new LinkedHashMap<>();
+			platformOptions.put("Steam", "steam");
+			platformOptions.put("Playstation", "playstation");
+			platformOptions.put("Xbox", "xbox");
+			platformOptions.put("Nintendo", "nintendo");
+		}
+		
+		return platformOptions;
+	}
+	
+	public String[] getPlatformFilter() {
+		if(platformFilter == null)
+			return new String[0];
+		
+		return platformFilter;
+	}
+	
+	public void setPlatformFilter(String[] platformFilter) {
+		this.platformFilter = platformFilter;
 	}
 	
 	public String[] getGenreFilter() {
@@ -134,21 +159,10 @@ public class GameListBean {
 			search = search != null ? search.toLowerCase() : "";
 			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
-			
-			
-			//filter
-			//browse.getSortValue();
-			if(getGenreFilter().length>0) {
-				gFil = true;
-			}
-			else{
-				gFil = false;
-			}
-			filter = new SearchFilter(releasedOnly);
-			String queryStart = filter.queryS(search, sortQuery);
-			String queryFilter = filter.queryF(gFil);
-			String queryOrder = filter.queryO(sortQuery);
-			
+			filter = new SearchFilter(releasedOnly || sortQuery.equals("released"), search, sortQuery, getPlatformFilter(), getGenreFilter().length>0);
+			String queryStart = filter.queryStart();
+			String queryFilter = filter.queryWhere();
+			String queryOrder = filter.queryOrder();
 			
 			TypedQuery<Game> tq = em.createQuery(queryStart + queryFilter + queryOrder, Game.class);
 			if(!search.isEmpty())

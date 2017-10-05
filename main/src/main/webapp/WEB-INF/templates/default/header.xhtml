@@ -38,7 +38,7 @@
 						<c:choose>
 							<c:when test="${empty userBean.user}">
 								<li class="dropdown">
-									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#signin-modal">Sign In</button>
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#signin-modal">Login</button>
 									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#signup-modal">Sign Up</button>
 								</li>
 							</c:when>
@@ -48,12 +48,13 @@
 										<h:outputText value="#{userBean.user.username}"/> <span class="caret"></span>							
 									</a>
 									<div class="dropdown-menu">
-										<h:form><p:commandLink styleClass="dropdown-item" value="Sign out" action="#{signInBean.signOut}"/></h:form>
 										<h:outputLink styleClass="dropdown-item" value="/user/settings.xhtml">Settings</h:outputLink>
 										<ui:fragment rendered="#{userBean.user.isStaff}">
 											<div class="dropdown-divider"></div>
 											<h:outputLink styleClass="dropdown-item" rendered="#{userBean.user.isStaff}" value="/admin/">Admin</h:outputLink>
 										</ui:fragment>
+										<div class="dropdown-divider"></div>
+										<h:form><p:commandLink styleClass="dropdown-item" value="Sign out" action="#{signInBean.signOut}"/></h:form>
 									</div>
 								</li>
 							</c:otherwise>
@@ -68,7 +69,7 @@
 				<div class="modal-dialog">
 					<div class="modal-content bg-inverse text-white">
 						<div class="modal-header">	
-							<h4 class="modal-title">Sign in</h4>
+							<h4 class="modal-title">Sign In</h4>
 							<button type="button" class="close text-white" data-dismiss="modal">
 								<span>&times;</span>
 							</button>
