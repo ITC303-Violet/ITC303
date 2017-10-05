@@ -5,16 +5,18 @@ public class SearchFilter{
 	private boolean releaseOnly;
 	private String searchQuery;
 	private String sortBy;
+	private String[] platforms;
 	private boolean genreFiltered;
 	
 	private String start;
 	private String where;
 	private String order;
 	
-	public SearchFilter(boolean releasedOnly, String searchQuery, String sortBy, boolean genreFiltered) {
+	public SearchFilter(boolean releasedOnly, String searchQuery, String sortBy, String[] platforms, boolean genreFiltered) {
 		this.releaseOnly = releasedOnly;
 		this.searchQuery = searchQuery;
 		this.sortBy = sortBy;
+		this.platforms = platforms;
 		this.genreFiltered = genreFiltered;
 	}
 	
@@ -40,6 +42,27 @@ public class SearchFilter{
 		
 		if(!searchQuery.isEmpty())
 			where += " AND LOWER(g.name) LIKE :searchQuery";
+		
+		if(platforms.length > 0) {
+			where += " AND (";
+			
+			for(int i=0; i<platforms.length; i++) {
+				String platform = platforms[i];
+				if(platform.equals("steam"))
+					where += "g.steam_id IS NOT NULL";
+				else if(platform.equals("playstation"))
+					where += "g.ps_store_id IS NOT NULL";
+				else if(platform.equals("xbox"))
+					where += "g.xbox_store_id IS NOT NULL";
+				else if(platform.equals("nintendo"))
+					where += "g.nintendo_id IS NOT NULL";
+				
+				if(i!=platforms.length-1)
+					where += " OR "; 
+			}
+			
+			where += ")";
+		}
 		
 		return where;
 	}

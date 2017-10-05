@@ -1,3 +1,7 @@
+.search-entry {
+	min-width: 200px;
+}
+
 .rating-column {
 	text-align: center;
 }

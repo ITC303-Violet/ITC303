@@ -3,7 +3,6 @@ package violet.beans;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,7 @@ public class GameListBean {
 	private SearchFilter filter;
 	
 	private static Map<String, String> sortOptions;
+	private static Map<String, String> platformOptions;
 
 	@ManagedProperty(value="#{userBean}")
 	private UserBean userBean;
@@ -42,9 +42,10 @@ public class GameListBean {
 	private int page = 1;
 	
 	private String searchQuery = "";
-	private String sortQuery = "release";
+	private String sortQuery = "released";
+	
 	private String[] genreFilter;
-	private boolean gFil = false;
+	private String[] platformFilter;
 	
 	
 	public UserBean getUserBean() {
@@ -95,6 +96,29 @@ public class GameListBean {
 		return sortOptions;
 	}
 	
+	public Map<String, String> getPlatformOptions() {
+		if(platformOptions == null) {
+			platformOptions = new LinkedHashMap<>();
+			platformOptions.put("Steam", "steam");
+			platformOptions.put("Playstation", "playstation");
+			platformOptions.put("Xbox", "xbox");
+			platformOptions.put("Nintendo", "nintendo");
+		}
+		
+		return platformOptions;
+	}
+	
+	public String[] getPlatformFilter() {
+		if(platformFilter == null)
+			return new String[0];
+		
+		return platformFilter;
+	}
+	
+	public void setPlatformFilter(String[] platformFilter) {
+		this.platformFilter = platformFilter;
+	}
+	
 	public String[] getGenreFilter() {
 		if(genreFilter == null)
 			return new String[0];
@@ -135,7 +159,7 @@ public class GameListBean {
 			search = search != null ? search.toLowerCase() : "";
 			search = search.isEmpty() ? "" : "%" + search.replace("%", "\\%").replace("_", "\\_") + "%";
 			
-			filter = new SearchFilter(releasedOnly || sortQuery.equals("released"), search, sortQuery, getGenreFilter().length>0);
+			filter = new SearchFilter(releasedOnly || sortQuery.equals("released"), search, sortQuery, getPlatformFilter(), getGenreFilter().length>0);
 			String queryStart = filter.queryStart();
 			String queryFilter = filter.queryWhere();
 			String queryOrder = filter.queryOrder();
