@@ -22,6 +22,7 @@ import javax.persistence.EntityTransaction;
 import org.primefaces.json.JSONException;
 import org.wikibooks.ssl.SSLUtilities;
 
+import violet.controllers.xml.NintendoListReader;
 import violet.controllers.xml.XMLReader;
 import violet.controllers.xml.XMLTag;
 import violet.jpa.FactoryManager;
@@ -129,27 +130,36 @@ public class NintendoGatherer extends Gatherer {
 	 * @throws IOException
 	 */
 	private void queryApps() throws JSONException, IOException {
-		List<Integer> existing_ids = getExistingGameIds(COLUMN_NAME, Integer.class);
+		final List<Integer> existing_ids = getExistingGameIds(COLUMN_NAME, Integer.class);
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Query apps " + (insertOnly ? "insert only" : "update"));
-		XMLReader<XMLTag> reader=new XMLReader<XMLTag>(URL_APPLIST,"content") {
+		
+		NintendoListReader reader=new NintendoListReader() {
+
+			@Override
+			public void onTitlesLoaded(List<XMLTag> apps) {
+				for(int i=apps.size()-1; i>=0; i--) {
+					String contentid = apps.get(i).getChild("title").getAttribute("id").getValue();
+					
+					if(!insertOnly || !existing_ids.contains(contentid) && !ids.contains(contentid)) { // if we're inserting only, ignore apps that already exist
+						try {
+							ids.put(contentid);
+						} catch(InterruptedException e) {
+							return;
+						}
+					}
+				}
+			}
+		};
+		reader.query();
+/*		XMLReader<XMLTag> reader=new XMLReader<XMLTag>(URL_APPLIST,"content") {
 
 			@Override
 			public XMLTag parseObject(XMLTag mainTag) {
 				return mainTag;
 			}};
-			
-		List<XMLTag> apps = reader.readElementList();
-		for(int i=apps.size()-1; i>=0; i--) {
-			String contentid = apps.get(i).getChild("title").getAttribute("id").getValue();
-			
-			if(!insertOnly || !existing_ids.contains(contentid) && !ids.contains(contentid)) { // if we're inserting only, ignore apps that already exist
-				try {
-					ids.put(contentid);
-				} catch(InterruptedException e) {
-					return;
-				}
-			}
-		}
+			List<XMLTag> apps = reader.readElementList();	*/
+	
+		
 	}
 	
 	
