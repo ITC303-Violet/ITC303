@@ -114,7 +114,12 @@
 								<p:rating id="rating" value="#{gameBean.characteristicRatings[characteristic]}" stars="10" cancel="false" disabled="#{empty userBean.user}" />	
 							</ui:repeat>
 							
-							<p:commandButton styleClass="btn btn-primary mt-2" type="submit" value="#{empty userBean.user ? 'Sign in to rate' : 'Rate'}" action="#{gameBean.rateGame}" update="@form averageRating" disabled="#{empty userBean.user}" />
+							<ui:fragment rendered="#{not empty userBean.user}">
+								<p:commandButton styleClass="btn btn-primary mt-2" type="submit" value="Rate" action="#{gameBean.rateGame}" update="@form averageRating" disabled="#{empty userBean.user}" />
+							</ui:fragment>
+							<ui:fragment rendered="#{empty userBean.user}">
+								<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#signin-modal">Sign in to rate</button>
+							</ui:fragment>
 						</h:form>
 					</div>
 				</div>
