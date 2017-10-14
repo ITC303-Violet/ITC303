@@ -37,10 +37,13 @@
 					           	
 					           	<div class="input-group-btn">
 					           		<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">Genres</button>
-					           		<div class="dropdown-menu m2m-list">
-					           			<h:selectManyCheckbox id="genreFilter" value="#{gameListBean.genreFilter}" layout="pageDirection" columns="1">
-											<f:selectItems value="#{gameListBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
-										</h:selectManyCheckbox>
+					           		<div class="dropdown-menu m2m-search">
+					           			<input type="text" class="form-control search" placeholder="Search"></input>
+					           			<div class="m2m-list">
+						           			<h:selectManyCheckbox id="genreFilter" value="#{gameListBean.genreFilter}" layout="pageDirection" columns="1">
+												<f:selectItems value="#{gameListBean.genreChoices}" var="genre" itemLabel="#{genre.name}" itemValue="#{genre.identifier}"/>
+											</h:selectManyCheckbox>
+						           		</div>
 					           		</div>
 					           	</div>
 					           	
@@ -134,6 +137,26 @@
 					</div>
 				</div>
 			</div>
+			
+			<script type="text/javascript">
+				$(function() {
+					$('.m2m-search .search').on('keyup', function(e) {
+						if(e.keyCode==13)
+							return false;
+	
+						var filter = $(this).val();
+						var container = $(this).siblings('.m2m-list')
+						if(filter != '') {
+							var filtered = container.find('label:icontains("' + filter + '")');
+							var checkboxes = filtered.closest('tr');
+							checkboxes.show();
+							container.find('tr').not(checkboxes).hide();
+						} else {
+							container.find('tr').show();
+						}
+					});
+				});
+			</script>
 		</ui:define>
 	</ui:composition>
 </html>
